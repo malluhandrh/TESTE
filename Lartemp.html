@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lar Temporário - Patas Pousada</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Importação das fontes */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Parkinsans:wght@300..800&display=swap');
+
+        /* VARIÁVEIS GLOBAIS: Facilita trocar cores no futuro */
+        :root {
+            --primary-color: #e2725b;       /* Laranja Terracota */
+            --primary-hover: #c45b43;       /* Tom mais escuro para hover */
+            --secondary-color: #5b7be2;     /* Azul suave para detalhes */
+            --background-body: #fcf6f4;     /* Fundo levemente rosado/creme */
+            --background-card: #ffffff;     /* Fundo branco dos cartões */
+            --text-dark: #333333;
+            --text-light: #666666;
+            --border-radius: 16px;          /* Bordas arredondadas consistentes */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-body);
+            color: var(--text-dark);
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: var(--background-card);
+            padding: 15px 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.2s;
+        }
+
+        .brand:hover {
+            transform: scale(1.02);
+        }
+
+        .brand img {
+            width: 36px;
+            height: 36px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-family: 'Parkinsans', sans-serif;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            font-family: 'Parkinsans', sans-serif;
+        }
+
+        nav ul li a:hover {
+            background: rgba(226, 114, 91, 0.1);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Auth Area */
+        .auth-area a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            font-family: 'Parkinsans', sans-serif;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .auth-area a:hover {
+            color: var(--primary-color);
+            background-color: #fff0ec;
+        }
+
+        /* --- CONTEÚDO PRINCIPAL --- */
+        
+        .page-header {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            font-family: 'Parkinsans', sans-serif;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0px rgba(226,114,91,0.1);
+        }
+
+        /* Botão Voltar Estilizado */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 999px;
+            font-family: 'Parkinsans';
+            transition: all 0.25s ease;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(226, 114, 91, 0.3);
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(196, 91, 67, 0.4);
+        }
+
+        main {
+            padding: 0 15px 60px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--background-card);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        section {
+            margin-bottom: 35px;
+        }
+
+        h2 {
+            font-family: 'Parkinsans';
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+
+        /* Estilo dos textos e listas */
+        .about p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .steps ol {
+            padding-left: 20px;
+            counter-reset: step-counter;
+            list-style: none; 
+        }
+
+        .steps li {
+            position: relative;
+            margin-bottom: 15px;
+            padding-left: 15px;
+            font-size: 1.05rem;
+        }
+
+        /* Marcador personalizado da lista */
+        .steps li::before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.5em;
+            position: absolute;
+            left: -15px;
+            top: -5px;
+        }
+
+        .steps a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 800;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .steps a:hover {
+            border-bottom-color: var(--secondary-color);
+        }
+
+        /* --- FORMULÁRIO --- */
+        
+        fieldset {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 0;
+        }
+
+        legend {
+            font-family: 'Parkinsans';
+            font-weight: 700;
+            padding: 0 10px;
+            color: var(--text-light);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        form input,
+        form textarea,
+        form select {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 2px solid #e1e1e1;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            color: #444;
+            background: #fafafa;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        form input:focus,
+        form textarea:focus,
+        form select:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(226,114,91,0.15);
+            outline: none;
+        }
+
+        form textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn-submit {
+            margin-top: 10px;
+            padding: 16px;
+            background-color: var(--primary-color);
+            border: none;
+            color: #fff;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Parkinsans';
+            box-shadow: 0 4px 15px rgba(226, 114, 91, 0.4);
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 91, 67, 0.5);
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: auto;
+            padding: 25px 0;
+            text-align: center;
+            background: var(--background-card);
+            border-top: 1px solid #eee;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                gap: 10px;
+            }
+
+            .container {
+                padding: 25px 20px;
+            }
+
+            .back-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav>
+            <div class="brand">
+                <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="Logo Patas Pousada">
+                <a href="index.html" class="logo">Patas Pousada</a>
+            </div>
+
+            <ul>
+                <li><a href="reservas.html">Reservas</a></li>
+                <li><a href="ajuda.html">Ajuda</a></li>
+            </ul>
+
+            <div class="auth-area"></div>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <h1 class="page-title">Seja um Lar Temporário 🏠</h1>
+        
+        <a class="back-button" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <main>
+        <section class="container">
+
+            <section class="about">
+                <p>
+                    Você tem um cantinho sobrando e muito amor para dar? O <strong>Lar Temporário</strong> é uma oportunidade incrível de salvar vidas.
+                    Você oferece um ambiente seguro e carinhoso para um bichinho enquanto ele aguarda a adoção ou se recupera para voltar ao seu tutor.
+                </p>
+            </section>
+
+            <section class="steps">
+                <h2>Como Funciona</h2>
+                <ol>
+                    <li>Preencha o formulário de interesse abaixo.</li>
+                    <li>A equipe da <strong>Patas Pousada</strong> analisará seu perfil e estrutura.</li>
+                    <li>Após aprovação, conectaremos você a um animal que combine com sua rotina.</li>
+                    <li>Quer cadastrar seu próprio pet para hospedagem? <a href="TemporaryHome.html">Clique aqui</a>.</li>
+                </ol>
+            </section>
+
+            <section class="form-section">
+                <h2>Formulário de Inscrição</h2>
+                <form>
+                    <fieldset>
+                        <legend>Seus Dados</legend>
+                        
+                        <div class="input-group">
+                            <label for="nome">Nome completo</label>
+                            <input type="text" id="nome" placeholder="Ex: Maria da Silva" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" placeholder="seuemail@exemplo.com" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="telefone">Telefone / WhatsApp</label>
+                            <input type="tel" id="telefone" placeholder="(XX) 99999-9999" required>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Preferências</legend>
+                        
+                        <div class="input-group">
+                            <label for="tipo-animal">Que tipo de animal você pode receber?</label>
+                            <select id="tipo-animal">
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="cachorro-pequeno">Cachorros Pequenos</option>
+                                <option value="cachorro-grande">Cachorros Grandes</option>
+                                <option value="gatos">Gatos</option>
+                                <option value="ambos">Ambos (Cães e Gatos)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="experiencia">Sua experiência e espaço</label>
+                            <textarea id="experiencia" placeholder="Conte um pouco sobre você: Mora em casa ou apartamento? Tem tela nas janelas? Já teve animais antes?"></textarea>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn-submit">Enviar inscrição <i class="fas fa-paw"></i></button>
+                </form>
+            </section>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Patas Pousada – Feito com carinho 🐾</p>
+    </footer>
+
+    <script>
+        // Simulação básica de autenticação
+        document.addEventListener("DOMContentLoaded", () => {
+            let isLoggedIn = localStorage.getItem("userLoggedIn") === "true";
+            const authArea = document.querySelector(".auth-area");
+
+            if (!isLoggedIn) {
+                authArea.innerHTML = `<a href="cadastrarouentrar.html"><i class="fas fa-user"></i> Entrar / Criar Conta</a>`;
+            } else {
+                authArea.innerHTML = `
+                    <a href="perfil.html" style="margin-right:12px;"><i class="fas fa-user-circle"></i> Perfil</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                `;
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem("userLoggedIn");
+            location.reload();
+        }
+    </script>
+
+</body>
+</html>

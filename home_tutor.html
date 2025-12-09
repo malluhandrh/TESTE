@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Área do Tutor — Patas Pousada</title>
+
+<link rel="stylesheet" href="home_tutor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Estilo extra só para os filtros de reservas -->
+<style>
+  .tutor-bookings-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .tutor-bookings-filter{
+    display:flex;
+    gap:6px;
+  }
+  .tb-filter-btn{
+    border-radius:999px;
+    padding:3px 10px;
+    font-size:0.7rem;
+    border:1px solid #e5e7eb;
+    background:#fff;
+    cursor:pointer;
+    color:#6b7280;
+    font-weight:600;
+    transition:all .15s;
+  }
+  .tb-filter-btn:hover{
+    background:#f3f4f6;
+  }
+  .tb-filter-btn.active{
+    background:#fee2e2;
+    border-color:#f97373;
+    color:#b91c1c;
+    box-shadow:0 1px 4px rgba(248,113,113,.4);
+  }
+
+  /* ------- CARROSSEL DO MODAL ------- */
+  .modal-photos{
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    background:#000;
+  }
+  .modal-photo{
+    width:100%;
+    max-height:320px;
+    object-fit:cover;
+    display:block;
+  }
+  .modal-photo-arrow{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:32px;
+    height:32px;
+    border-radius:999px;
+    border:none;
+    background:rgba(15,23,42,.8);
+    color:#f9fafb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    padding:0;
+  }
+  .modal-photo-arrow.left{
+    left:10px;
+  }
+  .modal-photo-arrow.right{
+    right:10px;
+  }
+  .modal-photo-arrow i{
+    font-size:0.9rem;
+  }
+  .modal-photo-counter{
+    position:absolute;
+    right:12px;
+    bottom:10px;
+    padding:3px 10px;
+    border-radius:999px;
+    background:rgba(15,23,42,.85);
+    color:#e5e7eb;
+    font-size:0.8rem;
+  }
+
+  /* ------- FOTO DO HOST NO CARD ------- */
+  .host-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .host-header-avatar{
+    width:40px;
+    height:40px;
+    border-radius:999px;
+    object-fit:cover;
+    flex-shrink:0;
+  }
+  .host-header-info h3{
+    margin:0;
+    font-size:1rem;
+  }
+  .host-header-info span{
+    display:block;
+    font-size:0.85rem;
+    color:#6b7280;
+  }
+
+  /* ------- FOTO DO HOST NO MODAL ------- */
+  .modal-host-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .modal-host-avatar{
+    width:44px;
+    height:44px;
+    border-radius:999px;
+    object-fit:cover;
+    flex-shrink:0;
+  }
+  .modal-host-name{
+    font-weight:600;
+    font-size:0.95rem;
+  }
+  .modal-host-city{
+    font-size:0.85rem;
+    color:#6b7280;
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="index.html" class="logo">
+      <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="">
+      <span>Patas Pousada</span>
+    </a>
+
+    <ul>
+      <li><a href="#">Reservas</a></li>
+      <li><a href="ajuda.html">Ajuda</a></li>
+      <li><a class="pill" href="#">Lar Temporário</a></li>
+      
+      <li class="user-menu">
+        <div class="user-trigger">
+          <img id="userAvatar" class="user-avatar-img" src="" alt="Foto">
+          <div id="userInitial" class="user-initials-badge">U</div>
+          
+          <strong id="userName">Usuário</strong>
+          <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"></path></svg>
+        </div>
+        <div class="dropdown">
+          <a href="menu_perfil.html"><i class="fa-solid fa-user-pen"></i> Editar perfil</a>
+          <a href="meusPets.html"><i class="fa-solid fa-paw"></i> Meus pets</a>
+          <a href="#" id="logoutLink"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a>
+          <div class="dropdown-sep"></div>
+          <a href="#" id="deleteAccountLink" class="danger-link">
+            <i class="fa-solid fa-user-xmark"></i> Excluir conta
+          </a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="hello-section">
+      <div class="hello">Olá, <strong id="helloName">Tutor</strong>! 👋</div>
+  </div>
+
+  <div class="mini-grid">
+    <a class="mini-card" href="menu_perfil.html">
+      <div class="mini-icon"><i class="fa-regular fa-id-card"></i></div>
+      <div class="mini-text"><b>Dados pessoais</b><small>Atualize seu cadastro</small></div>
+    </a>
+    <a class="mini-card" href="meusPets.html">
+      <div class="mini-icon"><i class="fa-solid fa-paw"></i></div>
+      <div class="mini-text"><b>Meus Pets</b><small>Gerencie seus bichinhos</small></div>
+    </a>
+    <a class="mini-card" href="alterar-senha.html">
+      <div class="mini-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="mini-text"><b>Segurança</b><small>Senha e acesso</small></div>
+    </a>
+  </div>
+
+  <div class="cols">
+    
+    <div class="sidebar-left">
+        <div class="card">
+        <div class="hd">Buscar serviços <i class="fa-solid fa-sliders" style="color:#9ca3af; font-size:0.85rem;"></i></div>
+        <div class="filters">
+            <button class="chip-btn active" data-service="all"><i class="fa-solid fa-border-all"></i> Todos</button>
+            <button class="chip-btn" data-service="daycare"><i class="fa-solid fa-sun"></i> Day Care</button>
+            <button class="chip-btn" data-service="hospedagem"><i class="fa-solid fa-house-chimney"></i> Hospedagem</button>
+            <button class="chip-btn" data-service="lar"><i class="fa-solid fa-heart"></i> Lar Temporário</button>
+            
+            <div style="margin-top: 10px;">
+                <label class="field-label">Localização</label>
+                <input
+                  class="select"
+                  id="cityInput"
+                  list="cityOptions"
+                  placeholder="Todas as cidades"
+                  value="Todas as cidades"
+                />
+                <datalist id="cityOptions"></datalist>
+                <small class="field-help">
+                  Digite o nome da cidade ou escolha na lista.
+                </small>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div id="feed" class="feed"></div>
+
+    <div class="sidebar-right">
+        <div class="card">
+          <div class="hd">Dica rápida 💡</div>
+          <div class="help">
+            <h4>Encontre o anfitrião ideal</h4>
+            <p>Use os filtros ao lado para selecionar o tipo de serviço que você precisa.</p>
+            <p>Verifique as avaliações de outros tutores para garantir a melhor escolha.</p>
+            <a href="ajuda.html" class="link-inline">
+                Ver Central de Ajuda <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- CARD: MINHAS RESERVAS (com filtros Ativas/Canceladas) -->
+        <div class="card">
+          <div class="hd tutor-bookings-header">
+            <span>Minhas reservas ✔</span>
+            <div class="tutor-bookings-filter">
+              <button type="button" class="tb-filter-btn active" data-filter="ativas">Ativas</button>
+              <button type="button" class="tb-filter-btn" data-filter="canceladas">Canceladas</button>
+            </div>
+          </div>
+          <div id="tutorBookings" class="tutor-bookings">
+            <!-- preenchido via JS -->
+          </div>
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL PERFIL ANFITRIÃO -->
+<div id="modal" class="modal">
+  <div class="box">
+    <div class="box-hd">
+      <h3 id="mName">Perfil do Anfitrião</h3>
+      <button class="x" onclick="toggleModal(false)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="box-bd" id="mBody"></div>
+  </div>
+</div>
+
+<!-- MODAL EXCLUIR CONTA -->
+<div class="pp-wrap" id="ppDelete">
+  <div class="pp-card" role="dialog" aria-modal="true">
+    <header>
+      <span class="ic"><i class="fa-solid fa-exclamation"></i></span>
+      <h4>Excluir sua conta</h4>
+    </header>
+    <div class="pp-body">
+      <p>Esta ação é <strong>irreversível</strong>. Seus dados de tutor, pets e histórico de reservas serão permanentemente removidos.</p>
+      <p>Para confirmar, digite <strong>EXCLUIR</strong> no campo abaixo:</p>
+      <input id="delConfirmText" type="text" placeholder="Digite EXCLUIR aqui">
+    </div>
+    <div class="pp-ft">
+      <button class="pp-btn" id="delCancel">Cancelar</button>
+      <button class="pp-btn pp-ok" id="delOk">Confirmar Exclusão</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXCLUIR CONVERSA -->
+<div class="pp-wrap" id="ppChatDelete">
+  <div class="pp-card" role="dialog" aria-modal="true">
+    <header>
+      <span class="ic"><i class="fa-solid fa-trash-can"></i></span>
+      <h4>Excluir conversa</h4>
+    </header>
+    <div class="pp-body">
+      <p id="chatDelText">
+        Tem certeza que deseja excluir esta conversa?<br>
+        Esta ação apagará todo o histórico de mensagens.
+      </p>
+    </div>
+    <div class="pp-ft">
+      <button class="pp-btn" id="chatDelCancel">Cancelar</button>
+      <button class="pp-btn pp-ok" id="chatDelOk">Excluir conversa</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Mensagem</span></div>
+
+<!-- WIDGET DE CHAT -->
+<div class="pp-chat-fab" id="ppChatFab">
+  <i class="fa-solid fa-comments"></i>
+  <span class="pp-badge" id="ppBadge">!</span>
+</div>
+
+<div class="pp-chat-widget" id="ppChatWidget">
+  <div class="pp-chat-header">
+    <div>
+      <strong>Mensagens</strong>
+      <span id="ppChatSubtitle">Selecione uma conversa</span>
+    </div>
+    <button class="pp-chat-close" id="ppChatClose">
+      <i class="fa-solid fa-minus"></i>
+    </button>
+  </div>
+
+  <div class="pp-chat-body">
+    <aside class="pp-chat-conversations">
+      <div class="pp-chat-conv-list" id="ppChatConvList"></div>
+    </aside>
+
+    <section class="pp-chat-thread" id="ppChatThread">
+      <div class="pp-chat-placeholder">
+        <i class="fa-regular fa-comments"></i>
+        <p>Selecione uma conversa para iniciar</p>
+      </div>
+      <div class="pp-chat-messages" id="ppChatMessages"></div>
+      
+      <form class="pp-chat-input-area" id="ppChatForm">
+        <input
+          type="text"
+          id="ppChatInput"
+          placeholder="Digite sua mensagem..."
+          autocomplete="off"
+        />
+        <button type="submit">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+    </section>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span>© 2025 Patas Pousada — Área do Tutor</span>
+    <div class="footer-links">
+      <a href="#">Termos de uso</a>
+      <a href="#">Política de privacidade</a>
+      <a href="ajuda.html">Ajuda</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const SUPABASE_URL     = "https://nwbgzokttjgkipwzfgzc.supabase.co";
+  const SUPABASE_ANON_KEY= "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const DF_CITIES_BASE = [
+    "Águas Claras","Brazlândia","Ceilândia","Cruzeiro","Fercal","Gama","Guará",
+    "Itapoã","Lago Norte","Lago Sul","Núcleo Bandeirante","Paranoá","Park Way",
+    "Planaltina","Plano Piloto","Recanto das Emas","Riacho Fundo","Riacho Fundo II",
+    "Samambaia","Santa Maria","São Sebastião","SCIA/Estrutural","Sobradinho",
+    "Sobradinho II","Sudoeste/Octogonal","Taguatinga","Varjão","Vicente Pires"
+  ];
+
+  let currentUserEmail = null;
+  let currentUserId    = null;
+  let HOSTS = [];
+  let currentModalListing = null;
+
+  /* controle de fotos do modal */
+  let currentModalPhotos = [];
+  let currentModalPhotoIndex = 0;
+
+  // filtro atual das reservas: 'ativas' ou 'canceladas'
+  let tutorBookingsFilter = 'ativas';
+
+  // --- UI HELPERS ---
+  function toast(msg){
+    const t=document.getElementById('toast');
+    document.getElementById('toastMsg').textContent=msg;
+    t.style.display='flex';
+    t.style.alignItems='center';
+    t.style.gap='10px';
+    setTimeout(()=>t.style.display='none',2500);
+  }
+
+  function initials(name){
+    if(!name) return "U";
+    const p=name.trim().split(/\s+/);
+    const i1=(p[0]?.[0]||"").toUpperCase();
+    const i2=(p[1]?.[0]||"").toUpperCase();
+    return (i1+i2) || "U";
+  }
+
+  // helper para converter qualquer coisa de data em 'YYYY-MM-DD'
+  function toIsoDateString(dateLike){
+    if(!dateLike) return null;
+    const d = new Date(dateLike);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toISOString().slice(0,10);
+  }
+
+  // --- AUTH ---
+  async function requireAuth(){
+    const { data:{ user } } = await sb.auth.getUser();
+    if(!user){
+      location.href = "cadastrarouentrar.html?next=home_tutor.html";
+      return null;
+    }
+    currentUserEmail = user.email;
+    currentUserId    = user.id;
+    return user;
+  }
+
+  async function loadName(user){
+    try{
+      const { data } = await sb
+        .from('profiles')
+        .select('first_name,last_name,full_name,avatar_url')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const emailPrefix = user.email.split('@')[0];
+      let display = emailPrefix;
+      let avatarUrl = null;
+
+      if (data){
+        if (data.first_name || data.last_name){
+          const composed = `${data.first_name || ''} ${data.last_name || ''}`.trim();
+          if (composed) display = composed;
+        } else if (data.full_name && data.full_name.trim() !== ''){
+          display = data.full_name;
+        }
+        avatarUrl = data.avatar_url;
+      }
+
+      if((display === emailPrefix || !display) && user.user_metadata?.full_name){
+        display = user.user_metadata.full_name;
+      }
+
+      const finalName = display || emailPrefix;
+
+      document.getElementById('userName').textContent  = finalName;
+      document.getElementById('helloName').textContent = finalName;
+
+      const avatarImg = document.getElementById('userAvatar');
+      const initialBadge = document.getElementById('userInitial');
+
+      if (avatarUrl) {
+          const urlComCache = avatarUrl + '?t=' + new Date().getTime();
+          avatarImg.src = urlComCache;
+          avatarImg.style.display = 'block';
+          initialBadge.style.display = 'none';
+      } else {
+          initialBadge.textContent = initials(finalName);
+          initialBadge.style.display = 'grid';
+          avatarImg.style.display = 'none';
+      }
+
+    }catch(e){
+      console.error("Erro ao carregar nome do tutor:", e);
+    }
+  }
+
+  // --- RENDER FEED ---
+  const feed = document.getElementById('feed');
+
+  function hostCard(h){
+    const services = h.service
+      .map(s=>({daycare:"Day Care", hospedagem:"Hospedagem", lar:"Lar Temporário"}[s] || s))
+      .join(", ");
+    
+    let photosHtml = "";
+    let badgeHtml  = "";
+    const photos = (h.photos && h.photos.length > 0) ? h.photos : [h.img];
+
+    if(photos.length > 1){
+        badgeHtml = `<span class="photo-badge"><i class="fa-solid fa-camera"></i> ${photos.length}</span>`;
+    }
+
+    const imgs = photos.map(url => `<img src="${url}" alt="Foto do local" loading="lazy">`).join('');
+    photosHtml = `
+        <div class="photo-container">
+            <div class="photo-scroll">
+                ${imgs}
+            </div>
+            ${badgeHtml}
+        </div>
+    `;
+
+    let availableText = "Disponibilidade não informada";
+    if (h.availableStart && h.availableEnd){
+        const s = new Date(h.availableStart).toLocaleDateString('pt-BR');
+        const e = new Date(h.availableEnd).toLocaleDateString('pt-BR');
+        availableText = `Disponível de ${s} até ${e}`;
+    } else if (h.availableEnd){
+        const d = new Date(h.availableEnd);
+        availableText = `Disponível até ${d.toLocaleDateString('pt-BR')}`;
+    }
+
+    let publishedText = "";
+    if(h.createdAt){
+        const datePub = new Date(h.createdAt);
+        const now = new Date();
+        const diffTime = Math.abs(now - datePub);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        publishedText = (diffDays <= 1) ? "Publicado hoje" : `Publicado há ${diffDays} dias`;
+    }
+
+    const capacityText = h.capacity ? `Aceita até ${h.capacity} pet(s)` : "Capacidade não informada";
+
+    const el = document.createElement('div');
+    el.className='host';
+    el.dataset.city = h.city;
+
+    const avatar = h.hostAvatar || h.img;
+
+    el.innerHTML = `
+      ${photosHtml}
+      <div class="body">
+        <div class="host-header">
+          <img src="${avatar}" alt="Foto do anfitrião" class="host-header-avatar" loading="lazy">
+          <div class="host-header-info">
+            <h3>${h.name}</h3>
+            <span>${h.city}</span>
+          </div>
+        </div>
+        <div class="meta">
+          <span class="rating"><i class="fa-solid fa-star"></i> ${h.rating.toFixed(1)} <span class="rating-count">(${h.reviews})</span></span>
+          <span class="tag"><i class="fa-solid fa-briefcase"></i> ${services}</span>
+        </div>
+        
+        <div class="meta-details">
+            <div><i class="fa-solid fa-paw"></i> ${capacityText}</div>
+            <div><i class="fa-regular fa-calendar-check"></i> ${availableText}</div>
+            <div class="published">${publishedText}</div>
+        </div>
+
+        <div class="about-text">
+            ${h.about}
+        </div>
+      </div>
+      <div class="cta">
+        <div class="price">R$ ${h.price} <small>/dia</small></div>
+        <button class="btn" type="button" onclick="openProfile('${h.id}')">Ver perfil</button>
+        <button class="btn btn-chat" type="button" onclick="startChatWithHost('${h.hostId}')">Conversar</button>
+      </div>`;
+    return el;
+  }
+
+  let currentService = "all";
+  let currentCity    = "all";
+
+  function render(list){
+    feed.innerHTML = "";
+    if(!list.length){
+      const extra = currentCity !== "all"
+        ? `<div style="margin-top:6px;font-size:0.85rem;">
+             Ainda não há anúncios em <strong>${currentCity}</strong>. Tente outra região próxima. 🐾
+           </div>`
+        : "";
+      feed.innerHTML = `
+        <div class="card">
+          <div class="empty">
+            <i class="fa-regular fa-face-frown-open"></i>
+            Nenhum perfil encontrado para os filtros selecionados.
+            ${extra}
+          </div>
+        </div>`;
+      return;
+    }
+    list.forEach(h => feed.appendChild(hostCard(h)));
+  }
+
+  function applyFilters(){
+    const result = HOSTS.filter(h=>{
+      const serviceOk = currentService==="all" || h.service.includes(currentService);
+      const cityOk    = currentCity==="all" ||
+                        (h.city && h.city.toLowerCase() === currentCity.toLowerCase());
+      return serviceOk && cityOk;
+    });
+    render(result);
+  }
+
+  function populateCityOptions(){
+    const input    = document.getElementById('cityInput');
+    const datalist = document.getElementById('cityOptions');
+    if(!input || !datalist) return;
+
+    const set = new Set();
+    DF_CITIES_BASE.forEach(c => set.add(c));
+    HOSTS.forEach(h => { if(h.city) set.add(h.city); });
+
+    const cities = Array.from(set).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+
+    datalist.innerHTML = "";
+    datalist.appendChild(new Option("Todas as cidades","Todas as cidades"));
+    cities.forEach(c => {
+      datalist.appendChild(new Option(c,c));
+    });
+
+    if(!input.value){
+      input.value = "Todas as cidades";
+    }
+  }
+
+  document.addEventListener('click', (ev)=>{
+    const b = ev.target.closest('.chip-btn');
+    if(!b) return;
+    document.querySelectorAll('.chip-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    currentService = b.dataset.service;
+    applyFilters();
+  });
+
+  const cityInput = document.getElementById('cityInput');
+  cityInput.addEventListener('input', e=>{
+    const value = e.target.value.trim();
+    if(value === "" || value.toLowerCase() === "todas as cidades"){
+      currentCity = "all";
+    } else {
+      currentCity = value;
+    }
+    applyFilters();
+  });
+
+  // --- DATA LOADING ---
+  async function loadHostsAndListings(){
+    try{
+      feed.innerHTML = `
+        <div class="card">
+          <div class="empty">
+            Carregando anfitriões e hospedagens...
+          </div>
+        </div>`;
+
+      const { data: listings, error } = await sb
+        .from('listings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if(error) throw error;
+
+      if(!listings || listings.length === 0){
+        HOSTS = [];
+        populateCityOptions();
+        applyFilters();
+        return;
+      }
+
+      // === FILTRAR LISTINGS EXPIRADOS (available_end < hoje) ===
+      const todayIso = new Date().toISOString().slice(0,10);
+      const activeListings = listings.filter(l => {
+        const endIso = toIsoDateString(l.available_end);
+        if(!endIso) return true;      // se não tem data de fim, mantém
+        return endIso >= todayIso;    // só mantém se a data final for hoje ou futura
+      });
+
+      if(!activeListings.length){
+        HOSTS = [];
+        populateCityOptions();
+        applyFilters();
+        return;
+      }
+
+      const hostIds = [...new Set(activeListings.map(l => l.host_id).filter(Boolean))];
+
+      let hostsMap = {};
+      let profilesMap = {};
+
+      if(hostIds.length){
+        const { data: hostsData } = await sb
+          .from('hosts')
+          .select('id, full_name, city, about, avatar_url')
+          .in('id', hostIds);
+
+        if(hostsData) hostsData.forEach(h => hostsMap[h.id] = h);
+
+        const { data: profilesData } = await sb
+          .from('profiles')
+          .select('id, first_name, last_name, full_name')
+          .in('id', hostIds);
+
+        if(profilesData) profilesData.forEach(p => profilesMap[p.id] = p);
+      }
+
+      HOSTS = activeListings.map(l => {
+        const host = hostsMap[l.host_id] || {};
+        const profile = profilesMap[l.host_id] || {};
+        
+        const servicesArray = Array.isArray(l.services) ? l.services : [];
+        const normalizedServices = servicesArray.map(s=>{
+          const lower = (s || '').toLowerCase();
+          if(lower.includes('day')) return 'daycare';
+          if(lower.includes('hosp')) return 'hospedagem';
+          if(lower.includes('lar')) return 'lar';
+          return lower || 'hospedagem';
+        });
+
+        const avatar = host.avatar_url || "https://cdn-icons-png.flaticon.com/512/1373/1373255.png";
+        
+        const profileNameFromParts = `${(profile.first_name || '').trim()} ${(profile.last_name || '').trim()}`.trim();
+        const displayName = (host.full_name && host.full_name.trim()) ||
+                            (profile.full_name && profile.full_name.trim()) ||
+                            profileNameFromParts ||
+                            'Anfitrião';
+
+        return {
+          id: l.id,
+          hostId: l.host_id,
+          name: displayName,
+          city: l.city || host.city || 'Brasília',
+          service: normalizedServices.length ? normalizedServices : ['hospedagem'],
+          price: l.price_night || l.price_daycare || 0,
+          img: avatar,
+          hostAvatar: avatar,
+          photos: l.photos_url || [],
+          about: l.description || host.about || 'Sem descrição.',
+          rating: 5.0,
+          reviews: 0,
+          availableStart: l.available_start,
+          availableEnd: l.available_end,
+          createdAt: l.created_at,
+          capacity: l.capacity
+        };
+      });
+
+      populateCityOptions();
+      applyFilters();
+
+    }catch(e){
+      console.error('Erro ao carregar anúncios:', e);
+      feed.innerHTML = `<div class="card"><div class="empty error">Erro ao carregar.</div></div>`;
+    }
+  }
+
+  // --- MINHAS RESERVAS (Ativas / Canceladas) ---
+  async function loadTutorBookings(){
+    const container = document.getElementById('tutorBookings');
+    if(!container || !currentUserId) return;
+
+    try {
+        const { data: bookings, error } = await sb
+            .from('bookings')
+            .select('id, status, start_date, end_date, total_price, host_id, listing_id')
+            .eq('tutor_id', currentUserId)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Erro Supabase (bookings):', error);
+            throw error;
+        }
+
+        if(!bookings || bookings.length === 0){
+            container.innerHTML = '<div class="empty" style="padding:10px;">Você ainda não tem reservas.</div>';
+            return;
+        }
+
+        const showCanceled = (tutorBookingsFilter === 'canceladas');
+
+        const filteredBookings = bookings.filter(b => {
+          const st = (b.status || '').toLowerCase();
+          const isCanceled = (st === 'cancelada' || st === 'cancelado');
+          return showCanceled ? isCanceled : !isCanceled;
+        });
+
+        if(!filteredBookings.length){
+            container.innerHTML = showCanceled
+              ? '<div class="empty" style="padding:10px;">Nenhuma reserva cancelada até o momento.</div>'
+              : '<div class="empty" style="padding:10px;">Nenhuma reserva ativa no momento.</div>';
+            return;
+        }
+
+        const hostIds = [...new Set(filteredBookings.map(b => b.host_id).filter(Boolean))];
+
+        const profilesMap = {};
+        if (hostIds.length) {
+            const { data: profilesData, error: profErr } = await sb
+                .from('profiles')
+                .select('id, first_name, full_name')
+                .in('id', hostIds);
+
+            if (profErr) {
+                console.error('Erro Supabase (profiles):', profErr);
+            } else if (profilesData) {
+                profilesData.forEach(p => {
+                    profilesMap[p.id] = p;
+                });
+            }
+        }
+
+        container.innerHTML = filteredBookings.map(b => {
+            const profile = profilesMap[b.host_id] || {};
+            const hostName = profile.first_name || profile.full_name || 'Anfitrião';
+            const start = new Date(b.start_date).toLocaleDateString('pt-BR');
+            const end   = new Date(b.end_date).toLocaleDateString('pt-BR');
+            
+            const status = (b.status || '').toLowerCase();
+            const isCanceled = (status === 'cancelada' || status === 'cancelado');
+            const canCancel = !isCanceled &&
+               (status === 'pendente' || status === 'confirmada' || status === 'aprovada');
+
+            let stColor = '#6b7280';
+            if(status === 'pendente')                           stColor = '#f59e0b';
+            if(status === 'confirmada' || status === 'aprovada') stColor = '#10b981';
+            if(isCanceled)                                      stColor = '#ef4444';
+
+            const showCancelBtn = !showCanceled && canCancel;
+            const hasListing    = !!b.listing_id;
+
+            return `
+                <div class="tutor-booking-row"
+                     style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                    <div>
+                        <strong style="display:block; font-size:0.9rem;">${hostName}</strong>
+                        <span style="font-size:0.8rem; color:#555;">${start} - ${end}</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="display:block; font-weight:700; color:${stColor}; font-size:0.85rem; text-transform:capitalize;">
+                          ${b.status}
+                        </span>
+                        <small style="display:block; margin-bottom:4px;">R$ ${b.total_price}</small>
+                        <div style="display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap;">
+                          ${
+                            hasListing
+                              ? `<button onclick="openBookingListing('${b.listing_id}', '${b.host_id}')"
+                                         style="border:1px solid #e5e7eb; background:#fff; color:#374151; border-radius:999px; padding:4px 10px; font-size:0.75rem; font-weight:600; cursor:pointer;">
+                                   Ver anúncio
+                                 </button>`
+                              : ''
+                          }
+                          ${
+                            showCancelBtn 
+                            ? `<button onclick="cancelBooking('${b.id}')"
+                                       style="border:1px solid #ef4444; background:#fff; color:#ef4444; border-radius:999px; padding:4px 10px; font-size:0.75rem; font-weight:600; cursor:pointer;">
+                                 Cancelar
+                               </button>`
+                            : ''
+                          }
+                          ${
+                            !showCanceled
+                              ? `<button onclick="goToPayment('${b.id}')"
+                                         style="border:1px solid #10b981; background:#10b98110; color:#059669; border-radius:999px; padding:4px 10px; font-size:0.75rem; font-weight:600; cursor:pointer;">
+                                   Pagamento
+                                 </button>`
+                              : ''
+                          }
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch(e) {
+        console.error("Erro reservas (catch):", e);
+        container.innerHTML = '<div class="empty">Erro ao carregar reservas.</div>';
+    }
+  }
+
+  // Cancela reserva (muda status para "cancelada" e passa para aba Canceladas)
+  window.cancelBooking = async function(bookingId){
+    const ok = confirm("Tem certeza que deseja cancelar esta reserva?");
+    if(!ok) return;
+
+    try {
+      const { error } = await sb
+        .from('bookings')
+        .update({ status: 'cancelada' })
+        .eq('id', bookingId)
+        .eq('tutor_id', currentUserId);
+
+      if(error){
+        console.error('Erro ao cancelar reserva:', error);
+        toast('Erro ao cancelar reserva.');
+        return;
+      }
+
+      toast('Reserva cancelada.');
+      loadTutorBookings();
+    } catch(e){
+      console.error('Erro inesperado ao cancelar reserva:', e);
+      toast('Erro ao cancelar reserva.');
+    }
+  };
+
+  // Botão de pagamento -> leva para pagamento.html com o id da reserva
+  window.goToPayment = function(bookingId){
+    if(!bookingId) return;
+    window.location.href = 'pagamento.html?booking_id=' + encodeURIComponent(bookingId);
+  };
+
+  // --- MODAL ANÚNCIO ---
+  function toggleModal(show){
+    const modal = document.getElementById('modal');
+    if(show) modal.classList.add('show');
+    else modal.classList.remove('show');
+  }
+
+  // FUNÇÃO GENÉRICA: monta o modal com todas as fotos (com carrossel)
+  function showListingModal(h){
+    if(!h) return;
+
+    document.getElementById('mName').innerHTML = `
+      ${h.name} <span class="modal-city">${h.city}</span>
+    `;
+
+    // prepara array de fotos do anúncio
+    const photosArray = (h.photos && h.photos.length) ? h.photos : [h.img];
+    currentModalPhotos = photosArray.slice();
+    currentModalPhotoIndex = 0;
+    const totalPhotos = currentModalPhotos.length;
+
+    const serviceLabelsMap = {
+      daycare: 'Day Care',
+      hospedagem: 'Hospedagem',
+      lar: 'Lar Temporário'
+    };
+    const servicesText = (h.service || [])
+      .map(s => serviceLabelsMap[s] || s)
+      .join(' · ') || 'Serviço não informado';
+
+    const capacityText = h.capacity
+      ? `Aceita até ${h.capacity} pet(s)`
+      : 'Capacidade não informada';
+
+    let availableText = 'Disponibilidade não informada';
+    if (h.availableStart && h.availableEnd){
+      const s = new Date(h.availableStart).toLocaleDateString('pt-BR');
+      const e = new Date(h.availableEnd).toLocaleDateString('pt-BR');
+      availableText = `Disponível de ${s} até ${e}`;
+    } else if (h.availableEnd){
+      const e = new Date(h.availableEnd).toLocaleDateString('pt-BR');
+      availableText = `Disponível até ${e}`;
+    }
+
+    let ratingText = 'Ainda sem avaliações';
+    if (h.reviews && h.reviews > 0) {
+      ratingText = `${h.rating.toFixed(1)} (${h.reviews} avaliação${h.reviews > 1 ? 'es' : ''})`;
+    }
+
+    document.getElementById('mBody').innerHTML = `
+      <div class="modal-grid">
+        <div class="modal-photos">
+          <button 
+            class="modal-photo-arrow left" 
+            onclick="changeModalPhoto(-1)" 
+            ${totalPhotos <= 1 ? 'style="display:none;"' : ''}>
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+
+          <img 
+            src="${currentModalPhotos[0]}" 
+            class="modal-photo" 
+            id="modalMainPhoto" 
+            alt="Foto do anúncio">
+
+          <button 
+            class="modal-photo-arrow right" 
+            onclick="changeModalPhoto(1)" 
+            ${totalPhotos <= 1 ? 'style="display:none;"' : ''}>
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <div class="modal-photo-counter" id="modalPhotoCounter">
+            ${totalPhotos > 1 ? `1 / ${totalPhotos}` : ''}
+          </div>
+        </div>
+
+        <div class="modal-content">
+          <div class="modal-host-header">
+            <img src="${h.hostAvatar || h.img}" alt="Foto do anfitrião" class="modal-host-avatar" loading="lazy">
+            <div>
+              <div class="modal-host-name">${h.name}</div>
+              <div class="modal-host-city">${h.city}</div>
+            </div>
+          </div>
+
+          <p class="modal-about">
+            ${h.about || 'Anfitrião ainda não adicionou uma descrição.'}
+          </p>
+
+          <div class="modal-infos">
+            <div>
+              <i class="fa-solid fa-location-dot"></i>
+              <span>${h.city}</span>
+            </div>
+            <div>
+              <i class="fa-solid fa-briefcase"></i>
+              <span>${servicesText}</span>
+            </div>
+            <div>
+              <i class="fa-solid fa-paw"></i>
+              <span>${capacityText}</span>
+            </div>
+            <div>
+              <i class="fa-regular fa-calendar-check"></i>
+              <span>${availableText}</span>
+            </div>
+            <div>
+              <i class="fa-solid fa-star"></i>
+              <span>${ratingText}</span>
+            </div>
+          </div>
+
+          <div class="modal-reserve-box">
+            <div class="modal-date-field">
+              <label>Check-in</label>
+              <input type="date" id="reservaDataInicio">
+            </div>
+            <div class="modal-date-field">
+              <label>Check-out</label>
+              <input type="date" id="reservaDataFim">
+            </div>
+            <div id="reservaErro" class="modal-error"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div>
+          <span class="modal-price">R$ ${h.price}</span>
+          <span style="font-size:.85rem; color:#6b7280;">/dia</span>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="handleReserveClick()">Reservar</button>
+          <button class="btn" onclick="startChatWithHost('${h.hostId}')">Conversar</button>
+        </div>
+      </div>
+    `;
+
+    // aplica limites nas datas (janela do anúncio + hoje)
+    const checkin  = document.getElementById('reservaDataInicio');
+    const checkout = document.getElementById('reservaDataFim');
+
+    const todayIso = new Date().toISOString().split('T')[0];
+    let minAllowed = todayIso;
+    let maxAllowed = null;
+
+    const startIso = toIsoDateString(h.availableStart);
+    const endIso   = toIsoDateString(h.availableEnd);
+
+    if (startIso && startIso > minAllowed) {
+      minAllowed = startIso;
+    }
+
+    if (endIso) {
+      maxAllowed = endIso;
+    }
+
+    checkin.min  = minAllowed;
+    checkout.min = minAllowed;
+
+    if (maxAllowed) {
+      checkin.max  = maxAllowed;
+      checkout.max = maxAllowed;
+    }
+
+    toggleModal(true);
+  }
+
+  // função global para trocar a foto do modal
+  window.changeModalPhoto = function(step){
+    if(!currentModalPhotos.length) return;
+    const total = currentModalPhotos.length;
+    currentModalPhotoIndex = (currentModalPhotoIndex + step + total) % total;
+
+    const img = document.getElementById('modalMainPhoto');
+    const counter = document.getElementById('modalPhotoCounter');
+    if(img){
+      img.src = currentModalPhotos[currentModalPhotoIndex];
+    }
+    if(counter){
+      counter.textContent = total > 1 ? `${currentModalPhotoIndex + 1} / ${total}` : '';
+    }
+  };
+
+  // Modal a partir do card da HOME (usa HOSTS)
+  function openProfile(listingId){
+    const h = HOSTS.find(x => x.id == listingId);
+    if(!h) return;
+    currentModalListing = h;
+    showListingModal(h);
+  }
+
+  // abrir anúncio diretamente a partir da reserva
+  window.openBookingListing = async function(listingId, hostId){
+    if(!listingId) return;
+
+    // tenta achar nos anúncios ativos (HOSTS)
+    let h = HOSTS.find(x => x.id == listingId);
+
+    // se não estiver no HOSTS (por exemplo, anúncio expirado), busca direto no Supabase
+    if(!h){
+      const { data: listing, error: lErr } = await sb
+        .from('listings')
+        .select('*')
+        .eq('id', listingId)
+        .maybeSingle();
+
+      if(lErr || !listing){
+        console.error(lErr);
+        toast('Não foi possível carregar o anúncio desta reserva.');
+        return;
+      }
+
+      let host = {};
+      let profile = {};
+
+      if(hostId){
+        const [hostRes, profileRes] = await Promise.all([
+          sb.from('hosts')
+            .select('id, full_name, city, about, avatar_url')
+            .eq('id', hostId)
+            .maybeSingle(),
+          sb.from('profiles')
+            .select('id, first_name, last_name, full_name')
+            .eq('id', hostId)
+            .maybeSingle()
+        ]);
+        host = hostRes.data || {};
+        profile = profileRes.data || {};
+      }
+
+      const servicesArray = Array.isArray(listing.services) ? listing.services : [];
+      const normalizedServices = servicesArray.map(s=>{
+        const lower = (s || '').toLowerCase();
+        if(lower.includes('day')) return 'daycare';
+        if(lower.includes('hosp')) return 'hospedagem';
+        if(lower.includes('lar')) return 'lar';
+        return lower || 'hospedagem';
+      });
+
+      const avatar = host.avatar_url || "https://cdn-icons-png.flaticon.com/512/1373/1373255.png";
+      const profileNameFromParts = `${(profile.first_name || '').trim()} ${(profile.last_name || '').trim()}`.trim();
+      const displayName = (host.full_name && host.full_name.trim()) ||
+                          (profile.full_name && profile.full_name.trim()) ||
+                          profileNameFromParts ||
+                          'Anfitrião';
+
+      h = {
+        id: listing.id,
+        hostId: listing.host_id,
+        name: displayName,
+        city: listing.city || host.city || 'Brasília',
+        service: normalizedServices.length ? normalizedServices : ['hospedagem'],
+        price: listing.price_night || listing.price_daycare || 0,
+        img: avatar,
+        hostAvatar: avatar,
+        photos: listing.photos_url || [],
+        about: listing.description || host.about || 'Sem descrição.',
+        rating: 5.0,
+        reviews: 0,
+        availableStart: listing.available_start,
+        availableEnd: listing.available_end,
+        createdAt: listing.created_at,
+        capacity: listing.capacity
+      };
+    }
+
+    currentModalListing = h;
+    showListingModal(h);
+  };
+
+  window.handleReserveClick = async function(){
+    const di = document.getElementById('reservaDataInicio').value;
+    const df = document.getElementById('reservaDataFim').value;
+    const errEl = document.getElementById('reservaErro');
+    const listing = currentModalListing;
+
+    errEl.textContent = "";
+
+    if(!di || !df) { errEl.textContent="Selecione as datas."; return; }
+    if(df <= di) { errEl.textContent="Data de saída deve ser maior que a de entrada."; return; }
+
+    const d1 = new Date(di);
+    const d2 = new Date(df);
+
+    // valida contra a janela do anúncio
+    const startIso = toIsoDateString(listing?.availableStart);
+    const endIso   = toIsoDateString(listing?.availableEnd);
+    const startAllowed = startIso ? new Date(startIso) : null;
+    const endAllowed   = endIso   ? new Date(endIso)   : null;
+
+    if (startAllowed && d1 < startAllowed) {
+      errEl.textContent = `Check-in permitido apenas a partir de ${startAllowed.toLocaleDateString('pt-BR')}.`;
+      return;
+    }
+    if (endAllowed && d2 > endAllowed) {
+      errEl.textContent = `Check-out permitido até ${endAllowed.toLocaleDateString('pt-BR')}.`;
+      return;
+    }
+
+    const nights = Math.max(1, Math.round((d2-d1)/(1000*60*60*24)));
+    const total = nights * (listing.price || 0);
+
+    const { error } = await sb.from('bookings').insert({
+        tutor_id: currentUserId,
+        host_id: listing.hostId,
+        listing_id: listing.id,
+        start_date: di, end_date: df,
+        total_price: total,
+        status: 'pendente'
+    });
+
+    if(error) { 
+        console.error(error); 
+        errEl.textContent = "Erro ao reservar."; 
+    } else {
+        toast("Reserva solicitada!");
+        toggleModal(false);
+        loadTutorBookings();
+    }
+  };
+
+  document.getElementById('modal').addEventListener('click', e=>{
+    if(e.target.id==='modal') toggleModal(false);
+  });
+
+  // --- LOGOUT / DELETE ACCOUNT ---
+  document.getElementById('logoutLink').addEventListener('click', async e=>{
+    e.preventDefault();
+    await sb.auth.signOut();
+    location.href="cadastrarouentrar.html";
+  });
+
+  const ppDelete = document.getElementById('ppDelete');
+  const delOkBtn = document.getElementById('delOk');
+  const delCancelBtn = document.getElementById('delCancel');
+
+  document.getElementById('deleteAccountLink')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    ppDelete.style.display='flex';
+    requestAnimationFrame(()=> ppDelete.querySelector('.pp-card').classList.add('show'));
+  });
+
+  delCancelBtn.addEventListener('click', ()=>{
+     ppDelete.querySelector('.pp-card').classList.remove('show');
+     setTimeout(()=>ppDelete.style.display='none', 200);
+  });
+
+  // --- EXCLUSÃO DE CONTA DIRETO NO FRONT ---
+  async function deleteCurrentUserData(){
+    const userId = currentUserId;
+    if(!userId) throw new Error('Usuário não autenticado');
+
+    // 1) Buscar todos os chats onde ele participa
+    const { data: chats, error: chatsErr } = await sb
+      .from('chats')
+      .select('id')
+      .or(`tutor_id.eq.${userId},host_id.eq.${userId}`);
+
+    if(chatsErr) {
+      console.error('Erro ao buscar chats:', chatsErr);
+      throw chatsErr;
+    }
+
+    const chatIds = (chats || []).map(c => c.id);
+
+    // 2) Apagar mensagens desses chats
+    if(chatIds.length){
+      const { error: msgErr } = await sb
+        .from('messages')
+        .delete()
+        .in('chat_id', chatIds);
+      if(msgErr){
+        console.error('Erro ao apagar mensagens:', msgErr);
+        throw msgErr;
+      }
+    }
+
+    // 3) Apagar os chats
+    if(chatIds.length){
+      const { error: delChatsErr } = await sb
+        .from('chats')
+        .delete()
+        .in('id', chatIds);
+      if(delChatsErr){
+        console.error('Erro ao apagar chats:', delChatsErr);
+        throw delChatsErr;
+      }
+    }
+
+    // 4) Apagar bookings onde ele é tutor ou host
+    const { error: bkErr } = await sb
+      .from('bookings')
+      .delete()
+      .or(`tutor_id.eq.${userId},host_id.eq.${userId}`);
+    if(bkErr){
+      console.error('Erro ao apagar bookings:', bkErr);
+      throw bkErr;
+    }
+
+    // 5) Apagar listings onde ele é host
+    const { error: listErr } = await sb
+      .from('listings')
+      .delete()
+      .eq('host_id', userId);
+    if(listErr){
+      console.error('Erro ao apagar listings:', listErr);
+      throw listErr;
+    }
+
+    // 6) Apagar pets do tutor
+    const { error: petsErr } = await sb
+      .from('pets')
+      .delete()
+      .eq('owner_id', userId);
+    if(petsErr){
+      console.error('Erro ao apagar pets:', petsErr);
+      throw petsErr;
+    }
+
+    // 7) Apagar registro na tabela hosts
+    const { error: hostErr } = await sb
+      .from('hosts')
+      .delete()
+      .eq('id', userId);
+    if(hostErr){
+      console.error('Erro ao apagar host:', hostErr);
+      throw hostErr;
+    }
+
+    // 8) Apagar perfil
+    const { error: profErr } = await sb
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+    if(profErr){
+      console.error('Erro ao apagar profile:', profErr);
+      throw profErr;
+    }
+
+    // Importante: aqui NÃO apagamos o usuário da Auth,
+    // porque isso exige chave de service role (não pode ficar no front).
+    // Para o projeto, isso já demonstra bem a exclusão de dados.
+  }
+
+  delOkBtn.addEventListener('click', async ()=>{
+    const input = document.getElementById('delConfirmText');
+    const value = (input.value || '').trim().toUpperCase();
+
+    if(value !== 'EXCLUIR'){
+      toast('Digite EXCLUIR exatamente como solicitado.');
+      input.focus();
+      return;
+    }
+
+    if(!currentUserId){
+      toast('Usuário não autenticado.');
+      return;
+    }
+
+    delOkBtn.disabled = true;
+    delOkBtn.textContent = 'Excluindo...';
+
+    try{
+      await deleteCurrentUserData();
+      toast('Conta excluída com sucesso.');
+
+      // fecha modal visualmente
+      ppDelete.querySelector('.pp-card').classList.remove('show');
+      setTimeout(()=>{ ppDelete.style.display='none'; }, 200);
+
+      // desloga usuário da sessão
+      await sb.auth.signOut();
+
+      setTimeout(()=>{
+        window.location.href = 'cadastrarouentrar.html';
+      }, 800);
+
+    }catch(e){
+      console.error('Erro ao excluir conta:', e);
+      toast('Erro ao excluir conta. Tente novamente.');
+    }finally{
+      delOkBtn.disabled = false;
+      delOkBtn.textContent = 'Confirmar Exclusão';
+    }
+  });
+
+  // ============ CHAT LOGIC (CHATS + MESSAGES) ============
+
+  const ppChatFab       = document.getElementById('ppChatFab');
+  const ppChatWidget    = document.getElementById('ppChatWidget');
+  const ppChatClose     = document.getElementById('ppChatClose');
+  const ppChatConvList  = document.getElementById('ppChatConvList');
+  const ppChatMessages  = document.getElementById('ppChatMessages');
+  const ppChatForm      = document.getElementById('ppChatForm');
+  const ppChatInput     = document.getElementById('ppChatInput');
+  const ppChatSubtitle  = document.getElementById('ppChatSubtitle');
+  const ppBadge         = document.getElementById('ppBadge');
+
+  // elementos do modal de exclusão de conversa
+  const ppChatDelete    = document.getElementById('ppChatDelete');
+  const chatDelCancel   = document.getElementById('chatDelCancel');
+  const chatDelOk       = document.getElementById('chatDelOk');
+  let chatToDeleteId    = null;
+  let chatToDeleteName  = '';
+
+  let ppActiveChatId = null;
+  let chatChannel = null;
+
+  ppChatFab.addEventListener('click', () => {
+    ppChatWidget.style.display = 'flex';
+    ppBadge.classList.remove('show');
+    if(!ppActiveChatId) loadConversations();
+  });
+
+  ppChatClose.addEventListener('click', () => {
+    ppChatWidget.style.display = 'none';
+  });
+
+  // Abrir modal de exclusão de conversa
+  function openDeleteChatModal(chatId, hostName) {
+    chatToDeleteId = chatId;
+    chatToDeleteName = hostName || '';
+    const textEl = document.getElementById('chatDelText');
+    if (textEl) {
+      if (chatToDeleteName) {
+        textEl.innerHTML = `Tem certeza que deseja excluir a conversa com <strong>${chatToDeleteName}</strong>?<br>Esta ação apagará todo o histórico de mensagens.`;
+      } else {
+        textEl.innerHTML = `Tem certeza que deseja excluir esta conversa?<br>Esta ação apagará todo o histórico de mensagens.`;
+      }
+    }
+    ppChatDelete.style.display = 'flex';
+    requestAnimationFrame(()=> ppChatDelete.querySelector('.pp-card').classList.add('show'));
+  }
+
+  function closeDeleteChatModal() {
+    const card = ppChatDelete.querySelector('.pp-card');
+    card.classList.remove('show');
+    setTimeout(()=>{
+      ppChatDelete.style.display = 'none';
+      chatToDeleteId = null;
+      chatToDeleteName = '';
+    }, 200);
+  }
+
+  chatDelCancel.addEventListener('click', () => {
+    closeDeleteChatModal();
+  });
+
+  chatDelOk.addEventListener('click', async () => {
+    if (!chatToDeleteId || !currentUserId) {
+      closeDeleteChatModal();
+      return;
+    }
+
+    try {
+      // Apaga mensagens do chat
+      const { error: msgErr } = await sb
+        .from('messages')
+        .delete()
+        .eq('chat_id', chatToDeleteId);
+
+      if (msgErr) {
+        console.error('Erro ao apagar mensagens do chat:', msgErr);
+      }
+
+      // Apaga o próprio chat
+      const { error: chatErr } = await sb
+        .from('chats')
+        .delete()
+        .eq('id', chatToDeleteId)
+        .eq('tutor_id', currentUserId);
+
+      if (chatErr) {
+        console.error('Erro ao excluir conversa:', chatErr);
+        toast('Erro ao excluir conversa.');
+        return;
+      }
+
+      // Se o chat ativo for o que foi excluído, limpa a thread
+      if (ppActiveChatId === chatToDeleteId) {
+        ppActiveChatId = null;
+        ppChatMessages.innerHTML = '';
+        ppChatSubtitle.textContent = 'Selecione uma conversa';
+      }
+
+      toast('Conversa excluída.');
+      closeDeleteChatModal();
+      loadConversations();
+
+    } catch (e) {
+      console.error('Erro inesperado ao excluir conversa:', e);
+      toast('Erro ao excluir conversa.');
+      closeDeleteChatModal();
+    }
+  });
+
+  // Carregar lista de conversas (tabela CHATS)
+  async function loadConversations() {
+    ppChatConvList.innerHTML = '<div style="padding:10px; font-size:0.8rem; color:#666;">Carregando...</div>';
+
+    if(!currentUserId) return;
+
+    try {
+      const { data: chats, error } = await sb
+        .from('chats')
+        .select('id, host_id, created_at')
+        .eq('tutor_id', currentUserId)
+        .order('created_at', { ascending: false });
+
+      if(error) throw error;
+
+      if(!chats || !chats.length){
+        ppChatConvList.innerHTML = '<div style="padding:10px; font-size:0.8rem; color:#666;">Você ainda não tem conversas.</div>';
+        return;
+      }
+
+      const hostIds = [...new Set(chats.map(c => c.host_id).filter(Boolean))];
+      const profilesMap = {};
+
+      if(hostIds.length){
+        const { data: profiles, error: profErr } = await sb
+          .from('profiles')
+          .select('id, first_name, full_name')
+          .in('id', hostIds);
+
+        if(profErr){
+          console.error('Erro ao buscar perfis de hosts:', profErr);
+        } else if(profiles){
+          profiles.forEach(p => { profilesMap[p.id] = p; });
+        }
+      }
+
+      ppChatConvList.innerHTML = '';
+      chats.forEach(c => {
+        const prof = profilesMap[c.host_id] || {};
+        const name = prof.first_name || prof.full_name || 'Anfitrião';
+
+        const item = document.createElement('div');
+        item.className = `pp-chat-conv-item ${c.id === ppActiveChatId ? 'active' : ''}`;
+        item.innerHTML = `
+          <div class="pp-chat-conv-line" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <div style="flex:1; min-width:0;">
+              <div class="pp-chat-conv-name">${name}</div>
+              <div class="pp-chat-conv-meta">Clique para ver as mensagens</div>
+            </div>
+            <button class="pp-chat-conv-del" data-chat-id="${c.id}" title="Excluir conversa"
+                    style="border:none; background:transparent; cursor:pointer; padding:4px; flex-shrink:0;">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        `;
+
+        // Clicar no item abre o chat (exceto no botão de excluir)
+        item.onclick = (ev) => {
+          if (ev.target.closest('.pp-chat-conv-del')) return;
+          openChat(c.id, name);
+        };
+
+        // Clique no X abre modal de exclusão
+        const delBtn = item.querySelector('.pp-chat-conv-del');
+        if (delBtn) {
+          delBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            openDeleteChatModal(c.id, name);
+          });
+        }
+
+        ppChatConvList.appendChild(item);
+      });
+
+    } catch(e) {
+      console.error('Erro ao carregar conversas:', e);
+      ppChatConvList.innerHTML = '<div style="padding:10px;">Erro ao carregar conversas.</div>';
+    }
+  }
+
+  // Abrir uma conversa (carrega messages.chat_id)
+  async function openChat(chatId, hostName) {
+    ppActiveChatId = chatId;
+    ppChatSubtitle.textContent = hostName || 'Conversa';
+
+    ppChatMessages.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Carregando mensagens...</div>';
+
+    try {
+      const { data: msgs, error } = await sb
+        .from('messages')
+        .select('*')
+        .eq('chat_id', chatId)
+        .order('created_at', { ascending: true });
+
+      if(error) throw error;
+
+      ppChatMessages.innerHTML = '';
+      if(msgs && msgs.length){
+        msgs.forEach(renderMessage);
+        scrollToBottom();
+      }
+
+      subscribeToChat(chatId);
+
+    } catch(e) {
+      console.error('Erro ao carregar mensagens:', e);
+      ppChatMessages.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Erro ao carregar mensagens.</div>';
+    }
+  }
+
+  // Renderizar mensagem
+  function renderMessage(msg) {
+    const isMe = (msg.sender_id === currentUserId);
+    const row = document.createElement('div');
+    row.className = `pp-chat-msg-row ${isMe ? 'me' : ''}`;
+    
+    const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+    row.innerHTML = `
+        <div class="pp-chat-bubble ${isMe ? 'me' : 'other'}">
+            ${msg.content}
+            <div class="pp-chat-time">${time}</div>
+        </div>
+    `;
+    ppChatMessages.appendChild(row);
+  }
+
+  function scrollToBottom() {
+    ppChatMessages.scrollTop = ppChatMessages.scrollHeight;
+  }
+
+  // Enviar mensagem (messages.chat_id)
+  ppChatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = ppChatInput.value.trim();
+    if (!text || !ppActiveChatId) return;
+
+    ppChatInput.value = '';
+
+    try {
+      const { error } = await sb
+        .from('messages')
+        .insert({
+          chat_id: ppActiveChatId,
+          sender_id: currentUserId,
+          content: text
+        });
+
+      if(error) throw error;
+
+    } catch(err){
+      console.error("Erro ao enviar:", err);
+      toast("Erro ao enviar mensagem");
+    }
+  });
+
+  // Realtime na tabela messages por chat_id
+  function subscribeToChat(chatId) {
+    if(chatChannel) sb.removeChannel(chatChannel);
+
+    chatChannel = sb.channel('chat_room_' + chatId)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
+        (payload) => {
+          renderMessage(payload.new);
+          scrollToBottom();
+        }
+      )
+      .subscribe();
+  }
+
+  // Iniciar chat a partir do card do host (usa CHATS)
+  window.startChatWithHost = async function(hostId) {
+    if(!currentUserId) {
+        toast("Faça login primeiro");
+        return;
+    }
+    
+    ppChatWidget.style.display = 'flex';
+    ppChatSubtitle.textContent = "Conectando...";
+
+    try {
+      // tenta achar chat existente entre tutor e host (booking_id null)
+      const { data: existing, error } = await sb
+        .from('chats')
+        .select('id, host_id')
+        .eq('tutor_id', currentUserId)
+        .eq('host_id', hostId)
+        .is('booking_id', null)
+        .maybeSingle();
+
+      if(error) throw error;
+
+      // busca nome do host (opcional, só pra mostrar bonito)
+      let hostName = 'Anfitrião';
+      try {
+        const { data: prof } = await sb
+          .from('profiles')
+          .select('first_name, full_name')
+          .eq('id', hostId)
+          .maybeSingle();
+        if(prof){
+          hostName = prof.first_name || prof.full_name || hostName;
+        }
+      } catch(e){ /* silencioso */ }
+
+      if(existing){
+        await loadConversations();
+        openChat(existing.id, hostName);
+      } else {
+        const { data: newChat, error: createErr } = await sb
+          .from('chats')
+          .insert({
+            tutor_id: currentUserId,
+            host_id: hostId,
+            booking_id: null
+          })
+          .select()
+          .single();
+
+        if(createErr) throw createErr;
+
+        await loadConversations();
+        openChat(newChat.id, hostName);
+      }
+
+    } catch(e) {
+      console.error("Erro criar chat", e);
+      toast("Erro ao iniciar conversa");
+    }
+  };
+
+  // --- LISTENERS DOS BOTÕES ATIVAS / CANCELADAS ---
+  document.addEventListener('click', (ev)=>{
+    const btn = ev.target.closest('.tb-filter-btn');
+    if(!btn) return;
+    const filter = btn.dataset.filter;
+    tutorBookingsFilter = filter === 'canceladas' ? 'canceladas' : 'ativas';
+    document.querySelectorAll('.tb-filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    loadTutorBookings();
+  });
+
+  // --- INITIALIZATION ---
+  window.addEventListener('DOMContentLoaded', async ()=>{
+    const user = await requireAuth();
+    if(user){
+        await loadName(user);
+        await loadHostsAndListings();
+        await loadTutorBookings();
+    }
+  });
+
+</script>
+</body>
+</html>

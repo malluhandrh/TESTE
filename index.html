@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patas Pousada - O melhor lugar para seu pet</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Parkinsans:wght@300..800&display=swap');
+
+        /* VARIÁVEIS GLOBAIS */
+        :root {
+            --primary-color: #e2725b;
+            --primary-hover: #c45b43;
+            --secondary-color: #5b7be2;
+            --background-body: #fcf6f4;
+            --background-card: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --shadow-soft: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            /* CURSOR PERSONALIZADO (troque a URL se quiser outro cursor) */
+            cursor: url('https://cur.cursors-4u.net/animals/ani-12/ani1133.cur'), auto;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #fff;
+            padding: 15px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .brand:hover { transform: scale(1.03); }
+
+        .brand img { width: 36px; height: 36px; }
+
+        .brand span {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: var(--primary-color);
+            font-family: 'Parkinsans', sans-serif;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 700;
+            font-family: 'Parkinsans', sans-serif;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--primary-color); }
+
+        .btn-auth {
+            background-color: var(--primary-color);
+            color: #fff !important;
+            padding: 8px 20px;
+            border-radius: 999px;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-auth:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(226, 114, 91, 0.3);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero-wrapper {
+            padding: 20px;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('https://i.postimg.cc/GtxQ5LyR/canvapet2.png');
+            background-size: cover;
+            background-position: center;
+            height: 480px;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-family: 'Parkinsans', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            max-width: 800px;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+        }
+
+        /* --- SEARCH BOX --- */
+        .search-section {
+            margin-top: -80px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            flex: 1; /* Garante que o conteúdo ocupe espaço antes do footer */
+        }
+
+        .search-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: fit-content;
+        }
+
+        .service-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .service-option input[type="radio"] { display: none; }
+
+        .service-option label {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            border: 2px solid #eee;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 100%;
+        }
+
+        .service-icon {
+            font-size: 1.8rem;
+            color: var(--text-light);
+            transition: color 0.2s;
+        }
+
+        .service-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-title {
+            font-weight: 800;
+            color: var(--text-dark);
+            font-family: 'Parkinsans';
+        }
+
+        .service-desc {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .service-option label:hover {
+            border-color: #ddd;
+            background-color: #fafafa;
+        }
+
+        .service-option input[type="radio"]:checked + label {
+            border-color: var(--primary-color);
+            background-color: #fff5f2;
+            box-shadow: 0 4px 12px rgba(226, 114, 91, 0.15);
+        }
+
+        .service-option input[type="radio"]:checked + label .service-icon {
+            color: var(--primary-color);
+        }
+
+        .service-option input[type="radio"]:checked + label .service-title {
+            color: var(--primary-color);
+        }
+
+        .search-action {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .btn-search {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 14px 40px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 999px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            font-family: 'Parkinsans';
+        }
+
+        .btn-search:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(226, 114, 91, 0.4);
+        }
+
+        /* --- FOOTER (Linear e Fino) --- */
+        footer {
+            background-color: #fff;
+            margin-top: 60px;
+            padding: 25px 0; /* Padding reduzido */
+            border-top: 1px solid #eee;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex; /* Torna linear */
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Quebra linha em mobile */
+            gap: 20px;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .footer-brand {
+            font-family: 'Parkinsans', sans-serif;
+            font-weight: 800;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .footer-copy {
+            color: #999;
+            font-size: 0.85rem;
+            border-left: 1px solid #ddd;
+            padding-left: 15px;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        /* --- MODALS (Termos e Privacidade) --- */
+        .legal-backdrop {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .legal-modal {
+            background: #fff;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeInModal 0.3s ease-out;
+        }
+
+        .legal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .legal-header h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-family: 'Parkinsans', sans-serif;
+            font-size: 1.2rem;
+        }
+
+        .close-legal-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-legal-btn:hover { color: var(--text-dark); }
+
+        .legal-body {
+            padding: 24px;
+            overflow-y: auto;
+            line-height: 1.7;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .legal-body h4 {
+            color: var(--text-dark);
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-family: 'Parkinsans', sans-serif;
+        }
+
+        .legal-body ul { padding-left: 20px; margin-bottom: 10px; }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            nav { justify-content: center; }
+            .hero { height: 400px; }
+            .hero h1 { font-size: 2rem; }
+            .search-section { margin-top: -40px; }
+            .search-card { padding: 20px; }
+            .search-action { justify-content: center; }
+            .btn-search { width: 100%; justify-content: center; }
+            
+            .footer-container { flex-direction: column; text-align: center; gap: 15px; }
+            .footer-left { flex-direction: column; gap: 5px; }
+            .footer-copy { border-left: none; padding-left: 0; }
+            .footer-links { flex-wrap: wrap; justify-content: center; gap: 15px; }
+        }
+
+        /* --- PATINHAS SEGUINDO O MOUSE (DIMINUÍDAS) --- */
+        .paw-trail {
+            position: fixed;
+            pointer-events: none;   /* não bloqueia cliques */
+            z-index: 9999;
+            font-size: 15px;        /* diminuí um pouco o tamanho */
+            transform: translate(-50%, -50%);
+            animation: pawFade 0.8s ease-out forwards;
+        }
+
+        .paw-trail i {
+            color: var(--primary-color);
+        }
+
+        @keyframes pawFade {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="index.html" class="brand">
+                <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="Patas Pousada Logo">
+                <span>Patas Pousada</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="reservas.html">Reservas</a></li>
+                <li><a href="ajuda.html">Ajuda</a></li>
+                <li><a href="Lartemp.html">Lar Temporário</a></li>
+                <li><a href="sobrenos.html">Quem Somos</a></li>
+                <li><a href="cadastrarouentrar.html" class="btn-auth">Entrar / Criar conta</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="hero-wrapper">
+        <section class="hero">
+            <h1>Encontre o cuidado perfeito para o seu melhor amigo 🐾</h1>
+            <p>Hospedagem, creche e muito amor enquanto você viaja.</p>
+        </section>
+    </div>
+
+    <main class="search-section">
+        <div class="search-card">
+            <form id="searchForm">
+                
+                <div class="service-options">
+                    
+                    <div class="service-option">
+                        <input type="radio" id="service_day_care" name="service_type" value="day_care" checked>
+                        <label for="service_day_care">
+                            <i class="fas fa-sun service-icon"></i>
+                            <div class="service-info">
+                                <span class="service-title">Day Care</span>
+                                <span class="service-desc">Creche para passar o dia</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="service-option">
+                        <input type="radio" id="service_hospedagem" name="service_type" value="hospedagem">
+                        <label for="service_hospedagem">
+                            <i class="fas fa-home service-icon"></i>
+                            <div class="service-info">
+                                <span class="service-title">Hospedagem</span>
+                                <span class="service-desc">Pernoite com cuidadores</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="service-option">
+                        <input type="radio" id="service_lar_temporario" name="service_type" value="lar_temporario">
+                        <label for="service_lar_temporario">
+                            <i class="fas fa-heart service-icon"></i>
+                            <div class="service-info">
+                                <span class="service-title">Lar Temporário</span>
+                                <span class="service-desc">Voluntariado e ajuda</span>
+                            </div>
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="search-action">
+                    <button type="submit" class="btn-search">
+                        <i class="fas fa-search"></i> Buscar Cuidadores
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <span class="footer-brand">Patas Pousada</span>
+                <span class="footer-copy">© 2025. Todos os direitos reservados.</span>
+            </div>
+            
+            <ul class="footer-links">
+                <li><a href="sobrenos.html">Sobre Nós</a></li>
+                <li><a href="#" onclick="openModal('modalTerms')">Termos de Uso</a></li>
+                <li><a href="#" onclick="openModal('modalPrivacy')">Política de Privacidade</a></li>
+                <li><a href="ajuda.html">Ajuda</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <div id="modalTerms" class="legal-backdrop" onclick="closeModal(event, 'modalTerms')">
+        <div class="legal-modal">
+            <div class="legal-header">
+                <h3>Termos de Uso</h3>
+                <button class="close-legal-btn" onclick="document.getElementById('modalTerms').style.display='none'">&times;</button>
+            </div>
+            <div class="legal-body">
+                <p><strong>Bem-vindo à Patas Pousada!</strong></p>
+                <p>Ao utilizar nossa plataforma, você concorda com os seguintes termos, regidos pelas leis da República Federativa do Brasil:</p>
+                
+                <h4>1. Do Objeto</h4>
+                <p>A Patas Pousada atua como intermediadora entre Tutores (donos de pets) e Anfitriões (prestadores de serviço de hospedagem e day care), facilitando o agendamento e pagamento.</p>
+
+                <h4>2. Das Responsabilidades</h4>
+                <ul>
+                    <li><strong>Anfitriões:</strong> São os únicos responsáveis pela segurança, higiene e cuidado com os animais hospedados.</li>
+                    <li><strong>Tutores:</strong> Devem informar com veracidade sobre a saúde e comportamento do animal.</li>
+                    <li><strong>Plataforma:</strong> Atuamos conforme o Marco Civil da Internet (Lei nº 12.965/2014), não nos responsabilizando diretamente pelos atos das partes, mas oferecendo suporte para mediação.</li>
+                </ul>
+
+                <h4>3. Pagamentos e Cancelamentos</h4>
+                <p>Os pagamentos são processados de forma segura. Cancelamentos seguem a política definida no momento da reserva, respeitando o Código de Defesa do Consumidor (CDC).</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPrivacy" class="legal-backdrop" onclick="closeModal(event, 'modalPrivacy')">
+        <div class="legal-modal">
+            <div class="legal-header">
+                <h3>Política de Privacidade</h3>
+                <button class="close-legal-btn" onclick="document.getElementById('modalPrivacy').style.display='none'">&times;</button>
+            </div>
+            <div class="legal-body">
+                <p>Sua privacidade é prioridade para nós. Esta política está em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018)</strong>.</p>
+
+                <h4>1. Coleta de Dados</h4>
+                <p>Coletamos apenas os dados essenciais para a prestação do serviço (Nome, CPF, Endereço, Dados do Pet). Seu consentimento é a base legal para este tratamento.</p>
+
+                <h4>2. Finalidade</h4>
+                <p>Seus dados são utilizados para identificar usuários, processar reservas, emitir notas fiscais e garantir a segurança da comunidade.</p>
+
+                <h4>3. Compartilhamento</h4>
+                <p>Compartilhamos dados estritamente necessários entre Tutor e Anfitrião apenas após a confirmação da reserva.</p>
+
+                <h4>4. Seus Direitos (Titular)</h4>
+                <p>Você pode solicitar a qualquer momento: confirmação da existência de tratamento, acesso aos dados, correção, anonimização ou exclusão, através da nossa Central de Ajuda.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lógica de redirecionamento simples
+        const searchForm = document.getElementById('searchForm');
+
+        searchForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const selectedServiceRadio = document.querySelector('input[name="service_type"]:checked');
+
+            if (selectedServiceRadio) {
+                const serviceValue = selectedServiceRadio.value;
+                
+                const btn = document.querySelector('.btn-search');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+
+                setTimeout(() => {
+                    if (serviceValue === 'day_care') {
+                        window.location.href = 'reservas.html';
+                    } else if (serviceValue === 'hospedagem') {
+                        window.location.href = 'reservas.html';
+                    } else if (serviceValue === 'lar_temporario') {
+                        window.location.href = 'lartemp.html';
+                    }
+                }, 600);
+
+            } else {
+                alert('Por favor, selecione um tipo de serviço.');
+            }
+        });
+
+        // Lógica dos Modais Jurídicos
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(event, modalId) {
+            // Fecha apenas se clicar no fundo escuro (backdrop), não no conteúdo
+            if (event.target.id === modalId) {
+                document.getElementById(modalId).style.display = 'none';
+            }
+        }
+
+        // Efeito de patinhas seguindo o mouse (um pouco menos frequente)
+        if (window.matchMedia('(pointer: fine)').matches) {
+            let lastPawTime = 0;
+
+            document.addEventListener('mousemove', function(e) {
+                const now = Date.now();
+                if (now - lastPawTime < 70) return; // antes era 40ms, agora 70ms
+                lastPawTime = now;
+
+                const paw = document.createElement('span');
+                paw.classList.add('paw-trail');
+                paw.innerHTML = '<i class="fas fa-paw"></i>';
+
+                paw.style.left = e.clientX + 'px';
+                paw.style.top = e.clientY + 'px';
+
+                const rotate = (Math.random() * 60 - 30).toFixed(0); // -30 a 30 graus
+                paw.style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
+
+                document.body.appendChild(paw);
+
+                setTimeout(() => {
+                    paw.remove();
+                }, 800);
+            });
+        }
+    </script>
+</body>
+</html>

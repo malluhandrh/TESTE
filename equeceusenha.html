@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Esqueceu sua senha? — Patas Pousada</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Parkinsans:wght@300..800&display=swap');
+
+    :root{
+      --pri:#e2725b;
+      --pri-dark:#d45f47;
+      --bg:#f7f7f7;
+      --card:#ffffff;
+      --border:#e5e7eb;
+      --txt:#111827;
+      --muted:#6b7280;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;}
+
+    body{
+      font-family:Nunito,system-ui,Arial,sans-serif;
+      background:linear-gradient(180deg,#fff,#fdf4f2);
+      color:var(--txt);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* HEADER */
+    header{
+      justify-content:center;
+      display:flex;
+      background-color:#fff;
+      padding:14px 0;
+      box-shadow:0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 20px;
+      width:100%;
+    }
+
+    nav .logo{
+      font-size:1.5em;
+      font-weight:bold;
+      color:var(--pri);
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-family:Parkinsans,sans-serif;
+    }
+
+    nav img{
+      width:30px;
+      height:30px;
+    }
+
+    nav ul{
+      list-style:none;
+      display:flex;
+      gap:16px;
+    }
+
+    nav ul li a{
+      text-decoration:none;
+      color:#333;
+      font-weight:700;
+      font-family:Parkinsans,sans-serif;
+      font-size:.95rem;
+    }
+
+    nav ul li a:hover{ color:var(--pri-dark); }
+
+    /* CONTEÚDO */
+    main{
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:24px 16px 40px;
+    }
+
+    .container{
+      margin-top:16px;
+      background:var(--card);
+      padding:22px 20px 20px;
+      border-radius:18px;
+      box-shadow:0 14px 35px rgba(0,0,0,0.08);
+      max-width:420px;
+      width:100%;
+      border:1px solid var(--border);
+    }
+
+    h1{
+      font-size:1.5rem;
+      margin-bottom:8px;
+      color:var(--pri);
+      font-family:Parkinsans,sans-serif;
+    }
+
+    .subtitle{
+      font-size:.95rem;
+      color:var(--muted);
+      margin-bottom:14px;
+    }
+
+    ol.steps{
+      margin-left:18px;
+      font-size:.9rem;
+      color:#374151;
+    }
+    .steps li{ margin-bottom:6px; }
+
+    .tips{
+      font-size:.88rem;
+      color:var(--muted);
+      margin:10px 0 18px;
+    }
+
+    .email-input{
+      margin-top:12px;
+    }
+
+    label{
+      display:block;
+      font-size:.9rem;
+      font-weight:800;
+      margin-bottom:6px;
+      color:#111827;
+    }
+
+    input[type="email"]{
+      width:100%;
+      padding:11px 12px;
+      margin-bottom:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      font-size:.95rem;
+      outline:none;
+      transition:border .15s, box-shadow .15s;
+      background:#fff;
+    }
+
+    input[type="email"]:focus{
+      border-color:var(--pri);
+      box-shadow:0 0 0 2px rgba(226,114,91,0.18);
+    }
+
+    button.main{
+      width:100%;
+      padding:11px;
+      background-color:var(--pri);
+      color:#fff;
+      border:none;
+      border-radius:999px;
+      font-size:.98rem;
+      font-weight:800;
+      cursor:pointer;
+      font-family:Parkinsans,sans-serif;
+      margin-top:4px;
+      transition:background .2s, transform .05s;
+    }
+
+    button.main:hover{ background-color:var(--pri-dark); }
+    button.main:active{ transform:scale(.98); }
+    button.main[disabled]{ opacity:.7; cursor:not-allowed; }
+
+    .resend-link{
+      margin-top:10px;
+      text-align:center;
+      font-size:.9rem;
+    }
+
+    .resend-link button{
+      background-color:transparent;
+      color:var(--pri);
+      border:none;
+      cursor:pointer;
+      font-size:.9rem;
+      text-decoration:underline;
+      padding:0;
+      font-weight:700;
+    }
+
+    .resend-link button:hover{ color:var(--pri-dark); }
+
+    .back{
+      margin-top:14px;
+      text-align:center;
+      font-size:.9rem;
+    }
+
+    .back a{
+      color:#4b5563;
+      text-decoration:none;
+      font-weight:700;
+    }
+
+    .back a:hover{
+      color:var(--pri);
+      text-decoration:underline;
+    }
+
+    .msg{
+      margin-top:10px;
+      border-radius:12px;
+      padding:10px 11px;
+      font-size:.9rem;
+      font-weight:600;
+      display:none;
+    }
+    .msg.ok{
+      display:block;
+      background:#ecfdf5;
+      border:1px solid #a7f3d0;
+      color:#065f46;
+    }
+    .msg.err{
+      display:block;
+      background:#fef2f2;
+      border:1px solid #fecaca;
+      color:#991b1b;
+    }
+
+    footer{
+      text-align:center;
+      color:#9ca3af;
+      font-size:.8rem;
+      padding:8px 0 16px;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="index.html" class="logo">
+        <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png"
+             alt="Ícone Patas Pousada">
+        Patas Pousada
+      </a>
+      <ul>
+        <li><a href="reservas.html">Reservas</a></li>
+        <li><a href="ajuda.html">Ajuda</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Esqueceu sua senha?</h1>
+      <p class="subtitle">
+        Não se preocupe, a gente te ajuda a recuperar o acesso à sua conta. 🐾
+      </p>
+
+      <ol class="steps">
+        <li>Digite o e-mail associado à sua conta.</li>
+        <li>Envie o pedido de redefinição.</li>
+        <li>Abra o e-mail que vamos te enviar.</li>
+        <li>Clique no link e crie uma nova senha.</li>
+        <li>Faça login novamente com a nova senha.</li>
+      </ol>
+
+      <p class="tips">
+        Dica: se o e-mail não aparecer em alguns minutos, veja também sua pasta de <strong>spam</strong> ou <strong>lixo eletrônico</strong>.
+      </p>
+
+      <div class="email-input">
+        <label for="email">E-mail cadastrado</label>
+        <input id="email" type="email" placeholder="voce@exemplo.com" required>
+        <button id="btn-enviar" class="main">Enviar link de redefinição</button>
+      </div>
+
+      <div class="resend-link">
+        <button id="btn-reenviar" type="button">Ainda não recebeu o e-mail? Reenviar</button>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+      <div class="back">
+        <a href="cadastrarouentrar.html">⟵ Voltar para o login</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2025 Patas Pousada • Todos os direitos reservados</footer>
+
+  <script>
+    // ===== Supabase config =====
+    const SUPABASE_URL = "https://nwbgzokttjgkipwzfgzc.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const emailInput = document.getElementById('email');
+    const btnEnviar   = document.getElementById('btn-enviar');
+    const btnReenviar = document.getElementById('btn-reenviar');
+    const msgBox      = document.getElementById('msg');
+
+    let lastEmail = null;
+
+    // Se vier ?email= na URL, já preenche o campo
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get('email');
+    if (emailParam) {
+      emailInput.value = emailParam.trim().toLowerCase();
+    }
+
+    function setMsg(text, ok=false){
+      if (!text){
+        msgBox.style.display = "none";
+        return;
+      }
+      msgBox.textContent = text;
+      msgBox.className = "msg " + (ok ? "ok" : "err");
+      msgBox.style.display = "block";
+    }
+
+    function setLoading(is){
+      btnEnviar.disabled = is;
+      btnEnviar.textContent = is ? "Enviando…" : "Enviar link de redefinição";
+    }
+
+    async function enviarReset(email){
+      if(!email){
+        setMsg("Digite um e-mail válido para continuar.");
+        return;
+      }
+
+      try{
+        setLoading(true);
+        setMsg("Enviando link de redefinição…", true);
+
+        // Vai abrir alterar-senha.html quando clicar no link do e-mail
+        const redirectTo = window.location.origin + "/alterar-senha.html";
+
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
+
+        if (error){
+          setMsg("Erro ao enviar o e-mail: " + error.message);
+          return;
+        }
+
+        lastEmail = email;
+        setMsg("Se existir uma conta com esse e-mail, enviamos um link de redefinição. " +
+               "Confira sua caixa de entrada e o spam. 💌", true);
+
+      }catch(err){
+        console.error(err);
+        setMsg("Erro inesperado ao solicitar redefinição. Tente novamente mais tarde.");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    btnEnviar.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const email = emailInput.value.trim().toLowerCase();
+      enviarReset(email);
+    });
+
+    btnReenviar.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const email = (emailInput.value || lastEmail || "").trim().toLowerCase();
+      enviarReset(email);
+    });
+  </script>
+</body>
+</html>

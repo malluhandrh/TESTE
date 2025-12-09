@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Anfitrião | Patas Pousada</title>
+  
+  <link rel="stylesheet" href="home_host.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <a href="index.html" class="topbar-left">
+        <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="Ícone">
+        <span class="logo-text">Patas Pousada</span>
+      </a>
+      <div class="topbar-center">
+        <nav>
+          <ul>
+            <li><a href="#">Reservas</a></li>
+            <li><a href="ajuda.html">Ajuda</a></li>
+            <li><a href="#">Lar Temporário</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <div class="user-menu">
+          <button type="button" class="user-trigger">
+            <div class="perfil-bolinha" id="perfilBolinha">
+              <img id="perfilFoto" src="" alt="Foto">
+              <span id="perfilInicial">U</span>
+            </div>
+            <span class="perfil-nome" id="perfilNome">Carregando...</span>
+            <i class="fas fa-chevron-down" style="font-size:0.8rem; color:#666"></i>
+          </button>
+          <div class="user-dropdown">
+            <a href="menu_perfil_host.html"><i class="fa-solid fa-user-pen"></i> Editar perfil</a>
+            <a href="#" id="linkAlterarSenha"><i class="fa-solid fa-lock"></i> Alterar senha</a>
+            <a href="#" id="linkExcluirConta" style="color:#dc2626;"><i class="fa-solid fa-user-xmark"></i> Excluir conta</a>
+            <a href="#" id="linkSair"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container-main">
+    <section class="top-cards">
+      <div class="top-card" onclick="window.location.reload()">
+        <span class="top-card-titulo">🏠 Seu painel</span>
+        <span class="top-card-sub">Visão geral de reservas e ganhos.</span>
+      </div>
+      <div class="top-card" onclick="document.getElementById('blocoHospedagens').scrollIntoView({behavior:'smooth'})">
+        <span class="top-card-titulo">📋 Meus anúncios</span>
+        <span class="top-card-sub">Gerencie detalhes e disponibilidade.</span>
+      </div>
+      <div class="top-card" onclick="window.location.href='menu_perfil_host.html'">
+        <span class="top-card-titulo">⚙️ Configurações</span>
+        <span class="top-card-sub">Dados pessoais e segurança.</span>
+      </div>
+    </section>
+
+    <section class="grid-main">
+      <aside class="sidebar-esq">
+        <div class="sidebar-section">
+          <h3>Filtrar seus anúncios</h3>
+          <div class="filtro-botoes">
+            <button class="btn-filtro ativo" onclick="filtrarLista('all')">🔎 Todos</button>
+            <button class="btn-filtro" onclick="filtrarLista('Day Care')">🐶 Day Care</button>
+            <button class="btn-filtro" onclick="filtrarLista('Hospedagem')">🏡 Hospedagem</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="lista-hosts" id="blocoHospedagens">
+        <div class="lista-header">
+          <h2>Minhas hospedagens</h2>
+          <button type="button" class="btn-criar-anuncio" id="btnToggleForm">
+            <i class="fa-solid fa-plus"></i> <span>Criar anúncio</span>
+          </button>
+        </div>
+
+        <article class="card-form-anuncio" id="cardNovaHospedagem">
+          <div>
+              <h3><span id="formModeText">Novo</span> anúncio</h3>
+              <p class="sub">Preencha os dados do seu espaço.</p>
+          </div>
+          <div id="alertOk" class="alert ok"></div>
+          <div id="alertErr" class="alert err"></div>
+
+          <form id="formNovaHospedagem">
+            <input type="hidden" id="existingPhotos" value="">
+
+            <div class="row-form">
+              <div>
+                <label for="titulo">Título do anúncio</label>
+                <input type="text" id="titulo" required placeholder="Ex: Casa com quintal amplo">
+              </div>
+              
+              <div>
+                <label for="cidade">Cidade (RA)</label>
+                <input type="text" id="cidade" list="lista-cidades" placeholder="Digite ou selecione a cidade..." required autocomplete="off">
+                <datalist id="lista-cidades"></datalist>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label>Fotos do local</label>
+                <label for="listingPhotosInput" class="photo-upload-area">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 24px; color: var(--cor-principal); margin-bottom: 8px;"></i>
+                    <div>Clique para selecionar fotos (máx 5)</div>
+                </label>
+                <input type="file" id="listingPhotosInput" multiple accept="image/*" style="display: none;">
+                <div id="photoPreview" class="photo-preview-container"></div>
+            </div>
+
+            <div class="row-form">
+                <div>
+                    <label for="data_inicio">Disponível de:</label>
+                    <input type="date" id="data_inicio">
+                </div>
+                <div>
+                    <label for="data_fim">Até:</label>
+                    <input type="date" id="data_fim">
+                </div>
+            </div>
+
+            <div>
+              <label>Serviços Disponíveis</label>
+              <div class="check-group">
+                <label><input type="checkbox" name="servicos" value="Hospedagem"> Hospedagem</label>
+                <label><input type="checkbox" name="servicos" value="Day Care"> Day Care</label>
+                <label><input type="checkbox" name="servicos" value="Lar Temporário"> Lar Temporário</label>
+              </div>
+            </div>
+            <br>
+
+            <div class="row-form">
+              <div>
+                <label for="preco_noite">Valor Diária (R$)</label>
+                <input type="number" id="preco_noite" min="0" step="0.01" placeholder="0,00">
+              </div>
+              <div>
+                <label for="capacidade">Capacidade (Pets)</label>
+                <input type="number" id="capacidade" min="1" placeholder="Ex: 2">
+              </div>
+            </div>
+
+            <div>
+              <label for="descricao">Descrição</label>
+              <textarea id="descricao" required placeholder="Descreva seu espaço..."></textarea>
+            </div>
+
+            <div class="actions-inline">
+              <button type="button" class="btn-outline" id="btnCancelarForm">Cancelar</button>
+              <button type="submit" class="btn-primary" id="btnSalvarAnuncio">Publicar Anúncio</button>
+            </div>
+          </form>
+        </article>
+
+        <div id="listaAnunciosContainer">
+           <p style="padding:20px; color:#666;">Carregando seus anúncios...</p>
+        </div>
+      </section>
+
+      <!-- LADO DIREITO: perfil + reservas aprovadas -->
+      <aside class="sidebar-dir">
+        <div class="sidebar-section">
+            <h3>Perfil do Anfitrião</h3>
+            <p>Complete as informações para atrair mais tutores.</p>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Reservas aprovadas</h3>
+          <div id="listaReservasAprovadas">
+            <p style="font-size:0.85rem; color:#6b7280;">
+              Nenhuma reserva aprovada ainda.
+            </p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- LISTA PRINCIPAL DE RESERVAS (pendentes etc.) -->
+    <section class="lista-reservas-host" id="blocoReservas">
+      <div class="lista-header">
+        <h2>Reservas recebidas</h2>
+        <!-- BOTÃO PARA VER/OCULTAR CANCELADAS -->
+        <button type="button" class="btn-toggle-canceladas" id="btnToggleCanceladas">
+          Ver canceladas
+        </button>
+      </div>
+      <div id="listaReservasContainer">
+        <p style="padding:20px; color:#666;">Carregando reservas...</p>
+      </div>
+    </section>
+
+    <!-- LISTA: RESERVAS CANCELADAS (INICIALMENTE OCULTA) -->
+    <section class="lista-reservas-host lista-reservas-canceladas" id="blocoReservasCanceladas" style="display:none;">
+      <div class="lista-header">
+        <h2>Reservas canceladas</h2>
+      </div>
+      <div id="listaReservasCanceladas">
+        <p style="padding:20px; color:#666;">Nenhuma reserva cancelada ainda.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- CHAT -->
+  <div class="pp-chat-fab" id="ppChatFab">
+    <i class="fa-solid fa-comments"></i>
+    <span class="pp-badge" id="ppBadge">!</span>
+  </div>
+
+  <div class="pp-chat-widget" id="ppChatWidget">
+    <div class="pp-chat-header">
+      <div>
+        <strong>Mensagens</strong>
+        <span id="ppChatSubtitle">Selecione uma conversa</span>
+      </div>
+      <button class="pp-chat-close" id="ppChatClose">
+        <i class="fa-solid fa-minus"></i>
+      </button>
+    </div>
+
+    <div class="pp-chat-body">
+      <aside class="pp-chat-conversations">
+        <div class="pp-chat-conv-list" id="ppChatConvList"></div>
+      </aside>
+
+      <section class="pp-chat-thread">
+        <div class="pp-chat-messages" id="ppChatMessages"></div>
+        
+        <form class="pp-chat-input-area" id="ppChatForm">
+          <input
+            type="text"
+            id="ppChatInput"
+            placeholder="Digite sua mensagem..."
+            autocomplete="off"
+          />
+          <button type="submit">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <!-- MODAL EXCLUIR ANÚNCIO -->
+  <div class="pp-wrap" id="ppDeleteListing">
+    <div class="pp-card" role="dialog" aria-modal="true">
+      <header>
+        <span class="ic">!</span>
+        <h4>Excluir Anúncio</h4>
+      </header>
+      <div class="pp-body">
+        <p>Tem certeza que deseja excluir este anúncio? Essa ação não pode ser desfeita.</p>
+      </div>
+      <div class="pp-ft">
+        <button class="pp-btn" id="delListingCancel">Cancelar</button>
+        <button class="pp-btn pp-ok" id="delListingOk">Sim, Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EXCLUIR CONTA -->
+  <div class="pp-wrap" id="ppDeleteAccount">
+    <div class="pp-card" role="dialog" aria-modal="true">
+      <header>
+        <span class="ic"><i class="fa-solid fa-exclamation"></i></span>
+        <h4>Excluir sua conta</h4>
+      </header>
+      <div class="pp-body">
+        <p><strong>Esta ação é irreversível.</strong> Seus dados de tutor, pets e histórico de reservas serão permanentemente removidos.</p>
+        <p>Para confirmar, digite <strong>EXCLUIR</strong> no campo abaixo:</p>
+        <input
+          type="text"
+          id="deleteConfirmInput"
+          placeholder="Digite EXCLUIR aqui"
+        >
+      </div>
+      <div class="pp-ft">
+        <button class="pp-btn" id="delAccountCancel">Cancelar</button>
+        <button class="pp-btn pp-ok" id="delAccountOk" disabled>Confirmar Exclusão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ALTERAR SENHA -->
+  <div class="pp-wrap" id="ppChangePassword">
+    <div class="pp-card" role="dialog" aria-modal="true">
+      <header class="brand-header">
+        <span class="ic"><i class="fa-solid fa-shield-halved"></i></span>
+        <h4>Alterar Senha</h4>
+      </header>
+      
+      <div class="pp-body">
+        <p>Defina uma senha forte para proteger sua conta.</p>
+        
+        <div style="display:flex; flex-direction:column; gap:15px;">
+          
+          <div>
+            <label style="font-size:0.8rem; color:#666;">Nova senha</label>
+            <div class="pass-wrapper">
+              <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres" oninput="checkStrength()">
+              <button type="button" class="pass-toggle" onclick="togglePass('newPassword', this)">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+            
+            <div class="strength-container">
+              <div class="strength-track">
+                <div class="strength-bar" id="strengthBar"></div>
+              </div>
+              <div class="strength-text">
+                <span id="strengthLabel">Digite a senha</span>
+                <span id="matchLabel" style="display:none;"></span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:0.8rem; color:#666;">Confirme a senha</label>
+            <div class="pass-wrapper">
+              <input type="password" id="confirmPassword" placeholder="Repita a senha" oninput="checkMatch()">
+              <button type="button" class="pass-toggle" onclick="togglePass('confirmPassword', this)">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+      <div class="pp-ft">
+        <button class="pp-btn" id="changePassCancel">Cancelar</button>
+        <button class="pp-btn pp-ok" id="changePassOk" style="background:var(--cor-principal); border-color:var(--cor-principal);">Salvar Senha</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastHost"></div>
+
+  <script>
+    const SUPABASE_URL = "https://nwbgzokttjgkipwzfgzc.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let currentUserId = null;
+    let currentUserEmail = null;
+    let currentProfile = {};
+    let myListingsData = []; 
+    let editingListingId = null; 
+    let deletingListingId = null;
+
+    // controle de fotos
+    let currentPhotos = [];
+    let selectedFiles = [];
+    let coverSource = null;
+    let coverIndex = 0;
+
+    // --- LISTA DE CIDADES DO DF ---
+    const cidadesDF = [
+      "Águas Claras","Arniqueira","Brazlândia","Candangolândia","Ceilândia","Cruzeiro",
+      "Fercal","Gama","Guará","Itapoã","Jardim Botânico","Lago Norte","Lago Sul",
+      "Núcleo Bandeirante","Paranoá","Park Way","Planaltina","Plano Piloto (Brasília)",
+      "Recanto das Emas","Riacho Fundo","Riacho Fundo II","Samambaia","Santa Maria",
+      "São Sebastião","SCIA (Estrutural)","SIA","Sobradinho","Sobradinho II",
+      "Sol Nascente/Pôr do Sol","Sudoeste/Octogonal","Taguatinga","Varjão","Vicente Pires"
+    ];
+
+    function popularCidades() {
+        const datalist = document.getElementById('lista-cidades');
+        datalist.innerHTML = '';
+        cidadesDF.forEach(cidade => {
+            const option = document.createElement('option');
+            option.value = cidade;
+            datalist.appendChild(option);
+        });
+    }
+
+    // --- LÓGICA DE SENHA ---
+    window.togglePass = function(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    window.checkStrength = function() {
+        const pass = document.getElementById('newPassword').value;
+        const bar = document.getElementById('strengthBar');
+        const label = document.getElementById('strengthLabel');
+        
+        let strength = 0;
+        if(pass.length >= 6) strength++;
+        if(pass.length >= 10) strength++;
+        if(/[A-Z]/.test(pass)) strength++;
+        if(/[0-9]/.test(pass)) strength++;
+        if(/[^A-Za-z0-9]/.test(pass)) strength++;
+
+        let width = 0;
+        let color = '#dc2626';
+        let text = 'Muito fraca';
+
+        switch(strength) {
+            case 0: width = 0; text = 'Digite a senha'; break;
+            case 1: width = 20; text = 'Fraca'; break;
+            case 2: width = 40; color = '#f59e0b'; text = 'Média'; break;
+            case 3: width = 60; color = '#f59e0b'; text = 'Boa'; break;
+            case 4: width = 80; color = '#10b981'; text = 'Forte'; break;
+            case 5: width = 100; color = '#059669'; text = 'Excelente'; break;
+        }
+
+        bar.style.width = width + '%';
+        bar.style.backgroundColor = color;
+        label.textContent = text;
+        label.style.color = color;
+        
+        checkMatch();
+    }
+
+    window.checkMatch = function() {
+        const pass = document.getElementById('newPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        const confirmInput = document.getElementById('confirmPassword');
+        
+        confirmInput.classList.remove('input-match', 'input-mismatch');
+
+        if(confirm.length === 0) return;
+
+        if(pass === confirm) {
+            confirmInput.classList.add('input-match');
+        } else {
+            confirmInput.classList.add('input-mismatch');
+        }
+    }
+
+    // --- 1. INICIALIZAÇÃO ---
+    async function init(){
+      const { data: { user } } = await sb.auth.getUser();
+      if(!user) { window.location.href = "cadastrarouentrar.html"; return; }
+      currentUser = user;
+      currentUserId = user.id;
+      currentUserEmail = user.email;
+      
+      let { data: hostData } = await sb.from('hosts').select('*').eq('id', user.id).maybeSingle();
+      
+      if (!hostData) {
+         const { data: profileData } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+         currentProfile = profileData || {};
+      } else {
+         currentProfile = hostData;
+      }
+      
+      popularCidades();
+      updateHeader();
+      loadMyListings();
+      loadMyBookings();
+      ppInitChat(); 
+    }
+
+    function updateHeader(){
+      let name = currentProfile.full_name || currentProfile.first_name;
+      if(!name) name = "Anfitrião";
+
+      document.getElementById('perfilNome').textContent = name;
+      document.getElementById('perfilInicial').textContent = name[0].toUpperCase();
+      
+      if(currentProfile.avatar_url){
+        const img = document.getElementById('perfilFoto');
+        img.src = currentProfile.avatar_url + '?t=' + new Date().getTime();
+        img.style.display = 'block';
+        document.getElementById('perfilInicial').style.display = 'none';
+      }
+    }
+
+    function toastHost(msg){
+      const t = document.getElementById("toastHost");
+      t.textContent = msg;
+      t.style.display = "block";
+      setTimeout(()=>{ t.style.display = "none"; }, 3000);
+    }
+
+    // --- 2. CARREGAR ANÚNCIOS ---
+    async function loadMyListings(){
+      const container = document.getElementById('listaAnunciosContainer');
+      
+      const { data, error } = await sb
+        .from('listings')
+        .select('*')
+        .eq('host_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if(error){ 
+          console.error("Erro ao carregar:", error);
+          container.innerHTML = '<p>Erro ao carregar anúncios.</p>'; 
+          return; 
+      }
+
+      myListingsData = data || []; 
+
+      if(myListingsData.length === 0){
+        container.innerHTML = `<div style="padding:40px; text-align:center; background:#fff; border-radius:12px; border:1px solid #eee;"><h3>Você ainda não tem anúncios!</h3><p>Clique em 'Criar anúncio' acima.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      myListingsData.forEach(ad => {
+        const div = document.createElement('div');
+        div.className = 'host-card';
+        
+        let tagsHtml = '';
+        if(ad.services){ 
+          ad.services.forEach(s => { 
+            const cls = s.replace(/\s+/g, '.'); 
+            tagsHtml += `<span class="tag ${cls}">${s}</span>`; 
+          }); 
+        }
+
+        const preco = ad.price_night || ad.price_daycare || 0;
+
+        const hostName = currentProfile.full_name || currentProfile.first_name || "Anfitrião";
+        const hostAvatarSrc = currentProfile.avatar_url || "https://cdn-icons-png.flaticon.com/512/1077/1077114.png";
+
+        let mainPhotoSrc = "https://placehold.co/400x300/eee/999?text=Sem+foto";
+        if(ad.photos_url && ad.photos_url.length > 0){
+            mainPhotoSrc = ad.photos_url[0];
+        }
+
+        let dateHtml = '';
+        if(ad.available_start && ad.available_end) {
+            const d1 = new Date(ad.available_start).toLocaleDateString('pt-BR');
+            const d2 = new Date(ad.available_end).toLocaleDateString('pt-BR');
+            dateHtml = `<div class="host-dates"><i class="fa-regular fa-calendar"></i> ${d1} até ${d2}</div>`;
+        }
+
+        let createdHtml = '';
+        if(ad.created_at){
+          const created = new Date(ad.created_at).toLocaleDateString('pt-BR');
+          createdHtml = `<div class="host-dates"><i class="fa-regular fa-clock"></i> Anúncio criado em ${created}</div>`;
+        }
+
+        div.innerHTML = `
+          <div class="listing-main-photo">
+              <img src="${mainPhotoSrc}" alt="Foto do local">
+          </div>
+          <div class="host-info-principal">
+            <div class="host-header-row">
+                <img src="${hostAvatarSrc}" alt="Host" class="small-host-avatar">
+                <div class="host-nome">${hostName} • ${ad.title}</div>
+            </div>
+            <div class="host-tags">${tagsHtml}</div>
+            <div class="host-experiencia">${ad.description || 'Sem descrição.'}</div>
+            ${dateHtml}
+            ${createdHtml}
+          </div>
+          <div class="host-preco">
+            <span>A partir de</span>
+            <strong>R$ ${preco},00 <small>/ dia</small></strong>
+            <div class="card-actions">
+                <button class="btn-ver-perfil" onclick="startEditListing(${ad.id})">Editar</button>
+                <button class="btn-delete" onclick="confirmDeleteListing(${ad.id})"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // --- HELPER PARA NORMALIZAR STATUS ---
+    function normalizaStatus(bk) {
+      return (bk.status || '').toString().trim().toLowerCase();
+    }
+
+    // --- CONTROLES DO BOTÃO "CANCELADAS" ---
+    const blocoReservasCanceladas = document.getElementById('blocoReservasCanceladas');
+    const btnToggleCanceladas = document.getElementById('btnToggleCanceladas');
+    let canceladasVisiveis = false;
+
+    function toggleCanceladasSection(forceState = null) {
+      if (!blocoReservasCanceladas || !btnToggleCanceladas) return;
+
+      if (forceState !== null) {
+        canceladasVisiveis = !!forceState;
+      }
+
+      if (canceladasVisiveis) {
+        blocoReservasCanceladas.style.display = 'flex';
+        btnToggleCanceladas.classList.add('ativo');
+        btnToggleCanceladas.textContent = 'Ocultar canceladas';
+      } else {
+        blocoReservasCanceladas.style.display = 'none';
+        btnToggleCanceladas.classList.remove('ativo');
+        btnToggleCanceladas.textContent = 'Ver canceladas';
+      }
+    }
+
+    if (btnToggleCanceladas) {
+      btnToggleCanceladas.addEventListener('click', () => {
+        canceladasVisiveis = !canceladasVisiveis;
+        toggleCanceladasSection();
+      });
+    }
+
+    // --- CARREGAR RESERVAS (pendentes, aprovadas e canceladas) ---
+    async function loadMyBookings() {
+      const container      = document.getElementById('listaReservasContainer');
+      const aprovadasBox   = document.getElementById('listaReservasAprovadas');
+      const canceladasBox  = document.getElementById('listaReservasCanceladas');
+
+      if (!container) return;
+
+      if (!currentUser) {
+        container.innerHTML = '<p style="padding:8px;color:#666;font-size:0.9rem;">Você precisa estar logado.</p>';
+        if (aprovadasBox) {
+          aprovadasBox.innerHTML = '<p style="font-size:0.85rem; color:#6b7280;">Nenhuma reserva aprovada ainda.</p>';
+        }
+        if (canceladasBox) {
+          canceladasBox.innerHTML = '<p style="padding:20px; color:#666;">Nenhuma reserva cancelada ainda.</p>';
+        }
+        toggleCanceladasSection(false);
+        return;
+      }
+
+      container.innerHTML = '<p style="padding:8px;color:#666;font-size:0.9rem;">Carregando reservas...</p>';
+      if (aprovadasBox) {
+        aprovadasBox.innerHTML = '<p style="font-size:0.85rem; color:#6b7280;">Carregando reservas aprovadas...</p>';
+      }
+      if (canceladasBox) {
+        canceladasBox.innerHTML = '<p style="padding:8px;color:#666;font-size:0.9rem;">Carregando reservas canceladas...</p>';
+      }
+
+      const { data, error } = await sb
+        .from('bookings')
+        .select('*')
+        .eq('host_id', currentUser.id)
+        .order('created_at', { ascending:false });
+
+      if (error) {
+        console.error('Erro ao carregar reservas:', error);
+        container.innerHTML = '<p style="padding:8px;color:#b91c1c;font-size:0.9rem;">Erro ao carregar reservas.</p>';
+        if (aprovadasBox) {
+          aprovadasBox.innerHTML = '<p style="font-size:0.85rem; color:#b91c1c;">Erro ao carregar reservas aprovadas.</p>';
+        }
+        if (canceladasBox) {
+          canceladasBox.innerHTML = '<p style="padding:8px;color:#b91c1c;font-size:0.9rem;">Erro ao carregar reservas canceladas.</p>';
+        }
+        toggleCanceladasSection(false);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        container.innerHTML = `
+          <div style="padding:24px; border-radius:12px; background:#fff; border:1px dashed #e5e7eb; text-align:center; font-size:0.9rem; color:#6b7280;">
+            Nenhuma reserva recebida ainda.
+          </div>
+        `;
+        if (aprovadasBox) {
+          aprovadasBox.innerHTML = '<p style="font-size:0.85rem; color:#6b7280;">Nenhuma reserva aprovada ainda.</p>';
+        }
+        if (canceladasBox) {
+          canceladasBox.innerHTML = '<p style="padding:20px; color:#666;">Nenhuma reserva cancelada ainda.</p>';
+        }
+        toggleCanceladasSection(false);
+        return;
+      }
+
+      // separa por status
+      const aprovadas = data.filter(bk => normalizaStatus(bk) === 'aprovada');
+      const canceladas = data.filter(bk => normalizaStatus(bk) === 'cancelada');
+      const abertas   = data.filter(bk => {
+        const st = normalizaStatus(bk);
+        // não mostrar aprovadas nem canceladas na lista principal
+        return st !== 'aprovada' && st !== 'cancelada';
+      });
+
+      // --- LISTA PRINCIPAL: apenas reservas "abertas" (pendentes etc.) ---
+      container.innerHTML = '';
+
+      if (abertas.length === 0) {
+        container.innerHTML = `
+          <div style="padding:24px; border-radius:12px; background:#fff; border:1px dashed #e5e7eb; text-align:center; font-size:0.9rem; color:#6b7280;">
+            Nenhuma reserva pendente no momento.
+          </div>
+        `;
+      } else {
+        abertas.forEach(bk => {
+          const inicio = bk.start_date ? new Date(bk.start_date) : null;
+          const fim    = bk.end_date   ? new Date(bk.end_date)   : null;
+          let datasTexto = 'Datas não informadas';
+          if (inicio && fim) {
+            const s = inicio.toLocaleDateString('pt-BR');
+            const e = fim.toLocaleDateString('pt-BR');
+            datasTexto = `${s} até ${e}`;
+          }
+          const total = bk.total_price != null ? Number(bk.total_price) : 0;
+          const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+          const card = document.createElement('div');
+          card.className = 'reserva-card';
+          card.dataset.id = bk.id;
+          card.innerHTML = `
+            <div>
+              <h3>Reserva #${bk.id}</h3>
+              <p><strong>Período:</strong> ${datasTexto}</p>
+              <p><strong>Valor total:</strong> ${totalFormatado}</p>
+            </div>
+            <div>
+              <p class="reserva-status">
+                <strong>${bk.status || 'sem status'}</strong><br>
+                <span>Status da reserva</span>
+              </p>
+              <p class="reserva-status">
+                <strong>${bk.payment_status || 'pendente'}</strong><br>
+                <span>Status do pagamento</span>
+              </p>
+              ${bk.payment_method ? `<p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">Forma de pagamento: ${bk.payment_method}</p>` : ''}
+            </div>
+            <div class="reserva-actions">
+              <button class="btn-status btn-aprovar" onclick="updateBookingStatus(${bk.id}, 'aprovada')">Aprovar</button>
+              <button class="btn-status btn-cancelar" onclick="updateBookingStatus(${bk.id}, 'cancelada')">Cancelar</button>
+              <button class="btn-status btn-pago" onclick="updatePaymentStatus(${bk.id}, 'pago')">Marcar como pago</button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // --- LATERAL DIREITA: reservas aprovadas ---
+      if (aprovadasBox) {
+        aprovadasBox.innerHTML = '';
+
+        if (aprovadas.length === 0) {
+          aprovadasBox.innerHTML = '<p style="font-size:0.85rem; color:#6b7280;">Nenhuma reserva aprovada ainda.</p>';
+        } else {
+          aprovadas.forEach(bk => {
+            const inicio = bk.start_date ? new Date(bk.start_date) : null;
+            const fim    = bk.end_date   ? new Date(bk.end_date)   : null;
+            let datasTexto = 'Datas não informadas';
+            if (inicio && fim) {
+              const s = inicio.toLocaleDateString('pt-BR');
+              const e = fim.toLocaleDateString('pt-BR');
+              datasTexto = `${s} até ${e}`;
+            }
+            const total = bk.total_price != null ? Number(bk.total_price) : 0;
+            const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            const isPago = (bk.payment_status || '').toString().trim().toLowerCase() === 'pago';
+
+            let actionsHtml = '';
+            if (!isPago) {
+              actionsHtml += `
+                <button 
+                  class="btn-status btn-pago" 
+                  onclick="updatePaymentStatus(${bk.id}, 'pago')">
+                  Marcar como pago
+                </button>
+              `;
+            } else {
+              actionsHtml += `<span class="pill-pago">Pago</span>`;
+            }
+
+            actionsHtml += `
+              <button
+                class="btn-status btn-cancelar"
+                onclick="updateBookingStatus(${bk.id}, 'cancelada')">
+                Cancelar reserva
+              </button>
+            `;
+
+            const mini = document.createElement('div');
+            mini.className = 'reserva-aprovada-item';
+            mini.innerHTML = `
+              <div class="reserva-aprovada-top">
+                <div>
+                  <strong>Reserva #${bk.id}</strong><br>
+                  <span class="reserva-aprovada-datas">${datasTexto}</span>
+                </div>
+                <div class="reserva-aprovada-valor">
+                  <span class="valor">${totalFormatado}</span><br>
+                  <span class="status-pagamento">${bk.payment_status || 'pendente'}</span>
+                </div>
+              </div>
+              <div class="reserva-aprovada-actions">
+                ${actionsHtml}
+              </div>
+            `;
+            aprovadasBox.appendChild(mini);
+          });
+        }
+      }
+
+      // --- LISTA: RESERVAS CANCELADAS ---
+      if (canceladasBox) {
+        canceladasBox.innerHTML = '';
+
+        if (canceladas.length === 0) {
+          canceladasBox.innerHTML = '<p style="padding:20px; color:#666;">Nenhuma reserva cancelada ainda.</p>';
+        } else {
+          canceladas.forEach(bk => {
+            const inicio = bk.start_date ? new Date(bk.start_date) : null;
+            const fim    = bk.end_date   ? new Date(bk.end_date)   : null;
+            let datasTexto = 'Datas não informadas';
+            if (inicio && fim) {
+              const s = inicio.toLocaleDateString('pt-BR');
+              const e = fim.toLocaleDateString('pt-BR');
+              datasTexto = `${s} até ${e}`;
+            }
+            const total = bk.total_price != null ? Number(bk.total_price) : 0;
+            const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            const card = document.createElement('div');
+            card.className = 'reserva-card';
+            card.innerHTML = `
+              <div>
+                <h3>Reserva #${bk.id}</h3>
+                <p><strong>Período:</strong> ${datasTexto}</p>
+                <p><strong>Valor total:</strong> ${totalFormatado}</p>
+              </div>
+              <div>
+                <p class="reserva-status">
+                  <strong>Cancelada</strong><br>
+                  <span>Status da reserva</span>
+                </p>
+                <p class="reserva-status">
+                  <strong>${bk.payment_status || 'pendente'}</strong><br>
+                  <span>Status do pagamento</span>
+                </p>
+              </div>
+              <div class="reserva-actions">
+                <span style="font-size:0.8rem; color:#b91c1c; background:#fee2e2; border-radius:999px; padding:4px 10px;">
+                  Reserva cancelada
+                </span>
+              </div>
+            `;
+            canceladasBox.appendChild(card);
+          });
+        }
+      }
+
+      // garante que por padrão fica oculto, e só aparece se clicar no botão
+      toggleCanceladasSection(false);
+    }
+
+    // --- ATUALIZAR STATUS (recarrega listas) ---
+    async function updateBookingStatus(id, novoStatus) {
+      try {
+        const { error } = await sb
+          .from('bookings')
+          .update({ status: novoStatus })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        if (novoStatus === 'cancelada') {
+          toastHost('Reserva cancelada.');
+        } else if (novoStatus === 'aprovada') {
+          toastHost('Reserva aprovada.');
+        } else {
+          toastHost('Status da reserva atualizado.');
+        }
+
+        // Recarrega listas (pendentes, aprovadas e canceladas) 
+        loadMyBookings();
+      } catch (err) {
+        console.error('Erro ao atualizar status:', err);
+        toastHost('Erro ao atualizar status da reserva.');
+      }
+    }
+
+    async function updatePaymentStatus(id, novoStatus) {
+      try {
+        const { error } = await sb
+          .from('bookings')
+          .update({ payment_status: novoStatus })
+          .eq('id', id);
+
+        if (error) throw error;
+        toastHost('Status de pagamento atualizado.');
+        loadMyBookings();
+      } catch (err) {
+        console.error('Erro ao atualizar pagamento:', err);
+        toastHost('Erro ao atualizar status de pagamento.');
+      }
+    }
+
+    // --- UPLOAD / PRÉ-VISUALIZAÇÃO DE FOTOS ---
+    const photosInput = document.getElementById('listingPhotosInput');
+    const photoPreview = document.getElementById('photoPreview');
+
+    function resetCoverSelection(){
+      coverSource = null;
+      coverIndex = 0;
+    }
+
+    function renderPhotoPreview(){
+      photoPreview.innerHTML = '';
+      document.getElementById('existingPhotos').value = JSON.stringify(currentPhotos);
+
+      currentPhotos.forEach((url, idx) => {
+        const box = document.createElement('div');
+        box.className = 'photo-preview-box';
+        if(coverSource === 'existing' && coverIndex === idx){
+          box.classList.add('is-cover');
+        }
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'Foto do local';
+        img.className = 'photo-preview-img';
+        box.appendChild(img);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'photo-remove-btn';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.addEventListener('click', () => {
+          currentPhotos.splice(idx, 1);
+          if(coverSource === 'existing'){
+            if(coverIndex === idx){
+              resetCoverSelection();
+            } else if(coverIndex > idx){
+              coverIndex--;
+            }
+          }
+          renderPhotoPreview();
+        });
+        box.appendChild(removeBtn);
+
+        const coverBtn = document.createElement('button');
+        coverBtn.type = 'button';
+        coverBtn.className = 'photo-cover-btn';
+        coverBtn.textContent = (coverSource === 'existing' && coverIndex === idx) ? 'Capa' : 'Usar como capa';
+        coverBtn.addEventListener('click', () => {
+          coverSource = 'existing';
+          coverIndex = idx;
+          renderPhotoPreview();
+        });
+        box.appendChild(coverBtn);
+
+        photoPreview.appendChild(box);
+      });
+
+      selectedFiles.forEach((file, idx) => {
+        const box = document.createElement('div');
+        box.className = 'photo-preview-box';
+        if(coverSource === 'new' && coverIndex === idx){
+          box.classList.add('is-cover');
+        }
+
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = 'Foto selecionada';
+        img.className = 'photo-preview-img';
+        box.appendChild(img);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'photo-remove-btn';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.addEventListener('click', () => {
+          selectedFiles.splice(idx, 1);
+          if(coverSource === 'new'){
+            if(coverIndex === idx){
+              resetCoverSelection();
+            } else if(coverIndex > idx){
+              coverIndex--;
+            }
+          }
+          renderPhotoPreview();
+        });
+        box.appendChild(removeBtn);
+
+        const coverBtn = document.createElement('button');
+        coverBtn.type = 'button';
+        coverBtn.className = 'photo-cover-btn';
+        coverBtn.textContent = (coverSource === 'new' && coverIndex === idx) ? 'Capa' : 'Usar como capa';
+        coverBtn.addEventListener('click', () => {
+          coverSource = 'new';
+          coverIndex = idx;
+          renderPhotoPreview();
+        });
+        box.appendChild(coverBtn);
+
+        photoPreview.appendChild(box);
+      });
+    }
+
+    photosInput.addEventListener('change', (e) => {
+      const newFiles = Array.from(e.target.files);
+      const totalExisting = currentPhotos.length;
+      const totalSelected = selectedFiles.length;
+        
+      if (totalExisting + totalSelected + newFiles.length > 5) {
+        alert("O limite é de 5 fotos por anúncio.");
+        e.target.value = ''; 
+        return;
+      }
+
+      selectedFiles = [...selectedFiles, ...newFiles];
+      renderPhotoPreview();
+      e.target.value = '';
+    });
+
+    async function uploadListingPhotos(files, listingId) {
+      if(files.length === 0) return [];
+      const uploadedUrls = [];
+      const folderName = listingId ? `${listingId}/` : `temp-${Date.now()}/`;
+
+      for (const file of files) {
+        const ext = file.name.split('.').pop();
+        const fileName = `${folderName}photo-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+        
+        const { error } = await sb.storage.from('listing-photos').upload(fileName, file);
+        if (error) { console.error("Erro upload:", error); continue; }
+
+        const { data: pub } = sb.storage.from('listing-photos').getPublicUrl(fileName);
+        uploadedUrls.push(pub.publicUrl);
+      }
+      return uploadedUrls;
+    }
+
+    // --- FORMULÁRIO ---
+    const btnToggle = document.getElementById('btnToggleForm');
+    const cardForm = document.getElementById('cardNovaHospedagem');
+    const formModeText = document.getElementById('formModeText');
+    const btnSalvar = document.getElementById('btnSalvarAnuncio');
+    
+    function resetForm(){
+      document.getElementById('formNovaHospedagem').reset();
+      editingListingId = null;
+      formModeText.textContent = "Novo";
+      btnSalvar.textContent = "Publicar Anúncio";
+
+      currentPhotos = [];
+      selectedFiles = [];
+      resetCoverSelection();
+      renderPhotoPreview();
+      photosInput.value = '';
+
+      document.getElementById('existingPhotos').value = '';
+      document.getElementById('alertOk').style.display = 'none';
+      document.getElementById('alertErr').style.display = 'none';
+    }
+
+    function toggleForm(forceOpen = false){
+       const isClosed = cardForm.style.display === 'none' || cardForm.style.display === '';
+       if(forceOpen || isClosed) {
+         cardForm.style.display = 'flex';
+         btnToggle.innerHTML = '<i class="fa-solid fa-minus"></i> <span>Fechar</span>';
+         cardForm.scrollIntoView({behavior:'smooth'});
+       } else {
+         cardForm.style.display = 'none';
+         btnToggle.innerHTML = '<i class="fa-solid fa-plus"></i> <span>Criar anúncio</span>';
+         resetForm();
+       }
+    }
+    btnToggle.addEventListener('click', () => toggleForm());
+    document.getElementById('btnCancelarForm').addEventListener('click', () => toggleForm());
+
+    window.startEditListing = function(id) {
+      const listing = myListingsData.find(item => item.id === id);
+      if(!listing) return;
+
+      editingListingId = id; 
+      formModeText.textContent = "Editar"; 
+      btnSalvar.textContent = "Atualizar Anúncio"; 
+
+      document.getElementById('titulo').value = listing.title;
+      document.getElementById('cidade').value = listing.city || "";
+      document.getElementById('preco_noite').value = listing.price_night || "";
+      document.getElementById('capacidade').value = listing.capacity || "";
+      document.getElementById('descricao').value = listing.description || "";
+      document.getElementById('data_inicio').value = listing.available_start || "";
+      document.getElementById('data_fim').value = listing.available_end || "";
+
+      document.querySelectorAll('input[name="servicos"]').forEach(cb => {
+        cb.checked = listing.services?.includes(cb.value);
+      });
+
+      currentPhotos = listing.photos_url || [];
+      selectedFiles = [];
+      resetCoverSelection();
+      if(currentPhotos.length > 0){
+        coverSource = 'existing';
+        coverIndex = 0;
+      }
+      renderPhotoPreview();
+      toggleForm(true);
+    }
+
+    // --- EXCLUSÃO DE ANÚNCIO ---
+    const ppDeleteListing = document.getElementById('ppDeleteListing');
+    
+    window.confirmDeleteListing = function(id) {
+      deletingListingId = id;
+      ppDeleteListing.style.display = 'flex';
+      requestAnimationFrame(() => {
+        ppDeleteListing.querySelector('.pp-card').classList.add('show');
+      });
+    }
+
+    document.getElementById('delListingCancel').addEventListener('click', () => {
+      const card = ppDeleteListing.querySelector('.pp-card');
+      card.classList.remove('show');
+      setTimeout(() => { ppDeleteListing.style.display = 'none'; }, 200);
+      deletingListingId = null;
+    });
+
+    document.getElementById('delListingOk').addEventListener('click', async () => {
+      if(!deletingListingId) return;
+      
+      const { error } = await sb.from('listings').delete().eq('id', deletingListingId);
+      
+      if(error) {
+        toastHost("Erro ao excluir anúncio.");
+        console.error(error);
+      } else {
+        toastHost("Anúncio excluído com sucesso.");
+        loadMyListings();
+      }
+      
+      const card = ppDeleteListing.querySelector('.pp-card');
+      card.classList.remove('show');
+      setTimeout(() => { ppDeleteListing.style.display = 'none'; }, 200);
+    });
+
+    // --- EXCLUSÃO DE CONTA ---
+    const ppDeleteAccount = document.getElementById('ppDeleteAccount');
+    const linkExcluirConta = document.getElementById('linkExcluirConta');
+    const deleteConfirmInput = document.getElementById('deleteConfirmInput');
+    const delAccountOkBtn = document.getElementById('delAccountOk');
+
+    deleteConfirmInput.addEventListener('input', () => {
+      const value = deleteConfirmInput.value.trim().toUpperCase();
+      delAccountOkBtn.disabled = value !== 'EXCLUIR';
+    });
+
+    linkExcluirConta.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!currentUserId) {
+        toastHost("Erro: sessão expirada. Faça login novamente.");
+        return;
+      }
+      deleteConfirmInput.value = '';
+      delAccountOkBtn.disabled = true;
+
+      ppDeleteAccount.style.display = 'flex';
+      requestAnimationFrame(() => {
+        ppDeleteAccount.querySelector('.pp-card').classList.add('show');
+      });
+    });
+
+    document.getElementById('delAccountCancel').addEventListener('click', () => {
+      const card = ppDeleteAccount.querySelector('.pp-card');
+      card.classList.remove('show');
+      setTimeout(() => { 
+        ppDeleteAccount.style.display = 'none'; 
+        deleteConfirmInput.value = '';
+        delAccountOkBtn.disabled = true;
+      }, 200);
+    });
+
+    // NOVA EXCLUSÃO TOTAL VIA JAVASCRIPT (sem PHP)
+    async function handleDeleteAccountHost() {
+      if (!currentUserId) {
+        toastHost("Erro: usuário não identificado. Faça login novamente.");
+        return;
+      }
+
+      delAccountOkBtn.disabled = true;
+
+      try {
+        const userId = currentUserId;
+
+        // 1) Buscar todos os chats em que o usuário participa
+        const { data: chats, error: chatsErr } = await sb
+          .from('chats')
+          .select('id')
+          .or(`tutor_id.eq.${userId},host_id.eq.${userId}`);
+
+        if (chatsErr) {
+          console.error('Erro ao buscar chats:', chatsErr);
+        } else {
+          const chatIds = (chats || []).map(c => c.id);
+          if (chatIds.length) {
+            const { error: msgErr } = await sb
+              .from('messages')
+              .delete()
+              .in('chat_id', chatIds);
+            if (msgErr) console.error('Erro ao apagar mensagens:', msgErr);
+          }
+
+          const { error: delChatsErr } = await sb
+            .from('chats')
+            .delete()
+            .or(`tutor_id.eq.${userId},host_id.eq.${userId}`);
+          if (delChatsErr) console.error('Erro ao apagar chats:', delChatsErr);
+        }
+
+        // 2) Apagar reservas onde ele é tutor ou host
+        const { error: bookingsErr } = await sb
+          .from('bookings')
+          .delete()
+          .or(`tutor_id.eq.${userId},host_id.eq.${userId}`);
+        if (bookingsErr) console.error('Erro ao apagar reservas:', bookingsErr);
+
+        // 3) Apagar anúncios (listings) que ele criou como host
+        const { error: listingsErr } = await sb
+          .from('listings')
+          .delete()
+          .eq('host_id', userId);
+        if (listingsErr) console.error('Erro ao apagar anúncios:', listingsErr);
+
+        // 4) Apagar pets onde ele é dono
+        const { error: petsErr } = await sb
+          .from('pets')
+          .delete()
+          .eq('owner_id', userId);
+        if (petsErr) console.error('Erro ao apagar pets:', petsErr);
+
+        // 5) Apagar registro na tabela hosts
+        const { error: hostErr } = await sb
+          .from('hosts')
+          .delete()
+          .eq('id', userId);
+        if (hostErr) console.error('Erro ao apagar host:', hostErr);
+
+        // 6) Apagar registro na tabela profiles
+        const { error: profileErr } = await sb
+          .from('profiles')
+          .delete()
+          .eq('id', userId);
+        if (profileErr) console.error('Erro ao apagar profile:', profileErr);
+
+        toastHost('Dados da conta removidos. Você será desconectado.');
+
+        try {
+          await sb.auth.signOut();
+        } catch (e) {
+          console.error('Erro ao deslogar:', e);
+        }
+
+        setTimeout(() => {
+          window.location.href = 'cadastrarouentrar.html';
+        }, 1800);
+
+      } catch (err) {
+        console.error('Erro ao excluir conta:', err);
+        toastHost('Erro ao excluir conta. Tente novamente.');
+        delAccountOkBtn.disabled = false;
+      } finally {
+        const card = ppDeleteAccount.querySelector('.pp-card');
+        card.classList.remove('show');
+        setTimeout(() => { 
+          ppDeleteAccount.style.display = 'none'; 
+          deleteConfirmInput.value = '';
+          delAccountOkBtn.disabled = true;
+        }, 200);
+      }
+    }
+
+    document.getElementById('delAccountOk').addEventListener('click', async () => {
+      if (delAccountOkBtn.disabled) return;
+      await handleDeleteAccountHost();
+    });
+
+    document.getElementById('formNovaHospedagem').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btnSalvar.disabled = true;
+      const originalBtnText = btnSalvar.textContent;
+      btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+
+      try {
+        const titulo = document.getElementById('titulo').value;
+        const cidade = document.getElementById('cidade').value;
+        const desc = document.getElementById('descricao').value;
+        const preco_noite = document.getElementById('preco_noite').value;
+        const capacidade = document.getElementById('capacidade').value;
+        const d_ini = document.getElementById('data_inicio').value;
+        const d_fim = document.getElementById('data_fim').value;
+        const servicos = Array.from(document.querySelectorAll('input[name="servicos"]:checked')).map(x=>x.value);
+
+        let finalPhotosUrl = [...currentPhotos];
+
+        let newPhotos = [];
+        if(selectedFiles.length > 0){
+          newPhotos = await uploadListingPhotos(selectedFiles, editingListingId || 'new');
+          finalPhotosUrl = [...finalPhotosUrl, ...newPhotos];
+        }
+
+        let coverUrl = null;
+        if(coverSource === 'existing' && currentPhotos[coverIndex]){
+          coverUrl = currentPhotos[coverIndex];
+        } else if(coverSource === 'new' && newPhotos[coverIndex]){
+          coverUrl = newPhotos[coverIndex];
+        }
+
+        if(coverUrl){
+          finalPhotosUrl = [coverUrl, ...finalPhotosUrl.filter(u => u !== coverUrl)];
+        }
+
+        const payload = {
+          host_id: currentUser.id,
+          title: titulo,
+          city: cidade,
+          description: desc,
+          services: servicos,
+          price_night: preco_noite || null,
+          capacity: capacidade || null,
+          available_start: d_ini || null,
+          available_end: d_fim || null,
+          photos_url: finalPhotosUrl
+        };
+
+        let error = null;
+
+        if(editingListingId) {
+          const res = await sb.from('listings').update(payload).eq('id', editingListingId);
+          error = res.error;
+        } else {
+          const res = await sb.from('listings').insert(payload);
+          error = res.error;
+        }
+
+        if(error) throw error;
+
+        document.getElementById('alertOk').innerText = editingListingId ? 'Anúncio atualizado!' : 'Anúncio publicado!';
+        document.getElementById('alertOk').style.display = 'block';
+        
+        resetForm();
+        await loadMyListings();
+        setTimeout(() => toggleForm(), 1500);
+
+      } catch(err) {
+        console.error(err);
+        document.getElementById('alertErr').innerText = 'Erro: ' + err.message;
+        document.getElementById('alertErr').style.display = 'block';
+      } finally {
+        btnSalvar.disabled = false;
+        btnSalvar.textContent = originalBtnText;
+      }
+    });
+
+    document.getElementById('linkSair').addEventListener('click', async () => {
+      await sb.auth.signOut(); 
+      window.location.href = 'cadastrarouentrar.html';
+    });
+
+    function filtrarLista(tipo){
+      document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('ativo'));
+      // (filtro real pode ser implementado depois)
+    }
+
+    // =================== LÓGICA DO CHAT (ANFITRIÃO) ===================
+    let ppChatUser = null;
+    let ppActiveChatId = null;
+    let ppChatChannel = null;
+
+    const ppChatFab        = document.getElementById('ppChatFab');
+    const ppChatWidget     = document.getElementById('ppChatWidget');
+    const ppChatClose      = document.getElementById('ppChatClose');
+    const ppChatConvList   = document.getElementById('ppChatConvList');
+    const ppChatMessages   = document.getElementById('ppChatMessages');
+    const ppChatForm       = document.getElementById('ppChatForm');
+    const ppChatInput      = document.getElementById('ppChatInput');
+    const ppChatSubtitle   = document.getElementById('ppChatSubtitle');
+    const ppBadge          = document.getElementById('ppBadge');
+
+    ppChatFab?.addEventListener('click', () => {
+      ppChatWidget.style.display = 'flex';
+      ppChatFab.style.display = 'none';
+      ppBadge.classList.remove('show');
+    });
+
+    ppChatClose?.addEventListener('click', () => {
+      ppChatWidget.style.display = 'none';
+      ppChatFab.style.display = 'grid';
+    });
+
+    async function ppInitChat() {
+      if (!currentUser) return;
+      ppChatUser = currentUser;
+      await ppLoadConversations();
+    }
+
+    async function ppLoadConversations() {
+      if (!ppChatUser) return;
+
+      const { data, error } = await sb
+        .from('chats')
+        .select('*')
+        .or(`tutor_id.eq.${ppChatUser.id},host_id.eq.${ppChatUser.id}`)
+        .order('created_at', { ascending: false });
+
+      if (error) { console.error('Erro chat:', error); return; }
+
+      ppChatConvList.innerHTML = '';
+      if (!data || data.length === 0) {
+        ppChatConvList.innerHTML = `<div style="font-size:0.8rem;color:#666;padding:8px;">Sem conversas.</div>`;
+        return;
+      }
+
+      const otherIds = data.map(c => c.tutor_id);
+        
+      let profilesMap = {};
+      if(otherIds.length > 0){
+        const { data: profilesData } = await sb
+          .from('profiles')
+          .select('id, full_name, first_name, email')
+          .in('id', otherIds);
+            
+        if(profilesData){
+          profilesData.forEach(p => {
+            profilesMap[p.id] = p.full_name || p.first_name || p.email;
+          });
+        }
+      }
+
+      data.forEach(chat => {
+        const otherName = profilesMap[chat.tutor_id] || "Tutor";
+        const roleLabel = "Tutor"; 
+
+        const item = document.createElement('div');
+        item.className = 'pp-chat-conv-item';
+        item.dataset.id = chat.id;
+        item.innerHTML = `
+          <span class="pp-chat-conv-name">${otherName}</span>
+          <div class="pp-chat-conv-role">${roleLabel}</div>
+          <span class="pp-chat-conv-meta">${chat.booking_id ? 'Reserva' : 'Sem reserva'}</span>
+          <button class="pp-chat-conv-delete" title="Excluir" onclick="ppDeleteChat('${chat.id}', event)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        `;
+        item.addEventListener('click', () => ppOpenConversation(chat));
+        ppChatConvList.appendChild(item);
+      });
+    }
+
+    window.ppDeleteChat = async function(id, event) {
+      event.stopPropagation(); 
+      if(!confirm("Excluir conversa?")) return;
+        
+      await sb.from('messages').delete().eq('chat_id', id);
+      const { error } = await sb.from('chats').delete().eq('id', id);
+
+      if(!error) {
+        if(ppActiveChatId === id) {
+          ppChatMessages.innerHTML = '';
+          ppChatSubtitle.textContent = "Selecione uma conversa";
+          ppActiveChatId = null;
+          if(ppChatChannel) sb.removeChannel(ppChatChannel);
+        }
+        ppLoadConversations();
+      }
+    }
+
+    function ppSetActiveConversation(chatId) {
+      document.querySelectorAll('.pp-chat-conv-item').forEach(i => 
+        i.classList.toggle('active', i.dataset.id === chatId)
+      );
+    }
+
+    async function ppOpenConversation(chat) {
+      ppActiveChatId = chat.id;
+      ppSetActiveConversation(chat.id);
+        
+      const nameEl = document.querySelector(`.pp-chat-conv-item[data-id="${chat.id}"] .pp-chat-conv-name`);
+      ppChatSubtitle.textContent = nameEl ? nameEl.textContent : "Chat";
+      ppChatMessages.innerHTML = '<div style="text-align:center;font-size:0.8rem;color:#666;margin-top:10px;">Carregando...</div>';
+
+      if(ppChatChannel) sb.removeChannel(ppChatChannel);
+
+      const { data, error } = await sb
+        .from('messages')
+        .select('*')
+        .eq('chat_id', chat.id)
+        .order('created_at', {ascending: true});
+
+      if(error) return;
+
+      ppChatMessages.innerHTML = '';
+      data.forEach(m => ppRenderMessage(m));
+      ppScrollToBottom();
+
+      ppChatChannel = sb.channel('chat-'+chat.id)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: 'chat_id=eq.'+chat.id
+        }, payload => {
+          const msg = payload.new;
+          ppRenderMessage(msg);
+          ppScrollToBottom();
+
+          const isMe = msg.sender_id === ppChatUser.id;
+          if(!isMe && (ppChatWidget.style.display === 'none' || ppActiveChatId !== msg.chat_id)){
+            ppBadge.classList.add('show');
+          }
+        }).subscribe();
+    }
+
+    function ppRenderMessage(msg){
+      if(!ppChatUser) return;
+      const isMe = msg.sender_id === ppChatUser.id;
+      const div = document.createElement('div');
+      div.className = 'pp-chat-msg-row ' + (isMe ? 'me' : 'other');
+        
+      const date = new Date(msg.created_at);
+      const time = date.getHours().toString().padStart(2,'0') + ':' + date.getMinutes().toString().padStart(2,'0');
+
+      div.innerHTML = `
+        <div class="pp-chat-bubble ${isMe ? 'me' : 'other'}">
+          <div>${msg.content}</div>
+          <div class="pp-chat-time">${time}</div>
+        </div>
+      `;
+      ppChatMessages.appendChild(div);
+    }
+
+    function ppScrollToBottom() {
+      ppChatMessages.scrollTop = ppChatMessages.scrollHeight;
+    }
+
+    ppChatForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if(!ppActiveChatId || !ppChatUser) return;
+      const text = ppChatInput.value.trim();
+      if(!text) return;
+      ppChatInput.value = '';
+      await sb.from('messages').insert({ 
+        chat_id: ppActiveChatId, 
+        sender_id: ppChatUser.id, 
+        content: text 
+      });
+    });
+
+    init();
+  </script>
+</body>
+</html>

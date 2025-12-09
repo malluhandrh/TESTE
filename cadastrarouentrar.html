@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Patas Pousada — Login</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Parkinsans:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #e2725b;
+      --primary-hover: #c65038;
+      --bg-body: #fcf6f4;
+      --text-main: #333;
+      --text-light: #666;
+      --white: #fff;
+      --border-radius: 20px;
+      --shadow: 0 10px 40px rgba(226, 114, 91, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      /* MESMO CURSOR DO INDEX */
+      cursor: url('https://cur.cursors-4u.net/animals/ani-12/ani1133.cur'), auto;
+    }
+
+    /* --- HEADER (Restaurado) --- */
+    header {
+      background: var(--white);
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--primary);
+      font-family: 'Parkinsans', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      transition: transform 0.2s;
+    }
+    .logo:hover { transform: scale(1.02); }
+    .logo img { height: 32px; }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* --- ÁREA PRINCIPAL --- */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    /* Container de Login (Card Centralizado) */
+    .login-container {
+      background: var(--white);
+      width: 100%;
+      max-width: 1000px;
+      height: 600px;
+      display: flex;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Lado Esquerdo - Imagem */
+    .login-visual {
+      flex: 1;
+      background: url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1469&q=80') no-repeat center center/cover;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end; /* Texto na parte de baixo */
+      padding: 40px;
+      color: white;
+    }
+
+    .login-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.1));
+    }
+
+    /* Botão Voltar Personalizado */
+    .btn-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      color: var(--white);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 30px;
+      backdrop-filter: blur(5px);
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .btn-back:hover {
+      background: rgba(255,255,255,0.4);
+      transform: translateX(-2px);
+    }
+
+    .visual-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .visual-quote {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: 'Parkinsans', sans-serif;
+      line-height: 1.2;
+      max-width: 90%;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    /* Lado Direito - Formulário */
+    .login-form-wrapper {
+      flex: 1;
+      padding: 40px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow-y: auto;
+    }
+
+    .header-text h1 {
+      font-family: 'Parkinsans', sans-serif;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+    .header-text p { color: var(--text-light); margin-bottom: 30px; }
+
+    /* Inputs */
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i.icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 14px 15px 14px 45px;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(226, 114, 91, 0.1);
+    }
+
+    /* Botão Ver Senha */
+    .toggle-pass {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #aaa;
+      transition: color 0.2s;
+    }
+    .toggle-pass:hover { color: var(--primary); }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      color: var(--text-light);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      margin-top: -10px;
+      margin-bottom: 20px;
+    }
+    .forgot-link:hover { color: var(--primary); text-decoration: underline; }
+
+    /* Botão Principal */
+    button#btn-login {
+      width: 100%;
+      padding: 15px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+      box-shadow: 0 4px 15px rgba(226, 114, 91, 0.3);
+    }
+    button#btn-login:hover { background: var(--primary-hover); transform: translateY(-2px); }
+    button#btn-login:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+    /* Área de Cadastro (Divider) */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 30px 0;
+      color: #ccc;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .divider::before, .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #eee;
+    }
+    .divider span { padding: 0 10px; }
+
+    /* Cards de Cadastro */
+    .signup-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .signup-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text-light);
+      transition: all 0.2s;
+      background: #fafafa;
+    }
+
+    .signup-card i { font-size: 1.5rem; margin-bottom: 5px; color: var(--primary); }
+    .signup-card span { font-weight: 700; font-size: 0.9rem; }
+    .signup-card small { font-size: 0.75rem; }
+
+    .signup-card:hover {
+      border-color: var(--primary);
+      background: #fff0ec;
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* Mensagens */
+    .msg {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+    }
+    .msg.ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .msg.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* Responsividade Mobile */
+    @media (max-width: 768px) {
+      .nav-links { display: none; } /* Menu simplificado no mobile */
+      nav { justify-content: center; }
+      
+      .login-container { flex-direction: column; height: auto; box-shadow: none; border-radius: 0; background: transparent; }
+      .login-visual { display: none; } 
+      .login-form-wrapper { padding: 0; background: transparent; }
+      
+      /* Card branco apenas no form no mobile */
+      form { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+    }
+
+    /* --- MESMA PATINHA DO INDEX: RASTRO NO MOUSE --- */
+    .paw-trail {
+      position: fixed;
+      pointer-events: none;   /* não bloqueia cliques */
+      z-index: 9999;
+      font-size: 15px;
+      transform: translate(-50%, -50%);
+      animation: pawFade 0.8s ease-out forwards;
+    }
+
+    .paw-trail i {
+      color: var(--primary);
+    }
+
+    @keyframes pawFade {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* --- EXPLOSÃO DE PATINHAS AO CLICAR (extra fofura) --- */
+    .paw-explosion {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: 18px;
+      animation: pawExplode 0.6s ease-out forwards;
+    }
+
+    .paw-explosion i {
+      color: var(--primary);
+    }
+
+    @keyframes pawExplode {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.5);
+      }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <nav>
+      <a href="index.html" class="logo">
+        <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="Logo">
+        Patas Pousada
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="ajuda.html">Ajuda</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="login-container">
+      
+      <div class="login-visual">
+        <a href="index.html" class="btn-back">
+          <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+
+        <div class="visual-content">
+          <p class="visual-quote">"O melhor cuidado para quem você mais ama."</p>
+        </div>
+      </div>
+
+      <div class="login-form-wrapper">
+        <div class="header-text">
+          <h1>Bem-vindo de volta! 👋</h1>
+          <p>Preencha seus dados para entrar.</p>
+        </div>
+
+        <form id="form-login" autocomplete="on">
+          
+          <div class="input-group">
+            <label for="login-email">E-mail</label>
+            <div class="input-wrapper">
+              <i class="fas fa-envelope icon"></i>
+              <input id="login-email" type="email" required placeholder="seu@email.com">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="login-pass">Senha</label>
+            <div class="input-wrapper">
+              <i class="fas fa-lock icon"></i>
+              <input id="login-pass" type="password" required placeholder="••••••••">
+              <i class="fas fa-eye toggle-pass" onclick="togglePassword()"></i>
+            </div>
+          </div>
+
+          <a href="equeceusenha.html" class="forgot-link">Esqueceu a senha?</a>
+
+          <button id="btn-login" type="submit">Entrar na conta</button>
+
+          <div id="msg-login" class="msg"></div>
+
+          <div class="divider">
+            <span>OU CRIE SUA CONTA</span>
+          </div>
+
+          <div class="signup-options">
+            <a href="registrotutores.html" class="signup-card">
+              <i class="fas fa-paw"></i>
+              <span>Sou Tutor</span>
+              <small>Busco hospedagem</small>
+            </a>
+            <a href="registroanfitrioes.html" class="signup-card">
+              <i class="fas fa-home"></i>
+              <span>Sou Anfitrião</span>
+              <small>Quero hospedar</small>
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /* ============================================
+       CONFIGURAÇÃO SUPABASE
+    ============================================= */
+    const SUPABASE_URL = "https://nwbgzokttjgkipwzfgzc.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53Ymd6b2t0dGpna2lwd3pmZ3pjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NjAyOTAsImV4cCI6MjA3NjIzNjI5MH0.jSdZ7TT8lH5y1P79VuFBOhOzNT1_5DG_aQk1fmyzmnk";
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Função para mostrar/ocultar senha
+    function togglePassword() {
+      const passInput = document.getElementById('login-pass');
+      const icon = document.querySelector('.toggle-pass');
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        passInput.type = "password";
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    function setMsg(el, text, ok=false){
+      el.textContent = text || "";
+      el.className = "msg" + (text ? (" " + (ok ? "ok":"err")) : "");
+      el.style.display = text ? "block" : "none";
+    }
+
+    function setLoading(is){
+      const btn = document.getElementById('btn-login');
+      btn.disabled = is;
+      btn.innerHTML = is ? '<i class="fas fa-spinner fa-spin"></i> Entrando...' : "Entrar na conta";
+    }
+
+    /* ============================================
+       LÓGICA DE LOGIN
+    ============================================= */
+    async function decideRedirect(email) {
+      const p = new URLSearchParams(location.search);
+      const forced = p.get('next');
+      if (forced) return forced;
+
+      const { data, error } = await sb
+        .from('hosts')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (!error && data) {
+        return "home_host.html";
+      }
+      return "home_tutor.html";
+    }
+
+    document.getElementById('form-login').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass  = document.getElementById('login-pass').value;
+      const msgEl = document.getElementById('msg-login');
+
+      if(!email || !pass){
+        setMsg(msgEl, "Por favor, informe e-mail e senha.");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setMsg(msgEl, "Verificando credenciais...", true);
+
+        const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+        if (error) {
+          setMsg(msgEl, "Erro: Usuário ou senha incorretos.");
+          setLoading(false);
+          return;
+        }
+
+        await bridgeSession(data.session?.access_token, data.session?.refresh_token);
+
+        setMsg(msgEl, "Login realizado! Redirecionando...", true);
+
+        const next = await decideRedirect(email);
+        location.href = next;
+
+      } catch (err) {
+        console.error(err);
+        setMsg(msgEl, "Ocorreu um erro inesperado.");
+        setLoading(false);
+      }
+    });
+
+    async function bridgeSession(access_token, refresh_token){
+      if (!access_token) return;
+      try{
+        await fetch('session_bridge.php', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ access_token, refresh_token })
+        });
+      }catch(e){
+        console.warn("PHP Bridge skipped (ambiente estático)");
+      }
+    }
+
+    /* ============================
+       MESMA PATINHA DO INDEX NO MOUSE
+    ============================ */
+    if (window.matchMedia('(pointer: fine)').matches) {
+      let lastPawTime = 0;
+
+      document.addEventListener('mousemove', function(e) {
+        const now = Date.now();
+        if (now - lastPawTime < 70) return; // igual ao index (70ms)
+        lastPawTime = now;
+
+        const paw = document.createElement('span');
+        paw.classList.add('paw-trail');
+        paw.innerHTML = '<i class="fas fa-paw"></i>';
+
+        paw.style.left = e.clientX + 'px';
+        paw.style.top = e.clientY + 'px';
+
+        const rotate = (Math.random() * 60 - 30).toFixed(0); // -30 a 30 graus
+        paw.style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
+
+        document.body.appendChild(paw);
+
+        setTimeout(() => {
+          paw.remove();
+        }, 800);
+      });
+    }
+
+    /* ===============================
+       EXPLOSÃO DE PATINHAS NO CLIQUE
+    =============================== */
+    function explodePaws(x, y) {
+      for (let i = 0; i < 12; i++) {
+        const paw = document.createElement('span');
+        paw.classList.add('paw-explosion');
+        paw.innerHTML = '<i class="fas fa-paw"></i>';
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 40 + Math.random() * 40;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance;
+
+        paw.style.setProperty('--dx', dx + 'px');
+        paw.style.setProperty('--dy', dy + 'px');
+        paw.style.left = x + 'px';
+        paw.style.top = y + 'px';
+
+        document.body.appendChild(paw);
+
+        setTimeout(() => {
+          paw.remove();
+        }, 600);
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      const target = e.target;
+      if (
+        target.closest('#btn-login') ||
+        target.closest('.signup-card') ||
+        target.closest('.btn-back')
+      ) {
+        explodePaws(e.clientX, e.clientY);
+      }
+    });
+  </script>
+</body>
+</html>

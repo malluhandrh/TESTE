@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Tutor — Patas Pousada</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Parkinsans:wght@300..800&display=swap');
+
+    :root{
+      --brand:#e2725b; --brand-strong:#d45f47; --ink:#1f2937; --muted:#6b7280; --bg:#f3f4f6; --white:#fff;
+      --radius:12px; --shadow:0 4px 12px rgba(0,0,0,.06); --line:#e5e7eb;
+      --chip:#fff0ec; --chip-border:#ffd8cf;
+      --danger: #dc2626; --success: #059669;
+      --transition: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body { 
+      font-family: 'Nunito', sans-serif; 
+      background-color: var(--bg); 
+      color: var(--ink); 
+      line-height: 1.5; 
+      -webkit-font-smoothing: antialiased;
+      /* MESMO CURSOR DO INDEX */
+      cursor: url('https://cur.cursors-4u.net/animals/ani-12/ani1133.cur'), auto;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* HEADER */
+    header{
+      display:flex;
+      justify-content:center;
+      background:rgba(255,255,255,0.95);
+      box-shadow:0 1px 3px rgba(0,0,0,.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    nav{
+      max-width:1100px;
+      width:100%;
+      padding:12px 24px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:var(--brand);
+      font-family:Parkinsans,sans-serif;
+      font-weight:800;
+      font-size: 1.2rem;
+    }
+    .logo img{width:28px;height:28px;}
+    nav ul{
+      list-style:none;
+      display:flex;
+      gap:20px;
+      margin:0;
+      padding:0;
+      align-items: center;
+    }
+    nav ul a{
+      font-family:Parkinsans,sans-serif;
+      font-weight:600;
+      color:#4b5563;
+      font-size: 0.9rem;
+      transition: color var(--transition);
+    }
+    nav ul a:hover{color:var(--brand)}
+
+    /* CONTAINER */
+    .container { 
+      max-width: 600px; 
+      margin: 40px auto; 
+      background: #fff; 
+      padding: 40px; 
+      border-radius: 20px; 
+      box-shadow: var(--shadow); 
+      position: relative;
+    }
+
+    /* BOTÃO VOLTAR */
+    .btn-voltar {
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px;
+      color: var(--muted); 
+      font-weight: 700; 
+      font-size: 0.9rem;
+      margin-bottom: 16px; 
+      transition: color 0.2s; 
+      cursor: pointer;
+    }
+    .btn-voltar:hover { color: var(--brand); }
+
+    h2 { 
+      text-align:center; 
+      margin-bottom:10px; 
+      color:var(--brand); 
+      font-family: 'Parkinsans', sans-serif; 
+      font-size: 1.8rem; 
+      font-weight: 800;
+    }
+    .subtitle { 
+      text-align: center; 
+      color: var(--muted); 
+      margin-bottom: 30px; 
+      font-size: 0.95rem; 
+    }
+
+    /* FORMULÁRIO */
+    label { 
+      display:block; 
+      margin-bottom:6px; 
+      font-weight: 700; 
+      color: #374151; 
+      font-size: 0.9rem; 
+    }
+
+    input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="number"], select {
+      width:100%; 
+      padding:12px 16px; 
+      margin-bottom:20px; 
+      border:1px solid #d1d5db; 
+      border-radius:10px; 
+      box-sizing:border-box;
+      font-family: inherit; 
+      font-size: 0.95rem; 
+      outline: none; 
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus { 
+      border-color: var(--brand); 
+      box-shadow: 0 0 0 3px var(--chip); 
+    }
+
+    /* GRID DE PETS */
+    .pet-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+      gap: 12px; 
+      margin-bottom: 20px;
+    }
+    .pet-option {
+      position: relative;
+    }
+    .pet-option input { 
+      position: absolute; 
+      opacity: 0; 
+      width: 0; 
+      height: 0; 
+    }
+    .pet-option label {
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 8px;
+      padding: 16px; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 12px; 
+      cursor: pointer;
+      background: #fff; 
+      transition: all 0.2s; 
+      color: var(--muted); 
+      font-weight: 600; 
+      height: 100%; 
+      margin: 0;
+    }
+    .pet-option label i { 
+      font-size: 1.5rem; 
+      color: #9ca3af; 
+      transition: color 0.2s; 
+    }
+    
+    .pet-option input:checked + label {
+      border-color: var(--brand); 
+      background: var(--chip); 
+      color: var(--brand);
+      box-shadow: 0 4px 12px rgba(226, 114, 91, 0.2);
+    }
+    .pet-option input:checked + label i { 
+      color: var(--brand); 
+    }
+
+    /* QUANTIDADES */
+    #quantidades-container { 
+      margin-top:0; 
+      padding: 16px; 
+      background: #f9fafb; 
+      border-radius: 12px; 
+      border: 1px solid #f3f4f6; 
+      display: none;
+      margin-bottom: 20px;
+    }
+    #quantidades-container.visible { 
+      display: block; 
+      animation: fadeIn 0.3s; 
+    }
+    
+    .qtd-row { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      margin-bottom: 10px; 
+    }
+    .qtd-row:last-child { 
+      margin-bottom: 0; 
+    }
+    .qtd-row label { 
+      margin: 0; 
+      font-weight: 600; 
+      color: #4b5563; 
+    }
+    .qtd-control { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+    }
+    .qtd-control input { 
+      width: 60px; 
+      text-align: center; 
+      margin: 0; 
+      padding: 8px; 
+    }
+
+    #total-pets { 
+      font-size:0.95rem; 
+      font-weight:700; 
+      margin-bottom: 24px; 
+      text-align:right; 
+      color:var(--muted); 
+    }
+    #total-pets span { 
+      color:var(--brand); 
+      font-size: 1.1rem; 
+    }
+
+    /* IDADE */
+    #idade-calculada { 
+      font-size:0.85rem; 
+      color:var(--muted); 
+      margin-top:-16px; 
+      margin-bottom:20px; 
+      font-weight: 600; 
+    }
+    .age-note { 
+      color:var(--danger); 
+      margin-top:-16px; 
+      margin-bottom:20px; 
+      font-size:0.85rem; 
+      font-weight: 600; 
+      display:none; 
+    }
+
+    /* CHECKBOX TERMOS */
+    .termos-check { 
+      display:flex; 
+      align-items:flex-start; 
+      gap:10px; 
+      font-size:0.9rem; 
+      margin-bottom: 24px; 
+      padding: 16px; 
+      background: #fff; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 12px;
+    }
+    .termos-check input { 
+      margin-top: 4px; 
+      accent-color: var(--brand); 
+      transform: scale(1.1); 
+    }
+    .link-termos { 
+      color:var(--brand); 
+      text-decoration:underline; 
+      cursor:pointer; 
+      font-weight: 700; 
+    }
+
+    /* BOTÃO REGISTRAR */
+    button[type="submit"] {
+      width:100%; 
+      border:none; 
+      border-radius:30px; 
+      padding:14px; 
+      background:var(--brand); 
+      color:#fff; 
+      font-size:1rem; 
+      font-weight: 800; 
+      cursor:pointer; 
+      transition:all 0.2s; 
+      font-family: 'Parkinsans', sans-serif;
+      box-shadow: 0 4px 15px rgba(226, 114, 91, 0.3);
+    }
+    button[type="submit"]:disabled { 
+      opacity:0.6; 
+      cursor:not-allowed; 
+      background:#9ca3af; 
+      box-shadow: none; 
+    }
+    button[type="submit"]:hover:not(:disabled) { 
+      background:var(--brand-strong); 
+      transform: translateY(-2px); 
+    }
+
+    /* LINK LOGIN */
+    .criar { 
+      text-align:center; 
+      margin-top:24px; 
+      font-size: 0.95rem; 
+      color: var(--muted); 
+    }
+    .criar a { 
+      color:var(--brand); 
+      font-weight: 700; 
+      margin-left: 4px; 
+    }
+    .criar a:hover { 
+      text-decoration: underline; 
+    }
+
+    /* ALERTAS */
+    .alerta-erro, .alerta-sucesso {
+      border-radius: 10px; 
+      padding: 12px; 
+      margin-top: 20px; 
+      text-align: center; 
+      font-weight: 600; 
+      font-size: 0.9rem; 
+      display: none; 
+      animation: slideDown 0.3s;
+    }
+    .alerta-erro { 
+      background-color: #fee2e2; 
+      color: #b91c1c; 
+      border: 1px solid #fecaca; 
+    }
+    .alerta-sucesso { 
+      background-color: #d1fae5; 
+      color: #047857; 
+      border: 1px solid #a7f3d0; 
+    }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,.6); 
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index: 999; 
+      backdrop-filter: blur(4px);
+    }
+    .modal {
+      width: min(600px, 92vw); 
+      max-height: 80vh; 
+      overflow: hidden; 
+      background:#fff; 
+      border-radius:20px; 
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      display:flex; 
+      flex-direction:column; 
+      animation: popIn 0.3s;
+    }
+    .modal header {
+      display:flex; 
+      align-items:center; 
+      justify-content:space-between; 
+      padding:16px 24px; 
+      border-bottom:1px solid var(--line); 
+      background:#fff;
+    }
+    .modal h3 { 
+      margin:0; 
+      font-size:1.1rem; 
+      color:var(--ink); 
+      font-family: 'Parkinsans', sans-serif; 
+    }
+    .modal .modal-body { 
+      padding:24px; 
+      overflow-y:auto; 
+      line-height:1.6; 
+      font-size:0.95rem; 
+      color: #374151; 
+    }
+    .modal footer {
+      display:flex; 
+      gap:12px; 
+      justify-content:flex-end; 
+      padding:16px 24px; 
+      border-top:1px solid var(--line); 
+      background:#f9fafb;
+    }
+    .pill {
+      display:inline-block; 
+      font-size:0.75rem; 
+      background:var(--chip); 
+      color:var(--brand); 
+      border:1px solid var(--chip-border); 
+      padding:2px 10px; 
+      border-radius:20px; 
+      margin-right:6px; 
+      font-weight: 700;
+    }
+    .btn-modal { 
+      padding: 10px 20px; 
+      border-radius: 8px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      border: none; 
+      font-size: 0.9rem; 
+    }
+    .btn-cancel { 
+      background: #fff; 
+      border: 1px solid #d1d5db; 
+      color: #4b5563; 
+    }
+    .btn-confirm { 
+      background: var(--brand); 
+      color: #fff; 
+    }
+
+    /* OVERLAY EMAIL */
+    #overlay-confirm-email {
+      position:fixed; 
+      inset:0; 
+      background:rgba(0,0,0,.6); 
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index: 1000; 
+      backdrop-filter: blur(4px);
+    }
+    .overlay-card {
+      background:#fff; 
+      border-radius:24px; 
+      padding:32px; 
+      max-width:360px; 
+      width:90%;
+      text-align:center; 
+      box-shadow:0 20px 50px rgba(0,0,0,.3); 
+      animation: popIn 0.4s;
+    }
+    .overlay-card h3 { 
+      margin:0 0 12px; 
+      color:var(--brand); 
+      font-size:1.4rem; 
+      font-family: 'Parkinsans', sans-serif; 
+    }
+    .overlay-card p { 
+      margin:10px 0; 
+      font-size:0.95rem; 
+      color:#4b5563; 
+      line-height: 1.5; 
+    }
+    .overlay-btn {
+      width:100%; 
+      margin-top:20px; 
+      border-radius:30px; 
+      border:none; 
+      background:var(--brand); 
+      color:#fff; 
+      font-weight:800; 
+      padding:12px; 
+      cursor:pointer; 
+      transition: background 0.2s; 
+      font-size: 1rem;
+    }
+    .overlay-btn:hover { 
+      background:var(--brand-strong); 
+    }
+
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translateY(-10px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    @keyframes popIn { 
+      from { opacity: 0; transform: scale(0.95); } 
+      to { opacity: 1; transform: scale(1); } 
+    }
+    @keyframes slideDown { 
+      from { opacity: 0; transform: translateY(-10px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+
+    /* Mobile */
+    @media (min-width: 600px) { 
+      .form-row { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 20px; 
+      } 
+    }
+
+    /* --- PATINHAS SEGUINDO O MOUSE (MESMO ESTILO DO INDEX) --- */
+    .paw-trail {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: 15px;
+      transform: translate(-50%, -50%);
+      animation: pawFade 0.8s ease-out forwards;
+    }
+    .paw-trail i {
+      color: var(--brand);
+    }
+
+    /* --- EXPLOSÃO DE PATINHAS NO CLIQUE (MESMO ESTILO DO CADASTRAROUENTRAR) --- */
+    .paw-burst {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      font-size: 18px;
+      transform: translate(-50%, -50%);
+      /* variáveis para o movimento */
+      --tx: 0px;
+      --ty: 0px;
+      --scale: 1;
+      animation: pawBurstUp 0.6s ease-out forwards;
+    }
+    .paw-burst i {
+      color: var(--brand);
+    }
+
+    @keyframes pawFade {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes pawBurstUp {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--scale));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav>
+      <a href="index.html" class="logo">
+        <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="Icone">
+        Patas Pousada
+      </a>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="ajuda.html">Ajuda</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <a href="cadastrarouentrar.html" class="btn-voltar">
+      <i class="fa-solid fa-arrow-left"></i> Voltar
+    </a>
+
+    <h2>Crie sua conta de tutor</h2>
+    <p class="subtitle">Junte-se à nossa comunidade de amantes de pets!</p>
+
+    <form id="formCadastro">
+      <div class="form-row">
+        <div>
+          <label for="name">Nome Completo</label>
+          <input type="text" id="name" required placeholder="Seu nome">
+        </div>
+        <div>
+          <label for="cpf">CPF</label>
+          <input type="text" id="cpf" required placeholder="000.000.000-00">
+        </div>
+      </div>
+
+      <label for="birth_date">Data de Nascimento</label>
+      <input type="date" id="birth_date" required>
+      <p id="idade-calculada"></p>
+      <div class="age-note" id="mensagem-idade">
+        <i class="fa-solid fa-circle-exclamation"></i> Idade inválida. É necessário ter entre 18 e 100 anos.
+      </div>
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" required placeholder="seu@email.com">
+
+      <div class="form-row">
+        <div>
+          <label for="password">Senha</label>
+          <input type="password" id="password" required placeholder="Mínimo 8 caracteres">
+        </div>
+        <div>
+          <label for="confirm_password">Confirmar Senha</label>
+          <input type="password" id="confirm_password" required placeholder="Repita a senha">
+        </div>
+      </div>
+
+      <label style="margin-bottom: 12px;">Que tipo de pet você tem?</label>
+      <div id="pet-options" class="pet-grid"></div>
+      
+      <input type="text" id="other_pet" placeholder="Qual espécie?" style="display:none; margin-top:-10px;">
+      
+      <div id="quantidades-container"></div>
+
+      <p id="total-pets">Total: <span>0</span> pets <i class="fa-solid fa-paw"></i></p>
+
+      <div class="termos-check">
+        <input type="checkbox" id="terms_consent">
+        <label for="terms_consent">
+          Li e concordo com os
+          <span id="open-terms" class="link-termos">Termos de Uso &amp; Consentimento de Dados</span>.
+        </label>
+      </div>
+
+      <button type="submit" id="btn-registrar" disabled>Criar Conta</button>
+
+      <div id="sucesso-container" class="alerta-sucesso"></div>
+      <div id="erro-container" class="alerta-erro"></div>
+
+      <div class="criar">
+        Já tem uma conta? <a href="cadastrarouentrar.html">Fazer Login</a>
+      </div>
+    </form>
+  </div>
+
+  <div id="termos-backdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <h3>Termos de Uso — Tutores</h3>
+        <button type="button" id="close-terms" style="border:none;background:transparent;font-size:1.2rem;cursor:pointer;color:#9ca3af">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <p>
+          <span class="pill">LGPD</span>
+          <span class="pill">Marco Civil</span>
+          <span class="pill">Termos 2025</span>
+        </p>
+
+        <h4>1. O que é a Patas Pousada? 🐾</h4>
+        <p>A <strong>Patas Pousada</strong> é uma plataforma que conecta tutores de pets a anfitriões que oferecem hospedagem, day care ou lar temporário.</p>
+
+        <h4>2. Coleta de Dados</h4>
+        <p>Coletamos nome, CPF, data de nascimento, e-mail e dados dos seus pets para garantir a segurança da comunidade e viabilizar as reservas.</p>
+
+        <h4>3. Finalidade</h4>
+        <p>Seus dados são usados exclusivamente para gestão da conta, comunicação com anfitriões e cumprimento de obrigações legais.</p>
+
+        <h4>4. Seus Direitos</h4>
+        <p>Você pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento através do painel de perfil.</p>
+
+        <div style="margin-top:20px; padding:16px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px;">
+          <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer;">
+            <input type="checkbox" id="modal_accept" style="margin-top:4px; width:auto;">
+            <span style="font-weight:600; color:#0369a1; font-size:0.9rem;">
+              Li e concordo com os Termos de Uso &amp; Consentimento de Dados.
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <footer>
+        <button type="button" class="btn-modal btn-cancel" id="btn-decline">Cancelar</button>
+        <button type="button" class="btn-modal btn-confirm" id="btn-accept">Confirmar</button>
+      </footer>
+    </div>
+  </div>
+
+  <div id="overlay-confirm-email">
+    <div class="overlay-card">
+      <i class="fa-solid fa-envelope-circle-check" style="font-size: 3rem; color: var(--brand); margin-bottom: 16px;"></i>
+      <h3>Confirme seu e-mail</h3>
+      <p>Cadastro realizado com sucesso! 🐾</p>
+      <p>Enviamos um link de confirmação para:<br><strong id="overlay-email" style="color:var(--ink)"></strong></p>
+      <p style="font-size:0.85rem; margin-top: 12px;">Verifique sua caixa de entrada (e spam) para ativar sua conta.</p>
+      <button type="button" class="overlay-btn" id="overlay-ok">Entendi, vou verificar</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabaseUrl = "https://nwbgzokttjgkipwzfgzc.supabase.co";
+    const supabaseAnon = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53Ymd6b2t0dGpna2lwd3pmZ3pjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NjAyOTAsImV4cCI6MjA3NjIzNjI5MH0.jSdZ7TT8lH5y1P79VuFBOhOzNT1_5DG_aQk1fmyzmnk";
+    const supabase = createClient(supabaseUrl, supabaseAnon);
+
+    // Configuração atualizada com os rótulos no singular para o checkbox, 
+    // mas usaremos o plural na pergunta de quantidade.
+    const petConfig = {
+      cachorro: { label: "Cachorro", icon: "fa-dog", plural: "Cachorros" },
+      gato: { label: "Gato", icon: "fa-cat", plural: "Gatos" },
+      passaro: { label: "Pássaro", icon: "fa-dove", plural: "Pássaros" },
+      roedor: { label: "Roedor", icon: "fa-otter", plural: "Roedores" },
+      reptil: { label: "Réptil", icon: "fa-worm", plural: "Répteis" },
+      outro: { label: "Outro", icon: "fa-paw", plural: "Outros" }
+    };
+
+    const birthInput = document.getElementById("birth_date");
+    const idadeTexto = document.getElementById("idade-calculada");
+    const msgIdade = document.getElementById("mensagem-idade");
+    const botao = document.getElementById("btn-registrar");
+    const termsCheckbox = document.getElementById("terms_consent");
+    const erroDiv = document.getElementById("erro-container");
+    const sucessoDiv = document.getElementById("sucesso-container");
+    const overlay = document.getElementById("overlay-confirm-email");
+    const overlayEmail = document.getElementById("overlay-email");
+    const overlayOk = document.getElementById("overlay-ok");
+
+    window.addEventListener("DOMContentLoaded", () => {
+      gerarTiposPets();
+      atualizarEstadoBotao();
+    });
+
+    // Geração Visual dos Pets
+    function gerarTiposPets() {
+      const container = document.getElementById("pet-options");
+      
+      for (const [key, config] of Object.entries(petConfig)) {
+        const div = document.createElement("div");
+        div.className = "pet-option";
+        div.innerHTML = `
+          <input type="checkbox" id="pet_${key}" value="${key}">
+          <label for="pet_${key}">
+            <i class="fa-solid ${config.icon}"></i>
+            ${config.label}
+          </label>
+        `;
+        container.appendChild(div);
+
+        // Event Listener
+        const input = div.querySelector("input");
+        input.addEventListener("change", () => {
+          toggleOtherPetInput();
+          gerarCamposQuantidade();
+        });
+      }
+    }
+
+    function toggleOtherPetInput() {
+      const otherCheckbox = document.getElementById("pet_outro");
+      const otherInput = document.getElementById("other_pet");
+      
+      if(otherCheckbox && otherCheckbox.checked) {
+        otherInput.style.display = "block";
+        otherInput.required = true;
+        otherInput.focus();
+      } else {
+        otherInput.style.display = "none";
+        otherInput.required = false;
+      }
+    }
+
+    function gerarCamposQuantidade() {
+      const selecionados = Array.from(document.querySelectorAll(".pet-option input:checked"));
+      const container = document.getElementById("quantidades-container");
+      
+      container.innerHTML = "";
+      
+      if(selecionados.length > 0) {
+        container.classList.add("visible");
+        selecionados.forEach(sel => {
+          const tipo = sel.value;
+          
+          // Lógica para exibir o plural correto
+          let labelText;
+          if (tipo === "outro") {
+            const valorDigitado = document.getElementById("other_pet").value;
+            labelText = valorDigitado ? valorDigitado : "Outros";
+          } else {
+            labelText = petConfig[tipo].plural;
+          }
+
+          const div = document.createElement("div");
+          div.className = "qtd-row";
+          div.innerHTML = `
+            <label>Quantos ${labelText}?</label>
+            <div class="qtd-control">
+              <input type="number" min="1" value="1" name="qtd_${tipo}" required>
+            </div>
+          `;
+          
+          // Atualiza o label se o usuário digitar no campo "Outro"
+          if(tipo === 'outro'){
+            document.getElementById("other_pet").addEventListener('input', (e) => {
+              const novoTexto = e.target.value || "Outros";
+              div.querySelector("label").textContent = `Quantos ${novoTexto}?`;
+            });
+          }
+
+          // Update total on change
+          div.querySelector("input").addEventListener("input", atualizarTotal);
+          container.appendChild(div);
+        });
+      } else {
+        container.classList.remove("visible");
+      }
+      atualizarTotal();
+    }
+
+    function atualizarTotal() {
+      const nums = document.querySelectorAll("#quantidades-container input");
+      let total = 0;
+      nums.forEach(n => { total += parseInt(n.value) || 0; });
+      document.querySelector("#total-pets span").textContent = total;
+    }
+
+    // Validação de Idade
+    function calcularIdade(dateStr) {
+      if (!dateStr) return null;
+      const birthDate = new Date(dateStr);
+      const hoje = new Date();
+      let idade = hoje.getFullYear() - birthDate.getFullYear();
+      const mes = hoje.getMonth() - birthDate.getMonth();
+      if (mes < 0 || (mes === 0 && hoje.getDate() < birthDate.getDate())) idade--;
+      return idade;
+    }
+
+    birthInput.addEventListener("input", () => {
+      const idade = calcularIdade(birthInput.value);
+      if (idade === null) return;
+
+      idadeTexto.textContent = `🎂 Idade: ${idade} anos`;
+      
+      if (idade < 18 || idade > 100) {
+        msgIdade.style.display = "block";
+        idadeTexto.style.color = "#dc2626";
+      } else {
+        msgIdade.style.display = "none";
+        idadeTexto.style.color = "#059669";
+      }
+      atualizarEstadoBotao();
+    });
+
+    function atualizarEstadoBotao() {
+      const idade = calcularIdade(birthInput.value);
+      const idadeOk = idade !== null && idade >= 18 && idade <= 100;
+      botao.disabled = !(termsCheckbox.checked && idadeOk);
+    }
+
+    termsCheckbox.addEventListener("change", atualizarEstadoBotao);
+
+    // Modal Termos
+    const modal = document.getElementById("termos-backdrop");
+    document.getElementById("open-terms").onclick = () => modal.style.display = "flex";
+    document.getElementById("close-terms").onclick = () => modal.style.display = "none";
+    document.getElementById("btn-decline").onclick = () => modal.style.display = "none";
+    
+    document.getElementById("btn-accept").onclick = () => {
+      if(document.getElementById("modal_accept").checked) {
+        termsCheckbox.checked = true;
+        modal.style.display = "none";
+        atualizarEstadoBotao();
+      } else {
+        alert("Marque a caixa para concordar.");
+      }
+    };
+
+    // Overlay OK
+    overlayOk.onclick = () => {
+      window.location.href = "cadastrarouentrar.html";
+    };
+
+    // Submit
+    document.getElementById("formCadastro").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      erroDiv.style.display = "none";
+      
+      const nome = document.getElementById("name").value.trim();
+      const cpf = document.getElementById("cpf").value;
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("password").value;
+      const conf = document.getElementById("confirm_password").value;
+
+      if(senha !== conf) {
+        erroDiv.textContent = "As senhas não conferem!";
+        erroDiv.style.display = "block";
+        return;
+      }
+
+      const totalPets = parseInt(document.querySelector("#total-pets span").textContent);
+
+      botao.disabled = true;
+      botao.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email, password: senha,
+          options: {
+            data: {
+              full_name: nome,
+              role: "tutor",
+              cpf,
+              birth_date: document.getElementById("birth_date").value,
+              pets_count: totalPets,
+              accepted_terms: true
+            }
+          }
+        });
+
+        if(error) throw error;
+
+        overlayEmail.textContent = email;
+        overlay.style.display = "flex";
+
+      } catch (err) {
+        console.error(err);
+        erroDiv.textContent = err.message.includes("already registered") 
+          ? "E-mail já cadastrado." 
+          : "Erro ao cadastrar. Tente novamente.";
+        erroDiv.style.display = "block";
+        botao.disabled = false;
+        botao.textContent = "Criar Conta";
+      }
+    });
+
+    /* ================================
+       PATINHAS: TRAIL + EXPLOSÃO
+       (igual estilo index + cadastrarouentrar)
+    ================================ */
+
+    // Trail de patinhas seguindo o mouse (somente em dispositivos com mouse "fino")
+    if (window.matchMedia('(pointer: fine)').matches) {
+      let lastPawTime = 0;
+
+      document.addEventListener('mousemove', function(e) {
+        const now = Date.now();
+        if (now - lastPawTime < 70) return; // menos frequente
+        lastPawTime = now;
+
+        const paw = document.createElement('span');
+        paw.classList.add('paw-trail');
+        paw.innerHTML = '<i class="fas fa-paw"></i>';
+
+        paw.style.left = e.clientX + 'px';
+        paw.style.top = e.clientY + 'px';
+
+        const rotate = (Math.random() * 60 - 30).toFixed(0); // -30 a 30 graus
+        paw.style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
+
+        document.body.appendChild(paw);
+
+        setTimeout(() => {
+          paw.remove();
+        }, 800);
+      });
+    }
+
+    // Função para criar explosão de patinhas
+    function createPawBurst(x, y) {
+      const total = 8;
+      for (let i = 0; i < total; i++) {
+        const paw = document.createElement('span');
+        paw.classList.add('paw-burst');
+        paw.innerHTML = '<i class="fas fa-paw"></i>';
+
+        paw.style.left = x + 'px';
+        paw.style.top = y + 'px';
+
+        const angle = (Math.PI * 2 / total) * i;
+        const distance = 40 + Math.random() * 20;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        const scale = 0.7 + Math.random() * 0.4;
+
+        paw.style.setProperty('--tx', tx + 'px');
+        paw.style.setProperty('--ty', ty + 'px');
+        paw.style.setProperty('--scale', scale);
+
+        document.body.appendChild(paw);
+
+        setTimeout(() => paw.remove(), 600);
+      }
+    }
+
+    // Liga explosão ao botão principal e ao voltar (igual cadastrarouentrar)
+    function attachBurst(selector) {
+      document.querySelectorAll(selector).forEach(el => {
+        el.addEventListener('click', function(e) {
+          const rect = el.getBoundingClientRect();
+          const x = rect.left + rect.width / 2;
+          const y = rect.top + rect.height / 2;
+          createPawBurst(x, y);
+        });
+      });
+    }
+
+    attachBurst('#btn-registrar');
+    attachBurst('.btn-voltar');
+  </script>
+</body>
+</html>

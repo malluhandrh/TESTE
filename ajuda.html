@@ -1,0 +1,429 @@
+<!DOCTYPE html> 
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajuda e Suporte — Patas Pousada</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Parkinsans:wght@300..800&display=swap');
+
+    :root{
+      --pri:#e2725b;
+      --pri-dark:#d45f47;
+      --bg:#f7f7f7;
+      --card:#ffffff;
+      --border:#e5e7eb;
+      --txt:#111827;
+      --muted:#6b7280;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;}
+
+    body{
+      font-family:Nunito,system-ui,Arial,sans-serif;
+      line-height:1.6;
+      background:linear-gradient(180deg,#fff,#fdf4f2);
+      color:var(--txt);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* HEADER */
+    header{
+      justify-content:center;
+      display:flex;
+      background-color:#fff;
+      padding:16px 0;
+      box-shadow:0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 20px;
+      width:100%;
+    }
+
+    nav .logo{
+      font-size:1.5em;
+      font-weight:bold;
+      color:var(--pri);
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-family:Parkinsans,sans-serif;
+    }
+
+    nav img{
+      width:30px;
+      height:30px;
+    }
+
+    nav ul{
+      list-style:none;
+      display:flex;
+      gap:16px;
+    }
+
+    nav ul li a{
+      text-decoration:none;
+      color:#333;
+      font-weight:bold;
+      font-family:Parkinsans,sans-serif;
+      font-size:.95rem;
+    }
+    nav ul li a:hover{ color:var(--pri-dark); }
+
+    /* TOPO: VOLTAR + TÍTULO */
+    .top-wrap{
+      max-width:900px;
+      margin:26px auto 8px;
+      padding:0 16px;
+      display:flex;
+      justify-content:flex-start; /* tudo alinhado à esquerda */
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .top-wrap h1{
+      font-family:Parkinsans,sans-serif;
+      font-size:1.8rem;
+      color:var(--pri);
+    }
+
+    .back-btn{
+      border-radius:999px;
+      padding:9px 20px;
+      border:2px solid var(--pri);
+      background:var(--pri);           /* preenchido */
+      color:#fff;
+      font-weight:800;
+      font-size:.9rem;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-family:Parkinsans,sans-serif;
+      box-shadow:0 3px 8px rgba(0,0,0,0.14);
+      transition:background .2s,border-color .2s,transform .2s,box-shadow .2s;
+    }
+    .back-btn:hover{
+      background:var(--pri-dark);
+      border-color:var(--pri-dark);
+      transform:translateX(-3px);
+      box-shadow:0 6px 14px rgba(0,0,0,0.2);
+    }
+
+    /* CONTAINER PRINCIPAL */
+    .container{
+      max-width:900px;
+      margin:4px auto 24px;
+      padding:0 16px 24px;
+      width:100%;
+    }
+
+    .cards-grid{
+      display:grid;
+      grid-template-columns: minmax(0,1.6fr) minmax(0,1.1fr);
+      gap:18px;
+    }
+    @media (max-width:840px){
+      .cards-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      box-shadow:0 12px 28px rgba(15,23,42,.09);
+      border:1px solid var(--border);
+      padding:18px 18px 20px;
+    }
+
+    .card h2{
+      font-size:1.25rem;
+      margin-bottom:8px;
+      color:var(--pri);
+      font-family:Parkinsans,sans-serif;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .card h2 span.ic{
+      font-size:1.3rem;
+    }
+
+    .card p{
+      font-size:.95rem;
+      color:#374151;
+      margin-bottom:8px;
+    }
+
+    /* FAQ */
+    .faq-item{
+      margin-bottom:10px;
+      border-bottom:1px solid #f3f4f6;
+      padding-bottom:8px;
+    }
+
+    .faq-item strong{
+      display:block;
+      margin-bottom:2px;
+    }
+
+    /* CONTATO */
+    .contact p strong{ color:#111827; }
+
+    /* FORMULÁRIO */
+    form{
+      display:flex;
+      flex-direction:column;
+      margin-top:6px;
+    }
+
+    form label{
+      margin-bottom:4px;
+      font-weight:800;
+      font-size:.9rem;
+      color:#111827;
+    }
+
+    form input,
+    form textarea{
+      margin-bottom:12px;
+      padding:10px 11px;
+      border:1px solid #d1d5db;
+      border-radius:10px;
+      font-size:.95rem;
+      font-family:inherit;
+      outline:none;
+      transition:border .15s, box-shadow .15s, background .15s;
+      background:#f9fafb;
+    }
+
+    form input:focus,
+    form textarea:focus{
+      border-color:var(--pri);
+      box-shadow:0 0 0 2px rgba(226,114,91,0.18);
+      background:#fff;
+    }
+
+    form textarea{
+      resize:vertical;
+      min-height:90px;
+    }
+
+    form button{
+      padding:11px 22px;
+      background-color:var(--pri);
+      color:#fff;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:.96rem;
+      font-weight:800;
+      font-family:Parkinsans,sans-serif;
+      margin-top:4px;
+      align-self:flex-end;
+      min-width:170px;
+      box-shadow:0 3px 8px rgba(0,0,0,0.14);
+      transition:background .2s, transform .2s, box-shadow .2s;
+    }
+
+    form button:hover{
+      background-color:var(--pri-dark);
+      transform:translateY(-1px);
+      box-shadow:0 6px 14px rgba(0,0,0,0.22);
+    }
+
+    /* MENSAGEM DO FORM */
+    .msg{
+      margin-top:8px;
+      font-size:.88rem;
+      font-weight:600;
+      display:none;
+      padding:8px 10px;
+      border-radius:10px;
+    }
+    .msg.ok{
+      display:block;
+      background:#ecfdf5;
+      border:1px solid #a7f3d0;
+      color:#065f46;
+    }
+    .msg.err{
+      display:block;
+      background:#fef2f2;
+      border:1px solid #fecaca;
+      color:#991b1b;
+    }
+
+    footer{
+      text-align:center;
+      color:#9ca3af;
+      font-size:.8rem;
+      padding:0 0 14px;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo">
+      <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png"
+           alt="Ícone">
+      Patas Pousada
+    </a>
+    <ul>
+      <li><a href="index.html">Início</a></li>
+      <li><a href="ajuda.html">Ajuda</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="top-wrap">
+  <button id="btnVoltar" class="back-btn">
+    ⟵ Voltar
+  </button>
+  <h1>Ajuda &amp; Suporte</h1>
+</div>
+
+<div class="container">
+  <div class="cards-grid">
+
+    <!-- FAQ -->
+    <section class="card faq">
+      <h2><span class="ic">❓</span>Perguntas frequentes</h2>
+      <p class="subtitle" style="font-size:.9rem;color:var(--muted);margin-bottom:10px;">
+        Encontre rapidamente respostas para as dúvidas mais comuns sobre o uso da plataforma.
+      </p>
+
+      <div class="faq-item">
+        <strong>1. Como faço uma reserva?</strong>
+        <p>Você pode fazer uma reserva acessando a página <strong>Reservas</strong> no menu principal, escolhendo o anfitrião e as datas desejadas, e confirmando os detalhes da hospedagem.</p>
+      </div>
+
+      <div class="faq-item">
+        <strong>2. Posso cancelar minha reserva?</strong>
+        <p>Sim. O cancelamento é possível até <strong>24 horas antes</strong> da data de check-in. Consulte sempre os termos de cancelamento exibidos na tela de reserva.</p>
+      </div>
+
+      <div class="faq-item">
+        <strong>3. Como entro em contato com o anfitrião?</strong>
+        <p>Depois de confirmar uma reserva, os dados de contato do anfitrião ficam disponíveis na tela de detalhes da reserva. Você poderá combinar horários, alimentação e outras necessidades do pet.</p>
+      </div>
+
+      <div class="faq-item">
+        <strong>4. Ainda estou com dúvida. O que eu faço?</strong>
+        <p>Preencha o formulário ao lado com o máximo de detalhes possível e nossa equipe retornará o contato por e-mail.</p>
+      </div>
+    </section>
+
+    <!-- CONTATO + FORM -->
+    <section class="card">
+      <h2><span class="ic">📬</span>Fale com a gente</h2>
+      <p style="font-size:.92rem;color:var(--muted);margin-bottom:8px;">
+        Se não encontrou sua resposta no FAQ, envie sua mensagem pelo formulário abaixo.
+      </p>
+
+      <div class="contact" style="margin-bottom:12px;">
+        <p><strong>E-mail:</strong> suporte@patapousada.com</p>
+        <p><strong>Telefone:</strong> (61) 1234-5678</p>
+      </div>
+
+      <div class="form-section">
+        <form id="formSuporte">
+          <label for="name">Nome</label>
+          <input type="text" id="name" name="name" placeholder="Seu nome" required>
+
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" placeholder="voce@exemplo.com" required>
+
+          <label for="message">Mensagem</label>
+          <textarea id="message" name="message" rows="4" placeholder="Conte pra gente como podemos ajudar" required></textarea>
+
+          <button type="submit">Enviar mensagem</button>
+          <div id="msgForm" class="msg"></div>
+        </form>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<footer>© 2025 Patas Pousada • Todos os direitos reservados</footer>
+
+<script>
+  // ===== Supabase: usado só para descobrir se há usuário logado e se é host/tutor =====
+  const SUPABASE_URL = "https://nwbgzokttjgkipwzfgzc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Botão Voltar:
+  // - Sem user -> index.html
+  // - User host -> home_host.html
+  // - User tutor -> home_tutor.html
+  document.getElementById('btnVoltar').addEventListener('click', async ()=>{
+    try{
+      const { data:{ user } } = await sb.auth.getUser();
+
+      if (!user){
+        window.location.href = "index.html";
+        return;
+      }
+
+      // verifica se é anfitrião na tabela hosts
+      const { data: host, error } = await sb
+        .from('hosts')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!error && host){
+        window.location.href = "home_host.html";
+      } else {
+        window.location.href = "home_tutor.html";
+      }
+    }catch(e){
+      // Se algo der errado, cai pro index
+      window.location.href = "index.html";
+    }
+  });
+
+  // Formulário de suporte (apenas visual, sem backend real)
+  const form = document.getElementById('formSuporte');
+  const msgForm = document.getElementById('msgForm');
+
+  form.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const nome = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const texto = document.getElementById('message').value.trim();
+
+    if (!nome || !email || !texto){
+      msgForm.textContent = "Preencha todos os campos antes de enviar.";
+      msgForm.className = "msg err";
+      return;
+    }
+
+    // Aqui você poderia integrar com um backend / envio de e-mail.
+    msgForm.textContent = "Mensagem enviada com sucesso! Em breve entraremos em contato pelo seu e-mail. 🐾";
+    msgForm.className = "msg ok";
+    form.reset();
+  });
+</script>
+
+</body>
+</html>

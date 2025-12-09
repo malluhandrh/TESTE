@@ -1,0 +1,17 @@
+# ENV (segredo)
+.env
+
+# Certificados
+*.pem
+*.crt
+Certs/
+
+# Uploads de imagens temporárias
+uploads/
+
+# Arquivos de teste
+upload_teste.php
+logout.php
+
+# Logs
+*.log
