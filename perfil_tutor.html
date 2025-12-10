@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil do Tutor | Patas Pousada</title>
+
+  <!-- CSS geral do projeto -->
+  <link rel="stylesheet" href="home_host.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* ======== ESTILOS ESPECÍFICOS DO PERFIL DO TUTOR ======== */
+
+    .perfil-page-wrapper {
+      max-width: 1100px;
+      margin: 30px auto 40px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .perfil-breadcrumb {
+      font-size: 0.85rem;
+      color: var(--cor-texto-secundario);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .perfil-breadcrumb a {
+      color: var(--cor-principal-escura);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .perfil-breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .perfil-top-card {
+      background: var(--cor-card);
+      border-radius: 16px;
+      box-shadow: var(--shadow-card);
+      padding: 22px 22px 20px 22px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 18px;
+      align-items: center;
+      border: 1px solid #f3f4f6;
+    }
+
+    .perfil-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 999px;
+      border: 3px solid #ffe2da;
+      overflow: hidden;
+      background: #fff5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--cor-principal-escura);
+      text-transform: uppercase;
+    }
+    .perfil-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .perfil-main-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .perfil-main-info h1 {
+      font-family: 'Parkinsans', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: -0.5px;
+      color: var(--cor-texto);
+    }
+    .perfil-location {
+      font-size: 0.95rem;
+      color: var(--cor-texto-secundario);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .perfil-location i {
+      color: var(--cor-principal-escura);
+    }
+
+    .perfil-meta-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .perfil-chip {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      color: #4b5563;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+    .perfil-chip i {
+      font-size: 0.8rem;
+      color: var(--cor-principal-escura);
+    }
+
+    .perfil-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .perfil-actions .btn-voltar {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #4b5563;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .perfil-actions .btn-voltar:hover {
+      background: #f3f4f6;
+      color: var(--cor-principal-escura);
+      border-color: #d1d5db;
+    }
+
+    .perfil-actions .btn-chat {
+      border-radius: 999px;
+      border: 1px solid var(--cor-principal-escura);
+      background: linear-gradient(135deg, var(--cor-principal), var(--cor-principal-escura));
+      color: #fff;
+      padding: 9px 18px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(226,114,91,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .perfil-actions .btn-chat i {
+      font-size: 0.9rem;
+    }
+    .perfil-actions .btn-chat:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(226,114,91,0.5);
+    }
+
+    /* Conteúdo principal: sobre + pets */
+    .perfil-content-grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1.3fr;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .perfil-section {
+      background: var(--cor-card);
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+      padding: 20px 20px 18px 20px;
+      border: 1px solid #f3f4f6;
+    }
+    .perfil-section h2 {
+      font-family: 'Parkinsans', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      color: var(--cor-texto);
+      letter-spacing: -0.3px;
+    }
+    .perfil-section p {
+      font-size: 0.93rem;
+      color: var(--cor-texto-secundario);
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .perfil-section-subtitle {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: #9ca3af;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .perfil-list-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .perfil-tag-pill {
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      color: #4b5563;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    /* Lista de pets */
+    .perfil-pets-empty {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .perfil-pets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .perfil-pet-card {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 10px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+      background: #f9fafb;
+    }
+    .perfil-pet-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .perfil-pet-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .perfil-pet-info h3 {
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+      color: var(--cor-texto);
+      font-weight: 700;
+    }
+    .perfil-pet-info p {
+      font-size: 0.8rem;
+      margin-bottom: 1px;
+      color: var(--cor-texto-secundario);
+    }
+
+    .perfil-pet-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .perfil-pet-pill {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      color: #4b5563;
+      font-weight: 600;
+    }
+
+    /* Estados de carregando / erro */
+    .perfil-status-msg {
+      font-size: 0.95rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .perfil-status-msg i {
+      color: var(--cor-principal-escura);
+    }
+
+    .perfil-error {
+      color: #b91c1c;
+    }
+
+    @media (max-width: 900px) {
+      .perfil-top-card {
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+      }
+      .perfil-actions {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+      .perfil-content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .perfil-top-card {
+        grid-template-columns: 1fr;
+        text-align: left;
+      }
+      .perfil-avatar {
+        margin-bottom: 4px;
+      }
+      .perfil-actions {
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER (ajustado: sem link "Área do Tutor") -->
+  <header>
+    <div class="topbar">
+      <a href="index.html" class="topbar-left">
+        <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="Ícone">
+        <span class="logo-text">Patas Pousada</span>
+      </a>
+
+      <div class="topbar-center">
+        <nav>
+          <ul>
+            <li><a href="index.html#como-funciona">Como funciona</a></li>
+            <li><a href="home_host.html">Sou Anfitrião</a></li>
+            <li><a href="home_tutor.html">Sou Tutor</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="topbar-right">
+        <div class="user-menu">
+          <button class="user-trigger" id="userMenuTrigger">
+            <div class="perfil-bolinha" id="userAvatarCircle">
+              <span id="userAvatarInitials">PP</span>
+              <img id="userAvatarImg" alt="Avatar" />
+            </div>
+            <span class="perfil-nome" id="userNameTop">Carregando...</span>
+          </button>
+          <div class="user-dropdown">
+            <!-- SOMENTE ÁREA DO ANFITRIÃO, NADA DE ÁREA DO TUTOR AQUI -->
+            <a href="home_host.html"><i class="fa-solid fa-house"></i> Área do Anfitrião</a>
+            <a href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
+            <a href="#" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PERFIL TUTOR -->
+  <main class="perfil-page-wrapper">
+    <div class="perfil-breadcrumb">
+      <a href="home_host.html">&larr; Voltar</a>
+      <span>/</span>
+      <span>Perfil do tutor</span>
+    </div>
+
+    <section id="perfilTopSection">
+      <p class="perfil-status-msg">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        Carregando informações do tutor...
+      </p>
+    </section>
+
+    <section id="perfilContentSection" style="display:none;">
+      <div class="perfil-content-grid">
+        <!-- Coluna ESQUERDA: Sobre o tutor -->
+        <section class="perfil-section" id="perfilSobreSection">
+          <div class="perfil-section-subtitle">SOBRE O TUTOR</div>
+          <h2>Apresentação</h2>
+          <p id="perfilBioTexto"></p>
+
+          <div style="margin-top:14px;">
+            <div class="perfil-section-subtitle">INFORMAÇÕES GERAIS</div>
+            <div class="perfil-list-tags" id="perfilPreferenciasContainer"></div>
+          </div>
+        </section>
+
+        <!-- Coluna DIREITA: Pets do tutor -->
+        <aside class="perfil-section">
+          <div class="perfil-section-subtitle">PETS DO TUTOR</div>
+          <h2>Companheiros de casa</h2>
+
+          <div id="perfilPetsWrapper">
+            <p class="perfil-pets-empty">
+              <i class="fa-solid fa-paw"></i>
+              Este tutor ainda não cadastrou nenhum pet.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div id="perfilErrorSection" style="display:none;">
+      <p class="perfil-status-msg perfil-error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Não foi possível carregar as informações deste tutor. Verifique o link ou tente novamente mais tarde.
+      </p>
+    </div>
+  </main>
+
+  <!-- Toast simples de feedback -->
+  <div class="toast" id="globalToast"></div>
+
+  <script>
+    // =========================
+    // CONFIGURAÇÃO SUPABASE
+    // =========================
+    const SUPABASE_URL = 'https://nwbgzokttjgkipwzfgzc.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // =========================
+    // HELPERS
+    // =========================
+    function getTutorIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('tutor_id') || params.get('id') || null;
+    }
+
+    function showToast(message) {
+      const el = document.getElementById('globalToast');
+      if (!el) return;
+      el.textContent = message;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    // =========================
+    // HEADER: USUÁRIO LOGADO (HOST)
+    // =========================
+    async function carregarUsuarioHeader() {
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data?.user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const user = data.user;
+        const userId = user.id;
+
+        // Host logado vem da tabela hosts
+        const { data: host, error: hostErr } = await supabase
+          .from('hosts')
+          .select('full_name, avatar_url')
+          .eq('id', userId)
+          .single();
+
+        if (hostErr) {
+          console.warn('Host não encontrado em hosts, usando apenas metadata do usuário:', hostErr);
+        }
+
+        let nome =
+          host?.full_name ||
+          user.user_metadata?.nome ||
+          user.email ||
+          'Usuário';
+
+        let avatarUrl = null;
+
+        if (host?.avatar_url) {
+          if (host.avatar_url.startsWith('http')) {
+            avatarUrl = host.avatar_url;
+          } else {
+            const { data: publicData } = supabase
+              .storage
+              .from('host-avatars')
+              .getPublicUrl(host.avatar_url);
+            avatarUrl = publicData?.publicUrl || null;
+          }
+        }
+
+        if (!avatarUrl && user.user_metadata) {
+          avatarUrl =
+            user.user_metadata.avatar_url ||
+            user.user_metadata.avatar ||
+            user.user_metadata.picture ||
+            null;
+        }
+
+        const nomeTop = document.getElementById('userNameTop');
+        const avatarInitials = document.getElementById('userAvatarInitials');
+        const avatarImg = document.getElementById('userAvatarImg');
+
+        if (nomeTop) nomeTop.textContent = nome;
+
+        if (avatarUrl && avatarImg) {
+          avatarImg.src = avatarUrl;
+          avatarImg.style.display = 'block';
+          if (avatarInitials) avatarInitials.style.display = 'none';
+        } else {
+          if (avatarImg) avatarImg.style.display = 'none';
+          if (avatarInitials) {
+            const initials = nome
+              .split(' ')
+              .filter(Boolean)
+              .slice(0, 2)
+              .map(p => p[0].toUpperCase())
+              .join('');
+            avatarInitials.textContent = initials || 'PP';
+            avatarInitials.style.display = 'block';
+          }
+        }
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+          });
+        }
+      } catch (e) {
+        console.error('Erro ao carregar usuário no header (host):', e);
+      }
+    }
+
+    // =========================
+    // FUNÇÃO: INICIAR CONVERSA COM O TUTOR
+    // =========================
+    async function iniciarConversaComTutor(profile) {
+      const btn = document.getElementById('btnIniciarChatTutor');
+      try {
+        if (!profile || !profile.id) {
+          showToast('Tutor inválido para iniciar conversa.');
+          return;
+        }
+
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Abrindo conversa...';
+        }
+
+        const { data: userData, error: userErr } = await supabase.auth.getUser();
+        if (userErr || !userData?.user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const hostId = userData.user.id;
+        const tutorId = profile.id;
+
+        // 1) Tenta achar um chat existente
+        const { data: existingChats, error: chatSelectErr } = await supabase
+          .from('chats')
+          .select('id')
+          .eq('host_id', hostId)
+          .eq('tutor_id', tutorId)
+          .is('booking_id', null)
+          .limit(1);
+
+        if (chatSelectErr) {
+          console.error('Erro ao buscar chat existente:', chatSelectErr);
+        }
+
+        let chatId = existingChats?.[0]?.id || null;
+
+        // 2) Se não existir, cria
+        if (!chatId) {
+          const { data: newChat, error: insertErr } = await supabase
+            .from('chats')
+            .insert([{
+              host_id: hostId,
+              tutor_id: tutorId,
+              booking_id: null
+            }])
+            .select('id')
+            .single();
+
+          if (insertErr) {
+            // Pode ser conflito de unique, tenta buscar de novo
+            console.error('Erro ao criar chat, tentando recarregar existente:', insertErr);
+            const { data: retryChats } = await supabase
+              .from('chats')
+              .select('id')
+              .eq('host_id', hostId)
+              .eq('tutor_id', tutorId)
+              .is('booking_id', null)
+              .limit(1);
+            chatId = retryChats?.[0]?.id || null;
+          } else {
+            chatId = newChat?.id || null;
+          }
+        }
+
+        if (!chatId) {
+          showToast('Não foi possível abrir a conversa. Tente novamente.');
+          return;
+        }
+
+        // 3) Redireciona para a Área do Anfitrião abrindo esse chat
+        window.location.href = `home_host.html?chat_id=${chatId}`;
+      } catch (e) {
+        console.error('Erro ao iniciar conversa com tutor:', e);
+        showToast('Erro ao iniciar conversa. Tente novamente.');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-comments"></i> Iniciar conversa';
+        }
+      }
+    }
+
+    // =========================
+    // RENDERIZA PERFIL DO TUTOR
+    // =========================
+    function renderPerfilTop(profile, pets) {
+      const container = document.getElementById('perfilTopSection');
+      if (!container) return;
+
+      let nomeTutor =
+        profile.full_name ||
+        `${profile.first_name || ''} ${profile.last_name || ''}`.trim() ||
+        profile.email ||
+        'Tutor sem nome';
+
+      const cidade = profile.address_city || profile.city || '';
+      const estado = profile.address_state || '';
+      const qtdPetsDb = typeof profile.pets_count === 'number' ? profile.pets_count : null;
+      const qtdPetsReal = Array.isArray(pets) ? pets.length : null;
+      const qtdPets = qtdPetsDb ?? qtdPetsReal;
+
+      const fotoUrl = profile.avatar_url || null;
+      let iniciais = 'TT';
+      if (nomeTutor) {
+        iniciais = nomeTutor.split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(p => p[0].toUpperCase())
+          .join('');
+      }
+
+      const role = profile.role || 'Tutor';
+
+      container.innerHTML = `
+        <section class="perfil-top-card">
+          <div class="perfil-avatar">
+            ${fotoUrl ? `<img src="${fotoUrl}" alt="Foto do tutor">` : iniciais}
+          </div>
+
+          <div class="perfil-main-info">
+            <h1>${nomeTutor}</h1>
+            <div class="perfil-location">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>${cidade || estado ? `${cidade}${cidade && estado ? ' - ' : ''}${estado}` : 'Localização não informada'}</span>
+            </div>
+
+            <div class="perfil-meta-chips">
+              <span class="perfil-chip">
+                <i class="fa-solid fa-user"></i>
+                ${role}
+              </span>
+
+              ${profile.residence_type ? `
+                <span class="perfil-chip">
+                  <i class="fa-solid fa-house-chimney"></i>
+                  Tipo de residência: ${profile.residence_type}
+                </span>` : ''
+              }
+
+              ${qtdPets != null ? `
+                <span class="perfil-chip">
+                  <i class="fa-solid fa-paw"></i>
+                  ${qtdPets} pet${qtdPets === 1 ? '' : 's'} cadastrados
+                </span>` : ''
+              }
+            </div>
+          </div>
+
+          <div class="perfil-actions">
+            <button type="button" class="btn-voltar" onclick="window.history.back()">
+              <i class="fa-solid fa-arrow-left"></i>
+              Voltar
+            </button>
+            <button type="button" class="btn-chat" id="btnIniciarChatTutor">
+              <i class="fa-solid fa-comments"></i>
+              Iniciar conversa
+            </button>
+          </div>
+        </section>
+      `;
+
+      const btnChat = document.getElementById('btnIniciarChatTutor');
+      if (btnChat) {
+        btnChat.addEventListener('click', () => {
+          iniciarConversaComTutor(profile);
+        });
+      }
+    }
+
+    function renderSobreTutor(profile) {
+      const bioEl = document.getElementById('perfilBioTexto');
+      if (bioEl) {
+        const textoPadrao =
+          'Este tutor ainda não adicionou uma descrição sobre si. ' +
+          'Você pode conhecer melhor conversando pelo chat e verificando os pets cadastrados.';
+        bioEl.textContent = textoPadrao;
+      }
+
+      const prefsContainer = document.getElementById('perfilPreferenciasContainer');
+      if (prefsContainer) {
+        prefsContainer.innerHTML = '';
+
+        const tags = [];
+
+        if (profile.gender) {
+          tags.push(`Gênero: ${profile.gender}`);
+        }
+
+        if (profile.address_city || profile.address_state || profile.city) {
+          const c = profile.address_city || profile.city || '';
+          const s = profile.address_state || '';
+          tags.push(`Região: ${c}${c && s ? ' - ' : ''}${s}`);
+        }
+
+        if (profile.pets_count != null) {
+          tags.push(`Pets em casa (informado): ${profile.pets_count}`);
+        }
+
+        if (profile.phone_country && profile.phone_number) {
+          tags.push(`Telefone: (+${profile.phone_country}) ${profile.phone_number}`);
+        }
+
+        if (profile.birthdate || profile.birth_date) {
+          tags.push('Data de nascimento cadastrada no perfil');
+        }
+
+        if (tags.length === 0) {
+          prefsContainer.innerHTML = `<span class="perfil-tag-pill">Informações adicionais não cadastradas.</span>`;
+        } else {
+          tags.forEach(txt => {
+            const span = document.createElement('span');
+            span.className = 'perfil-tag-pill';
+            span.textContent = txt;
+            prefsContainer.appendChild(span);
+          });
+        }
+      }
+    }
+
+    function renderPetsTutor(pets) {
+      const wrapper = document.getElementById('perfilPetsWrapper');
+      if (!wrapper) return;
+
+      if (!pets || pets.length === 0) {
+        wrapper.innerHTML = `
+          <p class="perfil-pets-empty">
+            <i class="fa-solid fa-face-smile"></i>
+            Este tutor ainda não cadastrou nenhum pet na plataforma.
+          </p>
+        `;
+        return;
+      }
+
+      const list = document.createElement('div');
+      list.className = 'perfil-pets-list';
+
+      pets.forEach(pet => {
+        const nome = pet.name || 'Pet sem nome';
+        const especie = pet.species || '';
+        const raca = pet.breed || '';
+        const sexo = pet.sex || '';
+        const porte = pet.size || '';
+        const vacinado = pet.vaccinated === true;
+        const castrado = pet.neutered === true;
+        const peso = pet.weight_kg != null ? `${pet.weight_kg} kg` : '';
+        const temperaments = Array.isArray(pet.temperament) ? pet.temperament : [];
+        const fotoPet = pet.photo_url || null;
+
+        const card = document.createElement('div');
+        card.className = 'perfil-pet-card';
+
+        const temperamentText = temperaments.length > 0 ? temperaments.join(', ') : '';
+
+        card.innerHTML = `
+          <div class="perfil-pet-avatar">
+            ${fotoPet ? `<img src="${fotoPet}" alt="${nome}">` : `<i class="fa-solid fa-paw"></i>`}
+          </div>
+          <div class="perfil-pet-info">
+            <h3>${nome}</h3>
+            ${especie || raca ? `<p>${[especie, raca].filter(Boolean).join(' · ')}</p>` : ''}
+            ${sexo || peso ? `<p>${[sexo, peso].filter(Boolean).join(' · ')}</p>` : ''}
+
+            <div class="perfil-pet-tags">
+              ${porte ? `<span class="perfil-pet-pill">Porte: ${porte}</span>` : ''}
+              ${vacinado ? `<span class="perfil-pet-pill">Vacinado</span>` : ''}
+              ${castrado ? `<span class="perfil-pet-pill">Castrado</span>` : ''}
+              ${temperamentText ? `<span class="perfil-pet-pill">${temperamentText}</span>` : ''}
+            </div>
+          </div>
+        `;
+
+        list.appendChild(card);
+      });
+
+      wrapper.innerHTML = '';
+      wrapper.appendChild(list);
+    }
+
+    // =========================
+    // CARREGAR PERFIL DO TUTOR
+    // =========================
+    async function carregarPerfilTutor() {
+      const tutorId = getTutorIdFromUrl();
+      const topSection = document.getElementById('perfilTopSection');
+      const contentSection = document.getElementById('perfilContentSection');
+      const errorSection = document.getElementById('perfilErrorSection');
+
+      if (!tutorId) {
+        if (topSection) {
+          topSection.innerHTML = `
+            <p class="perfil-status-msg perfil-error">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              Nenhum tutor foi informado na URL. Use o link gerado pelas reservas.
+            </p>
+          `;
+        }
+        if (contentSection) contentSection.style.display = 'none';
+        if (errorSection) errorSection.style.display = 'none';
+        return;
+      }
+
+      try {
+        const { data: profile, error: profileErr } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', tutorId)
+          .single();
+
+        if (profileErr || !profile) {
+          console.error('Erro profile:', profileErr);
+          if (topSection) {
+            topSection.innerHTML = `
+              <p class="perfil-status-msg perfil-error">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Tutor não encontrado ou não está mais disponível.
+              </p>
+            `;
+          }
+          if (contentSection) contentSection.style.display = 'none';
+          if (errorSection) errorSection.style.display = 'block';
+          return;
+        }
+
+        const { data: pets, error: petsErr } = await supabase
+          .from('pets')
+          .select('*')
+          .eq('owner_id', tutorId);
+
+        if (petsErr) {
+          console.error('Erro pets:', petsErr);
+        }
+
+        const petsList = pets || [];
+
+        renderPerfilTop(profile, petsList);
+        renderSobreTutor(profile);
+        renderPetsTutor(petsList);
+
+        if (contentSection) contentSection.style.display = 'block';
+        if (errorSection) errorSection.style.display = 'none';
+      } catch (e) {
+        console.error('Erro geral ao carregar perfil do tutor:', e);
+        if (topSection) {
+          topSection.innerHTML = `
+            <p class="perfil-status-msg perfil-error">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              Ocorreu um erro ao carregar este perfil. Tente novamente mais tarde.
+            </p>
+          `;
+        }
+        if (contentSection) contentSection.style.display = 'none';
+        if (errorSection) errorSection.style.display = 'block';
+      }
+    }
+
+    // =========================
+    // INIT
+    // =========================
+    document.addEventListener('DOMContentLoaded', async () => {
+      await carregarUsuarioHeader();
+      await carregarPerfilTutor();
+    });
+  </script>
+</body>
+</html>

@@ -42,6 +42,119 @@
     box-shadow:0 1px 4px rgba(248,113,113,.4);
   }
 
+  /* LISTA DE RESERVAS DO TUTOR */
+  .tutor-bookings{
+    max-height:340px;
+    overflow:auto;
+    border-radius:12px;
+    border:1px solid #e5e7eb;
+    background:#fff;
+  }
+  .tutor-booking-row{
+    padding:10px 12px;
+    border-bottom:1px solid #e5e7eb;
+    font-size:0.85rem;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .tutor-booking-row:last-child{
+    border-bottom:none;
+  }
+
+  .tb-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .tb-host{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:0;
+  }
+  .tb-avatar{
+    width:40px;
+    height:40px;
+    border-radius:999px;
+    object-fit:cover;
+    flex-shrink:0;
+  }
+  .tb-host-text{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .tb-name{
+    font-weight:600;
+    font-size:0.9rem;
+  }
+  .tb-city{
+    font-size:0.78rem;
+    color:#6b7280;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+
+  .tb-status-pill{
+    border-radius:999px;
+    padding:3px 10px;
+    font-size:0.75rem;
+    font-weight:700;
+    white-space:nowrap;
+  }
+
+  .tb-meta{
+    margin-left:48px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    font-size:0.78rem;
+    color:#4b5563;
+  }
+  .tb-dates{
+    font-weight:500;
+  }
+  .tb-pets{
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .tb-amount{
+    font-weight:500;
+  }
+
+  .tb-actions{
+    margin-left:48px;
+    margin-top:6px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .tb-btn{
+    border-radius:999px;
+    padding:4px 10px;
+    font-size:0.75rem;
+    font-weight:600;
+    cursor:pointer;
+    border:1px solid #e5e7eb;
+    background:#fff;
+    color:#374151;
+    white-space:nowrap;
+  }
+  .tb-btn-danger{
+    border-color:#ef4444;
+    color:#ef4444;
+    background:#fef2f2;
+  }
+  .tb-btn-pay{
+    border-color:#10b981;
+    color:#059669;
+    background:#ecfdf5;
+  }
+
   /* ------- CARROSSEL DO MODAL ------- */
   .modal-photos{
     position:relative;
@@ -135,6 +248,51 @@
   }
   .modal-host-city{
     font-size:0.85rem;
+    color:#6b7280;
+  }
+
+  /* ------- CAMPOS EXTRAS DO MODAL (PET QTD + LISTA) ------- */
+  .modal-field{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:.85rem;
+  }
+  .modal-field label{
+    font-weight:600;
+    color:#374151;
+  }
+  .modal-extra-row{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:10px;
+  }
+  .modal-field input[type="number"]{
+    border-radius:8px;
+    border:1px solid #e5e7eb;
+    padding:6px 10px;
+    font-size:.9rem;
+  }
+  .pets-checkbox-list{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    max-height:120px;
+    overflow:auto;
+    border:1px solid #e5e7eb;
+    border-radius:8px;
+    padding:8px;
+    background:#fff;
+  }
+  .pets-checkbox-list label{
+    font-size:.85rem;
+    display:flex;
+    gap:6px;
+    align-items:center;
+  }
+  .pets-checkbox-list small{
+    font-size:.8rem;
     color:#6b7280;
   }
 </style>
@@ -306,6 +464,26 @@
   </div>
 </div>
 
+<!-- NOVO MODAL: CANCELAR RESERVA -->
+<div class="pp-wrap" id="ppCancelBooking">
+  <div class="pp-card" role="dialog" aria-modal="true">
+    <header>
+      <span class="ic"><i class="fa-solid fa-calendar-xmark"></i></span>
+      <h4>Cancelar reserva</h4>
+    </header>
+    <div class="pp-body">
+      <p>Tem certeza que deseja cancelar esta reserva?</p>
+      <p class="pp-note">
+        Ela será movida para a aba <strong>Canceladas</strong> e o anfitrião poderá ser notificado.
+      </p>
+    </div>
+    <div class="pp-ft">
+      <button class="pp-btn" id="cancelBkNo">Manter reserva</button>
+      <button class="pp-btn pp-ok" id="cancelBkYes">Cancelar mesmo</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Mensagem</span></div>
 
 <!-- WIDGET DE CHAT -->
@@ -380,6 +558,7 @@
   let currentUserId    = null;
   let HOSTS = [];
   let currentModalListing = null;
+  let tutorPetsCache = [];
 
   /* controle de fotos do modal */
   let currentModalPhotos = [];
@@ -387,6 +566,9 @@
 
   // filtro atual das reservas: 'ativas' ou 'canceladas'
   let tutorBookingsFilter = 'ativas';
+
+  // controle do modal de cancelamento de reserva
+  let bookingToCancelId = null;
 
   // --- UI HELPERS ---
   function toast(msg){
@@ -576,7 +758,6 @@
       feed.innerHTML = `
         <div class="card">
           <div class="empty">
-            <i class="fa-regular fa-face-frown-open"></i>
             Nenhum perfil encontrado para os filtros selecionados.
             ${extra}
           </div>
@@ -666,8 +847,8 @@
       const todayIso = new Date().toISOString().slice(0,10);
       const activeListings = listings.filter(l => {
         const endIso = toIsoDateString(l.available_end);
-        if(!endIso) return true;      // se não tem data de fim, mantém
-        return endIso >= todayIso;    // só mantém se a data final for hoje ou futura
+        if(!endIso) return true;
+        return endIso >= todayIso;
       });
 
       if(!activeListings.length){
@@ -756,7 +937,20 @@
     try {
         const { data: bookings, error } = await sb
             .from('bookings')
-            .select('id, status, start_date, end_date, total_price, host_id, listing_id')
+            .select(`
+              id,
+              status,
+              start_date,
+              end_date,
+              total_price,
+              host_id,
+              listing_id,
+              payment_status,
+              payment_method,
+              pets_quantity,
+              pets_ids,
+              pet_id
+            `)
             .eq('tutor_id', currentUserId)
             .order('created_at', { ascending: false });
 
@@ -786,26 +980,71 @@
         }
 
         const hostIds = [...new Set(filteredBookings.map(b => b.host_id).filter(Boolean))];
+        const listingIds = [...new Set(filteredBookings.map(b => b.listing_id).filter(Boolean))];
 
-        const profilesMap = {};
+        // ====== NOVO: buscar dados do anfitrião em "hosts" ======
+        const hostsMap = {};
         if (hostIds.length) {
-            const { data: profilesData, error: profErr } = await sb
-                .from('profiles')
-                .select('id, first_name, full_name')
+            const { data: hostsData, error: hostErr } = await sb
+                .from('hosts')
+                .select('id, full_name, city, avatar_url')
                 .in('id', hostIds);
 
-            if (profErr) {
-                console.error('Erro Supabase (profiles):', profErr);
-            } else if (profilesData) {
-                profilesData.forEach(p => {
-                    profilesMap[p.id] = p;
+            if (hostErr) {
+                console.error('Erro Supabase (hosts):', hostErr);
+            } else if (hostsData) {
+                hostsData.forEach(h => {
+                    hostsMap[h.id] = h;
                 });
             }
         }
+        // ========================================================
+
+        const listingsMap = {};
+        if(listingIds.length){
+          const { data: listingsData, error: listErr } = await sb
+            .from('listings')
+            .select('id, city')
+            .in('id', listingIds);
+          if(listErr){
+            console.error('Erro Supabase (listings for bookings):', listErr);
+          } else if(listingsData){
+            listingsData.forEach(l => {
+              listingsMap[l.id] = l;
+            });
+          }
+        }
+
+        // carregar pets pela lista de ids usados nas reservas
+        const petIdSet = new Set();
+        filteredBookings.forEach(b => {
+          if(Array.isArray(b.pets_ids) && b.pets_ids.length){
+            b.pets_ids.forEach(pid => petIdSet.add(pid));
+          } else if(b.pet_id){
+            petIdSet.add(b.pet_id);
+          }
+        });
+
+        let petsMap = {};
+        if(petIdSet.size){
+          const { data: petsData, error: petsErr } = await sb
+            .from('pets')
+            .select('id,name')
+            .in('id', Array.from(petIdSet));
+          if(petsErr){
+            console.error('Erro Supabase (pets for bookings):', petsErr);
+          } else if(petsData){
+            petsData.forEach(p => { petsMap[p.id] = p; });
+          }
+        }
 
         container.innerHTML = filteredBookings.map(b => {
-            const profile = profilesMap[b.host_id] || {};
-            const hostName = profile.first_name || profile.full_name || 'Anfitrião';
+            // ====== USANDO HOSTS EM VEZ DE PROFILES ======
+            const host = hostsMap[b.host_id] || {};
+            const hostName = host.full_name || 'Anfitrião';
+            const hostAvatar = host.avatar_url || "https://cdn-icons-png.flaticon.com/512/1373/1373255.png";
+            // ==============================================
+
             const start = new Date(b.start_date).toLocaleDateString('pt-BR');
             const end   = new Date(b.end_date).toLocaleDateString('pt-BR');
             
@@ -814,53 +1053,111 @@
             const canCancel = !isCanceled &&
                (status === 'pendente' || status === 'confirmada' || status === 'aprovada');
 
-            let stColor = '#6b7280';
-            if(status === 'pendente')                           stColor = '#f59e0b';
-            if(status === 'confirmada' || status === 'aprovada') stColor = '#10b981';
-            if(isCanceled)                                      stColor = '#ef4444';
+            let stColor  = '#6b7280';
+            let stBg     = '#f3f4f6';
+            let stBorder = '#e5e7eb';
+
+            if(status === 'pendente'){
+              stColor  = '#f59e0b';
+              stBg     = '#fffbeb';
+              stBorder = '#facc15';
+            }
+            if(status === 'confirmada' || status === 'aprovada'){
+              stColor  = '#059669';
+              stBg     = '#ecfdf5';
+              stBorder = '#10b981';
+            }
+            if(isCanceled){
+              stColor  = '#ef4444';
+              stBg     = '#fef2f2';
+              stBorder = '#ef4444';
+            }
+
+            // --- status de pagamento ---
+            const payStatus = (b.payment_status || '').toLowerCase();
+            const isPaid    = (payStatus === 'pago');
+            let payLabel    = 'Pendente';
+            let payColor    = '#f59e0b';
+
+            if (isPaid) {
+              payLabel = 'Pago';
+              payColor = '#059669';
+            } else if (!payStatus) {
+              payLabel = 'Pendente';
+              payColor = '#f59e0b';
+            }
 
             const showCancelBtn = !showCanceled && canCancel;
             const hasListing    = !!b.listing_id;
 
+            const listing = listingsMap[b.listing_id] || {};
+            const city = listing.city || host.city || '';
+
+            let petIds = [];
+            if(Array.isArray(b.pets_ids) && b.pets_ids.length){
+              petIds = b.pets_ids;
+            } else if(b.pet_id){
+              petIds = [b.pet_id];
+            }
+
+            const petsCount = petIds.length || (b.pets_quantity || 0);
+            const petNames = petIds
+              .map(id => petsMap[id]?.name)
+              .filter(Boolean)
+              .join(', ');
+
             return `
-                <div class="tutor-booking-row"
-                     style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                    <div>
-                        <strong style="display:block; font-size:0.9rem;">${hostName}</strong>
-                        <span style="font-size:0.8rem; color:#555;">${start} - ${end}</span>
-                    </div>
-                    <div style="text-align:right;">
-                        <span style="display:block; font-weight:700; color:${stColor}; font-size:0.85rem; text-transform:capitalize;">
-                          ${b.status}
-                        </span>
-                        <small style="display:block; margin-bottom:4px;">R$ ${b.total_price}</small>
-                        <div style="display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap;">
-                          ${
-                            hasListing
-                              ? `<button onclick="openBookingListing('${b.listing_id}', '${b.host_id}')"
-                                         style="border:1px solid #e5e7eb; background:#fff; color:#374151; border-radius:999px; padding:4px 10px; font-size:0.75rem; font-weight:600; cursor:pointer;">
-                                   Ver anúncio
-                                 </button>`
-                              : ''
-                          }
-                          ${
-                            showCancelBtn 
-                            ? `<button onclick="cancelBooking('${b.id}')"
-                                       style="border:1px solid #ef4444; background:#fff; color:#ef4444; border-radius:999px; padding:4px 10px; font-size:0.75rem; font-weight:600; cursor:pointer;">
-                                 Cancelar
-                               </button>`
+                <div class="tutor-booking-row">
+                  <div class="tb-header">
+                    <div class="tb-host">
+                      <img src="${hostAvatar}" alt="Foto do anfitrião" class="tb-avatar">
+                      <div class="tb-host-text">
+                        <span class="tb-name">${hostName}</span>
+                        ${
+                          city
+                            ? `<span class="tb-city"><i class="fa-solid fa-location-dot"></i> ${city}</span>`
                             : ''
-                          }
-                          ${
-                            !showCanceled
-                              ? `<button onclick="goToPayment('${b.id}')"
-                                         style="border:1px solid #10b981; background:#10b98110; color:#059669; border-radius:999px; padding:4px 10px; font-size:0.75rem; font-weight:600; cursor:pointer;">
-                                   Pagamento
-                                 </button>`
-                              : ''
-                          }
-                        </div>
+                        }
+                      </div>
                     </div>
+                    <span class="tb-status-pill" style="background:${stBg}; color:${stColor}; border:1px solid ${stBorder};">
+                      ${b.status}
+                    </span>
+                  </div>
+
+                  <div class="tb-meta">
+                    <span class="tb-dates">${start} - ${end}</span>
+                    <span class="tb-pets">
+                      <span>🐾 ${petsCount || 0} pet(s)</span>
+                      ${petNames ? `<span>· ${petNames}</span>` : ''}
+                    </span>
+                    <span class="tb-amount">Valor: R$ ${b.total_price}</span>
+                    <span style="color:${payColor};">Pagamento: ${payLabel}</span>
+                  </div>
+
+                  <div class="tb-actions">
+                    ${
+                      hasListing
+                        ? `<button class="tb-btn" onclick="openBookingListing('${b.listing_id}', '${b.host_id}')">
+                             Ver anúncio
+                           </button>`
+                        : ''
+                    }
+                    ${
+                      showCancelBtn 
+                        ? `<button class="tb-btn tb-btn-danger" onclick="cancelBooking('${b.id}')">
+                             Cancelar
+                           </button>`
+                        : ''
+                    }
+                    ${
+                      (!showCanceled && !isPaid)
+                        ? `<button class="tb-btn tb-btn-pay" onclick="goToPayment('${b.id}')">
+                             Pagamento
+                           </button>`
+                        : ''
+                    }
+                  </div>
                 </div>
             `;
         }).join('');
@@ -871,30 +1168,61 @@
     }
   }
 
-  // Cancela reserva (muda status para "cancelada" e passa para aba Canceladas)
-  window.cancelBooking = async function(bookingId){
-    const ok = confirm("Tem certeza que deseja cancelar esta reserva?");
-    if(!ok) return;
+  // --- NOVA LÓGICA: MODAL DE CANCELAR RESERVA ---
+  const ppCancelBooking = document.getElementById('ppCancelBooking');
+  const cancelBkNo  = document.getElementById('cancelBkNo');
+  const cancelBkYes = document.getElementById('cancelBkYes');
+
+  function openCancelBookingModal(bookingId){
+    bookingToCancelId = bookingId;
+    ppCancelBooking.style.display = 'flex';
+    requestAnimationFrame(()=>{
+      ppCancelBooking.querySelector('.pp-card').classList.add('show');
+    });
+  }
+
+  function closeCancelBookingModal(){
+    const card = ppCancelBooking.querySelector('.pp-card');
+    card.classList.remove('show');
+    setTimeout(()=>{
+      ppCancelBooking.style.display = 'none';
+      bookingToCancelId = null;
+    },200);
+  }
+
+  cancelBkNo.addEventListener('click', closeCancelBookingModal);
+
+  cancelBkYes.addEventListener('click', async ()=>{
+    if(!bookingToCancelId || !currentUserId){
+      closeCancelBookingModal();
+      return;
+    }
 
     try {
       const { error } = await sb
         .from('bookings')
         .update({ status: 'cancelada' })
-        .eq('id', bookingId)
+        .eq('id', bookingToCancelId)
         .eq('tutor_id', currentUserId);
 
       if(error){
         console.error('Erro ao cancelar reserva:', error);
         toast('Erro ao cancelar reserva.');
-        return;
+      } else {
+        toast('Reserva cancelada.');
+        loadTutorBookings();
       }
-
-      toast('Reserva cancelada.');
-      loadTutorBookings();
     } catch(e){
       console.error('Erro inesperado ao cancelar reserva:', e);
       toast('Erro ao cancelar reserva.');
+    } finally {
+      closeCancelBookingModal();
     }
+  });
+
+  // função chamada no botão do card
+  window.cancelBooking = function(bookingId){
+    openCancelBookingModal(bookingId);
   };
 
   // Botão de pagamento -> leva para pagamento.html com o id da reserva
@@ -908,6 +1236,49 @@
     const modal = document.getElementById('modal');
     if(show) modal.classList.add('show');
     else modal.classList.remove('show');
+  }
+
+  // carregar pets do tutor para o modal (checkbox)
+  async function loadTutorPetsForModal(maxCapacity){
+    const listEl = document.getElementById('reservaPetsList');
+    const qtdEl  = document.getElementById('reservaQtdPets');
+    if(!listEl || !qtdEl) return;
+
+    qtdEl.value = 1;
+    qtdEl.min = 1;
+    qtdEl.max = maxCapacity || 1;
+
+    if(!currentUserId){
+      listEl.innerHTML = '<small>Faça login para selecionar seus pets.</small>';
+      return;
+    }
+
+    if(!tutorPetsCache.length){
+      const { data, error } = await sb
+        .from('pets')
+        .select('id,name')
+        .eq('owner_id', currentUserId)
+        .order('created_at',{ascending:true});
+
+      if(error){
+        console.error('Erro ao carregar pets do tutor:', error);
+        listEl.innerHTML = '<small>Erro ao carregar seus pets.</small>';
+        return;
+      }
+      tutorPetsCache = data || [];
+    }
+
+    if(!tutorPetsCache.length){
+      listEl.innerHTML = '<small>Você ainda não cadastrou pets. Acesse "Meus Pets".</small>';
+      return;
+    }
+
+    listEl.innerHTML = tutorPetsCache.map(p => `
+      <label>
+        <input type="checkbox" value="${p.id}">
+        ${p.name}
+      </label>
+    `).join('');
   }
 
   // FUNÇÃO GENÉRICA: monta o modal com todas as fotos (com carrossel)
@@ -1025,6 +1396,19 @@
               <label>Check-out</label>
               <input type="date" id="reservaDataFim">
             </div>
+
+            <div class="modal-extra-row">
+              <div class="modal-field">
+                <label>Quantidade de pets</label>
+                <input type="number" id="reservaQtdPets" min="1" value="1">
+                <small class="field-help">Máx. ${h.capacity || 1} pet(s) neste anúncio.</small>
+              </div>
+              <div class="modal-field">
+                <label>Selecione o(s) pet(s)</label>
+                <div id="reservaPetsList" class="pets-checkbox-list"></div>
+              </div>
+            </div>
+
             <div id="reservaErro" class="modal-error"></div>
           </div>
         </div>
@@ -1068,6 +1452,9 @@
       checkin.max  = maxAllowed;
       checkout.max = maxAllowed;
     }
+
+    // carrega lista de pets do tutor respeitando capacidade
+    loadTutorPetsForModal(h.capacity || 1);
 
     toggleModal(true);
   }
@@ -1178,6 +1565,7 @@
   window.handleReserveClick = async function(){
     const di = document.getElementById('reservaDataInicio').value;
     const df = document.getElementById('reservaDataFim').value;
+    const qtdInput = document.getElementById('reservaQtdPets');
     const errEl = document.getElementById('reservaErro');
     const listing = currentModalListing;
 
@@ -1205,15 +1593,49 @@
     }
 
     const nights = Math.max(1, Math.round((d2-d1)/(1000*60*60*24)));
-    const total = nights * (listing.price || 0);
+    const dailyPrice = listing.price || listing.price_night || listing.price_daycare || 0;
+
+    const maxCapacity = listing.capacity || 1;
+
+    const qtdPets = parseInt(qtdInput.value, 10);
+    if(!qtdPets || qtdPets < 1){
+      errEl.textContent = "Informe a quantidade de pets.";
+      return;
+    }
+    if(qtdPets > maxCapacity){
+      errEl.textContent = "Quantidade de pets ultrapassa o limite do anúncio.";
+      return;
+    }
+
+    const selectedPets = [...document.querySelectorAll('#reservaPetsList input:checked')]
+                          .map(i => parseInt(i.value,10))
+                          .filter(Boolean);
+
+    if(selectedPets.length === 0){
+      errEl.textContent = "Selecione pelo menos um pet.";
+      return;
+    }
+    if(selectedPets.length !== qtdPets){
+      errEl.textContent = "A quantidade de pets selecionados deve bater com o número informado.";
+      return;
+    }
+
+    const total = nights * dailyPrice * qtdPets;
+
+    const firstPetId = selectedPets[0] || null;
 
     const { error } = await sb.from('bookings').insert({
         tutor_id: currentUserId,
         host_id: listing.hostId,
         listing_id: listing.id,
-        start_date: di, end_date: df,
+        pet_id: firstPetId,          // compatibilidade com coluna antiga
+        start_date: di,
+        end_date: df,
         total_price: total,
-        status: 'pendente'
+        status: 'pendente',
+        payment_status: 'pendente',
+        pets_quantity: qtdPets,
+        pets_ids: selectedPets
     });
 
     if(error) { 
@@ -1257,7 +1679,6 @@
     const userId = currentUserId;
     if(!userId) throw new Error('Usuário não autenticado');
 
-    // 1) Buscar todos os chats onde ele participa
     const { data: chats, error: chatsErr } = await sb
       .from('chats')
       .select('id')
@@ -1270,7 +1691,6 @@
 
     const chatIds = (chats || []).map(c => c.id);
 
-    // 2) Apagar mensagens desses chats
     if(chatIds.length){
       const { error: msgErr } = await sb
         .from('messages')
@@ -1282,7 +1702,6 @@
       }
     }
 
-    // 3) Apagar os chats
     if(chatIds.length){
       const { error: delChatsErr } = await sb
         .from('chats')
@@ -1294,7 +1713,6 @@
       }
     }
 
-    // 4) Apagar bookings onde ele é tutor ou host
     const { error: bkErr } = await sb
       .from('bookings')
       .delete()
@@ -1304,7 +1722,6 @@
       throw bkErr;
     }
 
-    // 5) Apagar listings onde ele é host
     const { error: listErr } = await sb
       .from('listings')
       .delete()
@@ -1314,7 +1731,6 @@
       throw listErr;
     }
 
-    // 6) Apagar pets do tutor
     const { error: petsErr } = await sb
       .from('pets')
       .delete()
@@ -1324,7 +1740,6 @@
       throw petsErr;
     }
 
-    // 7) Apagar registro na tabela hosts
     const { error: hostErr } = await sb
       .from('hosts')
       .delete()
@@ -1334,7 +1749,6 @@
       throw hostErr;
     }
 
-    // 8) Apagar perfil
     const { error: profErr } = await sb
       .from('profiles')
       .delete()
@@ -1343,10 +1757,6 @@
       console.error('Erro ao apagar profile:', profErr);
       throw profErr;
     }
-
-    // Importante: aqui NÃO apagamos o usuário da Auth,
-    // porque isso exige chave de service role (não pode ficar no front).
-    // Para o projeto, isso já demonstra bem a exclusão de dados.
   }
 
   delOkBtn.addEventListener('click', async ()=>{
@@ -1371,11 +1781,9 @@
       await deleteCurrentUserData();
       toast('Conta excluída com sucesso.');
 
-      // fecha modal visualmente
       ppDelete.querySelector('.pp-card').classList.remove('show');
       setTimeout(()=>{ ppDelete.style.display='none'; }, 200);
 
-      // desloga usuário da sessão
       await sb.auth.signOut();
 
       setTimeout(()=>{
@@ -1403,7 +1811,6 @@
   const ppChatSubtitle  = document.getElementById('ppChatSubtitle');
   const ppBadge         = document.getElementById('ppBadge');
 
-  // elementos do modal de exclusão de conversa
   const ppChatDelete    = document.getElementById('ppChatDelete');
   const chatDelCancel   = document.getElementById('chatDelCancel');
   const chatDelOk       = document.getElementById('chatDelOk');
@@ -1423,7 +1830,6 @@
     ppChatWidget.style.display = 'none';
   });
 
-  // Abrir modal de exclusão de conversa
   function openDeleteChatModal(chatId, hostName) {
     chatToDeleteId = chatId;
     chatToDeleteName = hostName || '';
@@ -1460,7 +1866,6 @@
     }
 
     try {
-      // Apaga mensagens do chat
       const { error: msgErr } = await sb
         .from('messages')
         .delete()
@@ -1470,7 +1875,6 @@
         console.error('Erro ao apagar mensagens do chat:', msgErr);
       }
 
-      // Apaga o próprio chat
       const { error: chatErr } = await sb
         .from('chats')
         .delete()
@@ -1483,7 +1887,6 @@
         return;
       }
 
-      // Se o chat ativo for o que foi excluído, limpa a thread
       if (ppActiveChatId === chatToDeleteId) {
         ppActiveChatId = null;
         ppChatMessages.innerHTML = '';
@@ -1501,7 +1904,6 @@
     }
   });
 
-  // Carregar lista de conversas (tabela CHATS)
   async function loadConversations() {
     ppChatConvList.innerHTML = '<div style="padding:10px; font-size:0.8rem; color:#666;">Carregando...</div>';
 
@@ -1557,13 +1959,11 @@
           </div>
         `;
 
-        // Clicar no item abre o chat (exceto no botão de excluir)
         item.onclick = (ev) => {
           if (ev.target.closest('.pp-chat-conv-del')) return;
           openChat(c.id, name);
         };
 
-        // Clique no X abre modal de exclusão
         const delBtn = item.querySelector('.pp-chat-conv-del');
         if (delBtn) {
           delBtn.addEventListener('click', (ev) => {
@@ -1581,7 +1981,6 @@
     }
   }
 
-  // Abrir uma conversa (carrega messages.chat_id)
   async function openChat(chatId, hostName) {
     ppActiveChatId = chatId;
     ppChatSubtitle.textContent = hostName || 'Conversa';
@@ -1611,7 +2010,6 @@
     }
   }
 
-  // Renderizar mensagem
   function renderMessage(msg) {
     const isMe = (msg.sender_id === currentUserId);
     const row = document.createElement('div');
@@ -1632,7 +2030,6 @@
     ppChatMessages.scrollTop = ppChatMessages.scrollHeight;
   }
 
-  // Enviar mensagem (messages.chat_id)
   ppChatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const text = ppChatInput.value.trim();
@@ -1657,7 +2054,6 @@
     }
   });
 
-  // Realtime na tabela messages por chat_id
   function subscribeToChat(chatId) {
     if(chatChannel) sb.removeChannel(chatChannel);
 
@@ -1673,7 +2069,6 @@
       .subscribe();
   }
 
-  // Iniciar chat a partir do card do host (usa CHATS)
   window.startChatWithHost = async function(hostId) {
     if(!currentUserId) {
         toast("Faça login primeiro");
@@ -1684,7 +2079,6 @@
     ppChatSubtitle.textContent = "Conectando...";
 
     try {
-      // tenta achar chat existente entre tutor e host (booking_id null)
       const { data: existing, error } = await sb
         .from('chats')
         .select('id, host_id')
@@ -1695,7 +2089,6 @@
 
       if(error) throw error;
 
-      // busca nome do host (opcional, só pra mostrar bonito)
       let hostName = 'Anfitrião';
       try {
         const { data: prof } = await sb
@@ -1706,7 +2099,7 @@
         if(prof){
           hostName = prof.first_name || prof.full_name || hostName;
         }
-      } catch(e){ /* silencioso */ }
+      } catch(e){}
 
       if(existing){
         await loadConversations();

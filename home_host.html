@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="home_host.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 <body>
   <header>
@@ -341,6 +342,52 @@
     </div>
   </div>
 
+  <!-- MODAL RESERVA APROVADA (visual bonito, cara do projeto) -->
+  <div class="pp-wrap" id="ppBookingApproved">
+    <div class="pp-card booking-approved-card" role="dialog" aria-modal="true">
+      <header class="brand-header">
+        <span class="ic"><i class="fa-solid fa-paw"></i></span>
+        <h4>Reserva aprovada! 🐾</h4>
+      </header>
+      <div class="pp-body">
+        <p id="bookingApprovedText">Reserva aprovada com sucesso.</p>
+        <p style="font-size:0.85rem; color:#6b7280; margin-top:8px;">
+          O tutor será avisado e verá o status atualizado na área dele.
+        </p>
+      </div>
+      <div class="pp-ft">
+        <button
+          class="pp-btn pp-ok"
+          id="bookingApprovedClose"
+          style="background:var(--cor-principal); border-color:var(--cor-principal);">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOVO MODAL EXCLUIR CONVERSA (CHAT) -->
+  <div class="pp-wrap" id="ppDeleteChat">
+    <div class="pp-card" role="dialog" aria-modal="true">
+      <header>
+        <span class="ic"><i class="fa-solid fa-comments"></i></span>
+        <h4>Excluir conversa</h4>
+      </header>
+      <div class="pp-body">
+        <p>Tem certeza que deseja excluir esta conversa?</p>
+        <p style="font-size:0.85rem; color:#6b7280; margin-top:4px;">
+          Todas as mensagens serão removidas de forma permanente.
+        </p>
+      </div>
+      <div class="pp-ft">
+        <button class="pp-btn" id="delChatCancel">Cancelar</button>
+        <button class="pp-btn pp-ok" id="delChatOk" style="background:#dc2626; border-color:#dc2626;">
+          Excluir conversa
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toastHost"></div>
 
   <script>
@@ -486,11 +533,21 @@
       }
     }
 
-    function toastHost(msg){
+    function toastHost(msg, type = 'info'){
       const t = document.getElementById("toastHost");
+      if(!t) return;
       t.textContent = msg;
+      t.classList.remove('toast-ok','toast-err','show');
+      if(type === 'ok') t.classList.add('toast-ok');
+      if(type === 'err') t.classList.add('toast-err');
       t.style.display = "block";
-      setTimeout(()=>{ t.style.display = "none"; }, 3000);
+      requestAnimationFrame(() => {
+        t.classList.add('show');
+      });
+      setTimeout(()=>{ 
+        t.classList.remove('show');
+        t.style.display = "none"; 
+      }, 3000);
     }
 
     // --- 2. CARREGAR ANÚNCIOS ---
@@ -677,13 +734,94 @@
         return;
       }
 
-      // separa por status
-      const aprovadas = data.filter(bk => normalizaStatus(bk) === 'aprovada');
+      // --- BUSCAR PERFIL DOS TUTORES E PETS RELACIONADOS ---
+      let tutorsMap = {};
+      let petsMap = {};
+
+      try {
+        const tutorIds = [...new Set(data.map(bk => bk.tutor_id).filter(Boolean))];
+        if (tutorIds.length) {
+          const { data: tutorsData, error: tutorsErr } = await sb
+            .from('profiles')
+            .select('id, full_name, first_name, avatar_url')
+            .in('id', tutorIds);
+          if (!tutorsErr && tutorsData) {
+            tutorsData.forEach(t => { tutorsMap[t.id] = t; });
+          } else if (tutorsErr) {
+            console.error('Erro ao carregar perfis dos tutores:', tutorsErr);
+          }
+        }
+
+        const allPetIds = [];
+        data.forEach(bk => {
+          // usar o nome correto da coluna: pets_ids (array)
+          const bookingPetIds = Array.isArray(bk.pets_ids) ? bk.pets_ids : [];
+
+          bookingPetIds.forEach(pid => {
+            if (pid && !allPetIds.includes(pid)) {
+              allPetIds.push(pid);
+            }
+          });
+
+          // também considera o campo pet_id único, se existir
+          if (bk.pet_id && !allPetIds.includes(bk.pet_id)) {
+            allPetIds.push(bk.pet_id);
+          }
+        });
+
+        if (allPetIds.length) {
+          const { data: petsData, error: petsErr } = await sb
+            .from('pets')
+            .select('id, name, owner_id')
+            .in('id', allPetIds);
+          if (!petsErr && petsData) {
+            petsData.forEach(p => { petsMap[p.id] = p; });
+          } else if (petsErr) {
+            console.error('Erro ao carregar pets:', petsErr);
+          }
+        }
+      } catch (e) {
+        console.error('Erro geral ao carregar tutores/pets:', e);
+      }
+
+      function getTutorInfo(bk) {
+        const profile = tutorsMap[bk.tutor_id] || {};
+        const nome = profile.full_name || profile.first_name || 'Tutor';
+        const avatar = profile.avatar_url || 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png';
+        const link = bk.tutor_id ? `perfil_tutor.html?tutor_id=${encodeURIComponent(bk.tutor_id)}` : '#';
+        return { nome, avatar, link };
+      }
+
+      function getPetsInfo(bk) {
+        // usa pets_ids (array) ou pet_id (único)
+        let bookingPets = [];
+
+        if (Array.isArray(bk.pets_ids) && bk.pets_ids.length) {
+          bookingPets = bk.pets_ids
+            .map(id => petsMap[id])
+            .filter(Boolean);
+        } else if (bk.pet_id && petsMap[bk.pet_id]) {
+          bookingPets = [petsMap[bk.pet_id]];
+        }
+
+        const nomes = bookingPets.map(p => p.name).filter(Boolean);
+
+        // nome correto na tabela: pets_quantity
+        const qtdFromBooking = bk.pets_quantity || 0;
+        const quantidade = bookingPets.length || qtdFromBooking || 0;
+
+        return { bookingPets, nomes, quantidade };
+      }
+
+      // separa por status (aprovada OU confirmada são tratadas como aprovadas)
+      const aprovadas = data.filter(bk => {
+        const st = normalizaStatus(bk);
+        return st === 'aprovada' || st === 'confirmada';
+      });
       const canceladas = data.filter(bk => normalizaStatus(bk) === 'cancelada');
       const abertas   = data.filter(bk => {
         const st = normalizaStatus(bk);
-        // não mostrar aprovadas nem canceladas na lista principal
-        return st !== 'aprovada' && st !== 'cancelada';
+        return st !== 'aprovada' && st !== 'cancelada' && st !== 'confirmada';
       });
 
       // --- LISTA PRINCIPAL: apenas reservas "abertas" (pendentes etc.) ---
@@ -708,6 +846,47 @@
           const total = bk.total_price != null ? Number(bk.total_price) : 0;
           const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+          const { nome: tutorNome, avatar: tutorAvatar, link: tutorLink } = getTutorInfo(bk);
+          const { bookingPets, nomes: petNomes, quantidade: qtdPets } = getPetsInfo(bk);
+
+          let valorPorPetFormatado = '';
+          if (qtdPets > 0 && total > 0) {
+            const valorPorPet = total / qtdPets;
+            valorPorPetFormatado = valorPorPet.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          }
+
+          const isPago = (bk.payment_status || '').toString().trim().toLowerCase() === 'pago';
+
+          const petChipsHtml = bookingPets.length
+            ? bookingPets.map(p => `
+                <a href="${tutorLink}" class="pp-pet-chip" title="Ver tutor">
+                  <span class="pp-pet-chip-name">${p.name}</span>
+                </a>
+              `).join('')
+            : `<span class="pp-pet-chip pp-pet-chip-empty">Pets não informados</span>`;
+
+          const qtdPetsLabel = qtdPets
+            ? `${qtdPets} pet${qtdPets > 1 ? 's' : ''}`
+            : 'Quantidade não informada';
+
+          const aprovarDisabledAttr = !isPago ? 'disabled title="Só é possível aprovar reservas pagas."' : '';
+          const aprovarExtraClass   = !isPago ? ' btn-disabled' : '';
+
+          let actionsHtml = `
+            <button class="btn-status btn-aprovar${aprovarExtraClass}" ${aprovarDisabledAttr} onclick="updateBookingStatus(${bk.id}, 'aprovada')">Aprovar</button>
+            <button class="btn-status btn-cancelar" onclick="updateBookingStatus(${bk.id}, 'cancelada')">Cancelar</button>
+          `;
+
+          if (!isPago) {
+            actionsHtml += `
+              <button class="btn-status btn-pago" onclick="updatePaymentStatus(${bk.id}, 'pago')">Marcar como pago</button>
+            `;
+          } else {
+            actionsHtml += `
+              <span class="pill-pago">Pago</span>
+            `;
+          }
+
           const card = document.createElement('div');
           card.className = 'reserva-card';
           card.dataset.id = bk.id;
@@ -715,7 +894,20 @@
             <div>
               <h3>Reserva #${bk.id}</h3>
               <p><strong>Período:</strong> ${datasTexto}</p>
-              <p><strong>Valor total:</strong> ${totalFormatado}</p>
+              ${valorPorPetFormatado ? `<p class="reserva-valor-pet"><strong>Valor por pet:</strong> ${valorPorPetFormatado}</p>` : ''}
+              
+              <div class="reserva-tutor">
+                <img src="${tutorAvatar}" alt="Tutor" class="reserva-tutor-avatar">
+                <div>
+                  <a href="${tutorLink}" class="reserva-tutor-nome">${tutorNome}</a>
+                  <div class="reserva-pets-line">
+                    <span class="reserva-pets-count">${qtdPetsLabel}</span>
+                    <div class="reserva-pets-chips">
+                      ${petChipsHtml}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div>
               <p class="reserva-status">
@@ -729,16 +921,18 @@
               ${bk.payment_method ? `<p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">Forma de pagamento: ${bk.payment_method}</p>` : ''}
             </div>
             <div class="reserva-actions">
-              <button class="btn-status btn-aprovar" onclick="updateBookingStatus(${bk.id}, 'aprovada')">Aprovar</button>
-              <button class="btn-status btn-cancelar" onclick="updateBookingStatus(${bk.id}, 'cancelada')">Cancelar</button>
-              <button class="btn-status btn-pago" onclick="updatePaymentStatus(${bk.id}, 'pago')">Marcar como pago</button>
+              <div class="reserva-valor-total">
+                <span>Valor total</span>
+                <strong>${totalFormatado}</strong>
+              </div>
+              ${actionsHtml}
             </div>
           `;
           container.appendChild(card);
         });
       }
 
-      // --- LATERAL DIREITA: reservas aprovadas ---
+      // --- LATERAL DIREITA: reservas aprovadas (inclui status confirmada) ---
       if (aprovadasBox) {
         aprovadasBox.innerHTML = '';
 
@@ -756,6 +950,13 @@
             }
             const total = bk.total_price != null ? Number(bk.total_price) : 0;
             const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            const { nome: tutorNome, avatar: tutorAvatar, link: tutorLink } = getTutorInfo(bk);
+            const { quantidade: qtdPets } = getPetsInfo(bk);
+
+            const qtdPetsLabel = qtdPets
+              ? `${qtdPets} pet${qtdPets > 1 ? 's' : ''}`
+              : 'Pets não informados';
 
             const isPago = (bk.payment_status || '').toString().trim().toLowerCase() === 'pago';
 
@@ -784,9 +985,13 @@
             mini.className = 'reserva-aprovada-item';
             mini.innerHTML = `
               <div class="reserva-aprovada-top">
-                <div>
-                  <strong>Reserva #${bk.id}</strong><br>
-                  <span class="reserva-aprovada-datas">${datasTexto}</span>
+                <div class="reserva-aprovada-header">
+                  <img src="${tutorAvatar}" alt="Tutor" class="reserva-tutor-avatar mini">
+                  <div>
+                    <a href="${tutorLink}" class="reserva-tutor-nome mini">${tutorNome}</a><br>
+                    <span class="reserva-aprovada-datas">${datasTexto}</span><br>
+                    <span class="reserva-aprovada-pets">${qtdPetsLabel}</span>
+                  </div>
                 </div>
                 <div class="reserva-aprovada-valor">
                   <span class="valor">${totalFormatado}</span><br>
@@ -821,6 +1026,12 @@
             const total = bk.total_price != null ? Number(bk.total_price) : 0;
             const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+            const { nome: tutorNome, avatar: tutorAvatar, link: tutorLink } = getTutorInfo(bk);
+            const { quantidade: qtdPets } = getPetsInfo(bk);
+            const qtdPetsLabel = qtdPets
+              ? `${qtdPets} pet${qtdPets > 1 ? 's' : ''}`
+              : 'Pets não informados';
+
             const card = document.createElement('div');
             card.className = 'reserva-card';
             card.innerHTML = `
@@ -828,6 +1039,13 @@
                 <h3>Reserva #${bk.id}</h3>
                 <p><strong>Período:</strong> ${datasTexto}</p>
                 <p><strong>Valor total:</strong> ${totalFormatado}</p>
+                <div class="reserva-tutor">
+                  <img src="${tutorAvatar}" alt="Tutor" class="reserva-tutor-avatar">
+                  <div>
+                    <a href="${tutorLink}" class="reserva-tutor-nome">${tutorNome}</a><br>
+                    <span class="reserva-pets-count">${qtdPetsLabel}</span>
+                  </div>
+                </div>
               </div>
               <div>
                 <p class="reserva-status">
@@ -854,6 +1072,33 @@
       toggleCanceladasSection(false);
     }
 
+    // --- MODAL DE RESERVA APROVADA ---
+    const bookingApprovedWrap  = document.getElementById('ppBookingApproved');
+    const bookingApprovedClose = document.getElementById('bookingApprovedClose');
+
+    function showBookingApprovedModal(bookingId){
+      if (!bookingApprovedWrap) return;
+      const textEl = document.getElementById('bookingApprovedText');
+      if (textEl && bookingId){
+        textEl.textContent = `Reserva #${bookingId} aprovada com sucesso!`;
+      }
+      bookingApprovedWrap.style.display = 'flex';
+      const card = bookingApprovedWrap.querySelector('.pp-card');
+      if (card){
+        requestAnimationFrame(() => card.classList.add('show'));
+      }
+    }
+
+    if (bookingApprovedClose && bookingApprovedWrap){
+      bookingApprovedClose.addEventListener('click', () => {
+        const card = bookingApprovedWrap.querySelector('.pp-card');
+        if (card) card.classList.remove('show');
+        setTimeout(() => {
+          bookingApprovedWrap.style.display = 'none';
+        }, 200);
+      });
+    }
+
     // --- ATUALIZAR STATUS (recarrega listas) ---
     async function updateBookingStatus(id, novoStatus) {
       try {
@@ -865,18 +1110,20 @@
         if (error) throw error;
 
         if (novoStatus === 'cancelada') {
-          toastHost('Reserva cancelada.');
+          toastHost('Reserva cancelada.', 'ok');
         } else if (novoStatus === 'aprovada') {
-          toastHost('Reserva aprovada.');
+          toastHost('Reserva aprovada.', 'ok');
+          // Modal com visual próprio do projeto
+          showBookingApprovedModal(id);
         } else {
-          toastHost('Status da reserva atualizado.');
+          toastHost('Status da reserva atualizado.', 'ok');
         }
 
         // Recarrega listas (pendentes, aprovadas e canceladas) 
         loadMyBookings();
       } catch (err) {
         console.error('Erro ao atualizar status:', err);
-        toastHost('Erro ao atualizar status da reserva.');
+        toastHost('Erro ao atualizar status da reserva.', 'err');
       }
     }
 
@@ -888,11 +1135,11 @@
           .eq('id', id);
 
         if (error) throw error;
-        toastHost('Status de pagamento atualizado.');
+        toastHost('Status de pagamento atualizado.', 'ok');
         loadMyBookings();
       } catch (err) {
         console.error('Erro ao atualizar pagamento:', err);
-        toastHost('Erro ao atualizar status de pagamento.');
+        toastHost('Erro ao atualizar status de pagamento.', 'err');
       }
     }
 
@@ -1124,10 +1371,10 @@
       const { error } = await sb.from('listings').delete().eq('id', deletingListingId);
       
       if(error) {
-        toastHost("Erro ao excluir anúncio.");
+        toastHost("Erro ao excluir anúncio.", 'err');
         console.error(error);
       } else {
-        toastHost("Anúncio excluído com sucesso.");
+        toastHost("Anúncio excluído com sucesso.", 'ok');
         loadMyListings();
       }
       
@@ -1150,7 +1397,7 @@
     linkExcluirConta.addEventListener('click', (e) => {
       e.preventDefault();
       if (!currentUserId) {
-        toastHost("Erro: sessão expirada. Faça login novamente.");
+        toastHost("Erro: sessão expirada. Faça login novamente.", 'err');
         return;
       }
       deleteConfirmInput.value = '';
@@ -1175,7 +1422,7 @@
     // NOVA EXCLUSÃO TOTAL VIA JAVASCRIPT (sem PHP)
     async function handleDeleteAccountHost() {
       if (!currentUserId) {
-        toastHost("Erro: usuário não identificado. Faça login novamente.");
+        toastHost("Erro: usuário não identificado. Faça login novamente.", 'err');
         return;
       }
 
@@ -1244,7 +1491,7 @@
           .eq('id', userId);
         if (profileErr) console.error('Erro ao apagar profile:', profileErr);
 
-        toastHost('Dados da conta removidos. Você será desconectado.');
+        toastHost('Dados da conta removidos. Você será desconectado.', 'ok');
 
         try {
           await sb.auth.signOut();
@@ -1258,7 +1505,7 @@
 
       } catch (err) {
         console.error('Erro ao excluir conta:', err);
-        toastHost('Erro ao excluir conta. Tente novamente.');
+        toastHost('Erro ao excluir conta. Tente novamente.', 'err');
         delAccountOkBtn.disabled = false;
       } finally {
         const card = ppDeleteAccount.querySelector('.pp-card');
@@ -1378,6 +1625,62 @@
     const ppChatSubtitle   = document.getElementById('ppChatSubtitle');
     const ppBadge          = document.getElementById('ppBadge');
 
+    // --- NOVA LÓGICA DO MODAL DE EXCLUSÃO DE CONVERSA ---
+    const ppDeleteChatWrap = document.getElementById('ppDeleteChat');
+    const delChatCancelBtn = document.getElementById('delChatCancel');
+    const delChatOkBtn     = document.getElementById('delChatOk');
+    let deletingChatId = null;
+
+    window.ppDeleteChat = function(id, event) {
+      event.stopPropagation();
+      deletingChatId = id;
+      if (!ppDeleteChatWrap) return;
+
+      ppDeleteChatWrap.style.display = 'flex';
+      const card = ppDeleteChatWrap.querySelector('.pp-card');
+      if (card) {
+        requestAnimationFrame(() => card.classList.add('show'));
+      }
+    };
+
+    delChatCancelBtn.addEventListener('click', () => {
+      const card = ppDeleteChatWrap.querySelector('.pp-card');
+      if (card) card.classList.remove('show');
+      setTimeout(() => {
+        ppDeleteChatWrap.style.display = 'none';
+        deletingChatId = null;
+      }, 200);
+    });
+
+    delChatOkBtn.addEventListener('click', async () => {
+      if (!deletingChatId) return;
+
+      await sb.from('messages').delete().eq('chat_id', deletingChatId);
+      const { error } = await sb.from('chats').delete().eq('id', deletingChatId);
+
+      if (!error) {
+        toastHost('Conversa excluída.', 'ok');
+        if (ppActiveChatId === deletingChatId) {
+          ppChatMessages.innerHTML = '';
+          ppChatSubtitle.textContent = "Selecione uma conversa";
+          ppActiveChatId = null;
+          if (ppChatChannel) sb.removeChannel(ppChatChannel);
+        }
+        ppLoadConversations();
+      } else {
+        toastHost('Erro ao excluir conversa.', 'err');
+      }
+
+      const card = ppDeleteChatWrap.querySelector('.pp-card');
+      if (card) card.classList.remove('show');
+      setTimeout(() => {
+        ppDeleteChatWrap.style.display = 'none';
+        deletingChatId = null;
+      }, 200);
+    });
+
+    // --- FIM: MODAL DE EXCLUSÃO DE CONVERSA ---
+
     ppChatFab?.addEventListener('click', () => {
       ppChatWidget.style.display = 'flex';
       ppChatFab.style.display = 'none';
@@ -1446,24 +1749,6 @@
         item.addEventListener('click', () => ppOpenConversation(chat));
         ppChatConvList.appendChild(item);
       });
-    }
-
-    window.ppDeleteChat = async function(id, event) {
-      event.stopPropagation(); 
-      if(!confirm("Excluir conversa?")) return;
-        
-      await sb.from('messages').delete().eq('chat_id', id);
-      const { error } = await sb.from('chats').delete().eq('id', id);
-
-      if(!error) {
-        if(ppActiveChatId === id) {
-          ppChatMessages.innerHTML = '';
-          ppChatSubtitle.textContent = "Selecione uma conversa";
-          ppActiveChatId = null;
-          if(ppChatChannel) sb.removeChannel(ppChatChannel);
-        }
-        ppLoadConversations();
-      }
     }
 
     function ppSetActiveConversation(chatId) {

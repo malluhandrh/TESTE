@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Perfil do Anfitrião — Patas Pousada</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&family=Parkinsans:wght@300..800&display=swap');
+
+:root{
+  --brand:#e2725b;
+  --brand-strong:#d45f47;
+  --ink:#1f2937;
+  --muted:#6b7280;
+  --bg:#f3f4f6;
+  --white:#fff;
+  --radius:12px;
+  --shadow:0 4px 12px rgba(0,0,0,.06);
+  --line:#e5e7eb;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.5;
+}
+a{text-decoration:none;color:inherit}
+
+/* HEADER */
+header{
+  display:flex;
+  justify-content:center;
+  background:rgba(255,255,255,.95);
+  box-shadow:0 1px 3px rgba(0,0,0,.05);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+nav{
+  max-width:1100px;
+  width:100%;
+  padding:16px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:Parkinsans,sans-serif;
+  font-weight:800;
+  font-size:1.35rem;
+  color:var(--brand);
+}
+.logo img{width:34px;height:34px}
+
+.user-menu{display:flex;align-items:center;gap:10px}
+.user-menu img{
+  width:40px;height:40px;border-radius:50%;
+  object-fit:cover;background:#eee;
+}
+.user-menu span{font-weight:700}
+.user-menu a{font-weight:600;color:#4b5563}
+.user-menu a:hover{color:var(--brand)}
+
+/* CONTAINER */
+.container{
+  max-width:800px;
+  margin:32px auto;
+  padding:0 20px;
+}
+
+/* VOLTAR */
+.btn-back{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  margin-bottom:24px;
+  padding:8px 18px;
+  border-radius:30px;
+  background:#fff;
+  border:1px solid var(--line);
+  font-weight:700;
+  font-size:.9rem;
+  color:var(--muted);
+}
+.btn-back:hover{
+  border-color:var(--brand);
+  color:var(--brand);
+  transform:translateX(-2px);
+}
+
+/* PERFIL */
+h2{
+  font-family:Parkinsans,sans-serif;
+  font-size:1.6rem;
+  margin-bottom:6px;
+}
+.sub{
+  color:var(--muted);
+  margin-bottom:30px;
+}
+
+/* FOTO */
+.foto-perfil{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:15px;
+  margin-bottom:30px;
+  padding-bottom:30px;
+  border-bottom:1px solid var(--line);
+}
+.foto-wrapper{
+  position:relative;
+  width:100px;height:100px;
+  cursor:pointer;
+}
+.foto-wrapper img{
+  width:100%;height:100%;
+  border-radius:50%;
+  object-fit:cover;
+  border:4px solid #fff;
+  box-shadow:0 4px 15px rgba(0,0,0,.1);
+}
+.foto-badge{
+  position:absolute;
+  bottom:0;right:0;
+  background:var(--brand);
+  color:#fff;
+  width:32px;height:32px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  border:3px solid #fff;
+}
+
+/* FORM */
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+}
+.form-group{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:20px;
+}
+label{font-weight:700;font-size:.9rem}
+input,select,textarea{
+  padding:12px 16px;
+  border-radius:10px;
+  border:1px solid #d1d5db;
+  font-size:.95rem;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--brand);
+  outline:none;
+}
+input[readonly]{background:#f3f4f6}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:30px;
+  background:var(--brand);
+  color:#fff;
+  font-weight:700;
+  font-size:1rem;
+  cursor:pointer;
+}
+button:hover{background:var(--brand-strong)}
+
+.hint{text-align:center;margin-top:12px;font-weight:600}
+</style>
+</head>
+
+<body>
+
+<header>
+<nav>
+  <a href="home_host.html" class="logo">
+    <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png">
+    <span>Patas Pousada</span>
+  </a>
+
+  <div class="user-menu">
+    <img id="avatarTop">
+    <span id="userTop">Anfitrião</span>
+    <a href="#" id="logout">Sair</a>
+  </div>
+</nav>
+</header>
+
+<div class="container">
+
+<a href="menu_perfil_host.html" class="btn-back">
+  <i class="fa-solid fa-arrow-left"></i>
+  Voltar para o menu
+</a>
+
+<h2>Perfil do anfitrião</h2>
+<p class="sub">Essas informações ficam visíveis para os tutores.</p>
+
+<div class="foto-perfil">
+  <label class="foto-wrapper">
+    <img id="preview">
+    <div class="foto-badge"><i class="fa-solid fa-camera"></i></div>
+  </label>
+  <input type="file" id="fotoInput" hidden>
+</div>
+
+<form id="form-host">
+  <div class="form-group">
+    <label>Nome completo</label>
+    <input type="text" name="full_name" required>
+  </div>
+
+  <div class="form-group">
+    <label>Email</label>
+    <input type="email" name="email" readonly>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>CPF</label>
+      <input type="text" name="cpf" readonly>
+    </div>
+    <div class="form-group">
+      <label>Data de nascimento</label>
+      <input type="date" name="birth_date">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Cidade</label>
+      <input type="text" name="city">
+    </div>
+    <div class="form-group">
+      <label>Tipo de residência</label>
+      <select name="residence_type">
+        <option value="">Selecione</option>
+        <option>Casa</option>
+        <option>Apartamento</option>
+        <option>Sítio / Chácara</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Quantos pets você tem?</label>
+    <input type="number" name="pets_count" min="0">
+  </div>
+
+  <div class="form-group">
+    <label>Sobre você</label>
+    <textarea name="about" rows="5"></textarea>
+  </div>
+
+  <button type="submit">Salvar perfil</button>
+  <div id="hint" class="hint"></div>
+</form>
+
+</div>
+
+<script>
+const sb = supabase.createClient(
+  "https://nwbgzokttjgkipwzfgzc.supabase.co",
+  "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ"
+);
+
+const formHost  = document.getElementById('form-host');
+const avatarTop = document.getElementById('avatarTop');
+const preview   = document.getElementById('preview');
+const fotoInput = document.getElementById('fotoInput');
+const userTop   = document.getElementById('userTop');
+const hint      = document.getElementById('hint');
+const logoutBtn = document.getElementById('logout');
+
+let currentUser, hostData={}, avatarFile=null;
+
+(async function init(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user) return location.href="cadastrarouentrar.html";
+  currentUser=user;
+  await loadHost();
+})();
+
+async function loadHost(){
+  const { data, error } = await sb
+    .from('hosts')
+    .select('*')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+
+  if(error){ console.error(error); return; }
+
+  hostData = data || {};
+
+  formHost.full_name.value = hostData.full_name || '';
+  formHost.email.value     = hostData.email || currentUser.email;
+  formHost.cpf.value       = hostData.cpf || '';
+  formHost.birth_date.value= hostData.birth_date || '';
+  formHost.city.value      = hostData.city || '';
+  formHost.residence_type.value = hostData.residence_type || '';
+  formHost.pets_count.value= hostData.pets_count || '';
+  formHost.about.value     = hostData.about || '';
+
+  userTop.textContent = hostData.full_name || 'Anfitrião';
+
+  if(hostData.avatar_url){
+    const url = hostData.avatar_url + '?t=' + Date.now();
+    avatarTop.src = url;
+    preview.src = url;
+  }
+}
+
+fotoInput.onchange = e=>{
+  avatarFile = e.target.files[0];
+  if(avatarFile) preview.src = URL.createObjectURL(avatarFile);
+};
+
+formHost.onsubmit = async e=>{
+  e.preventDefault();
+
+  let avatarUrl = hostData.avatar_url;
+
+  if(avatarFile){
+    const path = `${currentUser.id}/avatar.png`;
+    await sb.storage
+      .from('host-avatars')
+      .upload(path, avatarFile, { upsert:true });
+    avatarUrl = sb.storage
+      .from('host-avatars')
+      .getPublicUrl(path).data.publicUrl;
+  }
+
+  const { error } = await sb.from('hosts').upsert({
+    id: currentUser.id,
+    full_name: formHost.full_name.value,
+    email: currentUser.email,
+    birth_date: formHost.birth_date.value || null,
+    city: formHost.city.value,
+    residence_type: formHost.residence_type.value,
+    pets_count: formHost.pets_count.value,
+    about: formHost.about.value,
+    avatar_url: avatarUrl
+  });
+
+  hint.textContent = error ? 'Erro ao salvar.' : 'Perfil atualizado com sucesso.';
+};
+
+logoutBtn.onclick = async ()=>{
+  await sb.auth.signOut();
+  location.href="cadastrarouentrar.html";
+};
+</script>
+
+</body>
+</html>

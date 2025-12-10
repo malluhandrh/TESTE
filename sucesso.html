@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagamento concluído | Patas Pousada</title>
+
+  <!-- Fonte usada no projeto -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#e2725b;
+      --brand-strong:#d45f47;
+      --ink:#1f2937;
+      --muted:#6b7280;
+      --bg:#f3f4f6;
+      --white:#ffffff;
+      --radius:18px;
+      --line:#e5e7eb;
+      --shadow-soft:0 18px 45px rgba(15,23,42,0.08);
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    body {
+      font-family: Nunito, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #ffe8e0 0, #f3f4f6 45%, #edf2ff 100%);
+      min-height: 100vh;
+      color: var(--ink);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* HEADER PATAS POUSADA */
+    header {
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(148,163,184,0.25);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .topbar{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 10px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .topbar-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+    }
+
+    .topbar-left img{
+      width:32px;
+      height:32px;
+      border-radius:999px;
+    }
+
+    .logo-text{
+      font-weight:700;
+      font-size:1.05rem;
+      color:var(--brand-strong);
+    }
+
+    .topbar-center nav ul{
+      list-style:none;
+      display:flex;
+      gap:14px;
+      font-size:0.9rem;
+    }
+
+    .topbar-center a{
+      text-decoration:none;
+      color:var(--muted);
+      padding:6px 10px;
+      border-radius:999px;
+      transition:.2s;
+    }
+
+    .topbar-center a:hover{
+      background:rgba(226,114,91,0.08);
+      color:var(--brand-strong);
+    }
+
+    .topbar-right a{
+      text-decoration:none;
+      font-size:0.85rem;
+      color:var(--brand-strong);
+      padding:6px 12px;
+      border-radius:999px;
+      border:1px solid rgba(226,114,91,0.5);
+      background: #fff;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .topbar-right a:hover{
+      background: rgba(226,114,91,0.06);
+    }
+
+    /* MAIN */
+    main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 32px 16px 48px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 28px 26px 26px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      border:1px solid rgba(148,163,184,0.2);
+    }
+
+    .icon-circle{
+      width:52px;
+      height:52px;
+      border-radius:999px;
+      margin:0 auto 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#dcfce7;
+      color:#15803d;
+      font-size:1.4rem;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #15803d;
+      font-size:1.6rem;
+      margin-bottom:4px;
+    }
+
+    .subtitle{
+      color: var(--muted);
+      font-size:0.92rem;
+      margin-bottom:18px;
+    }
+
+    .reserva-info{
+      font-size:0.9rem;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .reserva-info strong{
+      color:var(--ink);
+    }
+
+    p {
+      color: #4b5563;
+      font-size: 0.95rem;
+    }
+
+    .erro {
+      color: #b91c1c;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      margin-top: 22px;
+      display: inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight:600;
+      box-shadow:0 12px 28px rgba(226,114,91,0.4);
+      transition:.2s;
+    }
+
+    .btn:hover{
+      background:var(--brand-strong);
+      transform:translateY(-1px);
+      box-shadow:0 16px 32px rgba(226,114,91,0.50);
+    }
+
+    @media (max-width:640px){
+      .topbar{
+        padding:8px 12px;
+      }
+      .topbar-center{
+        display:none;
+      }
+      main{
+        padding:24px 12px 32px;
+      }
+      .card{
+        padding:22px 18px 20px;
+        border-radius:16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="topbar">
+      <a href="index.html" class="topbar-left">
+        <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="Logo Patas Pousada">
+        <span class="logo-text">Patas Pousada</span>
+      </a>
+
+      <div class="topbar-center">
+        <nav>
+          <ul>
+            <li><a href="home_tutor.html">Minhas reservas</a></li>
+            <li><a href="ajuda.html">Ajuda</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="topbar-right">
+        <a href="home_tutor.html">
+          <span>Voltar para painel do tutor</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="icon-circle">
+        <span>✔</span>
+      </div>
+      <h1>Pagamento concluído!</h1>
+      <p class="subtitle">Estamos registrando seu pagamento e atualizando as informações da reserva.</p>
+
+      <p class="reserva-info">
+        <strong>Reserva:</strong>
+        <span id="reserva-id">-</span>
+      </p>
+
+      <p id="msg">Atualizando status da reserva...</p>
+      <p id="erro" class="erro" style="display:none;"></p>
+
+      <a id="btnVoltar" href="home_tutor.html" class="btn">
+        <span>Voltar para minhas reservas</span>
+      </a>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://nwbgzokttjgkipwzfgzc.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ";
+
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function marcarComoPago() {
+      const params = new URLSearchParams(window.location.search);
+      const bookingId = params.get('booking_id');
+
+      const msgEl   = document.getElementById('msg');
+      const erroEl  = document.getElementById('erro');
+      const reservaSpan = document.getElementById('reserva-id');
+
+      if (!bookingId) {
+        reservaSpan.textContent = '-';
+        msgEl.textContent = 'Não foi possível identificar a reserva.';
+        erroEl.textContent = 'booking_id não informado na URL.';
+        erroEl.style.display = 'block';
+        return;
+      }
+
+      // mostra o ID na tela
+      reservaSpan.textContent = `#${bookingId}`;
+
+      try {
+        // garante que o usuário está logado e o Supabase tem contexto
+        await sb.auth.getUser();
+
+        const { error } = await sb
+          .from('bookings')
+          .update({
+            payment_status: 'pago',
+            payment_method: 'InfinitePay',
+            status: 'confirmada'          // <<< aqui atualiza o status da reserva
+          })
+          .eq('id', bookingId);
+
+        if (error) {
+          console.error(error);
+          msgEl.textContent = 'Seu pagamento foi recebido, mas houve erro ao atualizar a reserva.';
+          erroEl.textContent = 'Erro ao atualizar pagamento no banco.';
+          erroEl.style.display = 'block';
+          return;
+        }
+
+        msgEl.textContent = 'Pagamento confirmado! Seu anfitrião já pode ver que a reserva foi paga e confirmada.';
+
+      } catch (e) {
+        console.error(e);
+        msgEl.textContent = 'Seu pagamento foi recebido, mas houve erro ao atualizar a reserva.';
+        erroEl.textContent = 'Erro inesperado ao falar com o servidor.';
+        erroEl.style.display = 'block';
+      }
+    }
+
+    marcarComoPago();
+  </script>
+</body>
+</html>

@@ -337,7 +337,7 @@
     const SUPABASE_ANON_KEY = "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ";
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ========= HELPERS =========
+    // ========= HELPERS UI =========
     function mostrarAba(event, idAba) {
       event.preventDefault();
       document.querySelectorAll('.aba').forEach(div => div.classList.remove('ativa'));
@@ -367,7 +367,7 @@
       return pub.publicUrl;
     }
 
-    // ========= AUTH + LOAD =========
+    // ========= AUTH + METADATA HELPERS =========
     let currentUser = null;
     let profile = {};
 
@@ -378,6 +378,14 @@
         return null;
       }
       return user;
+    }
+
+    function getMeta(user, ...keys){
+      const meta = user?.user_metadata || {};
+      for(const k of keys){
+        if(meta[k] && String(meta[k]).trim() !== '') return meta[k];
+      }
+      return '';
     }
 
     function resolveDisplayName(user, prof){
@@ -393,8 +401,10 @@
         }
       }
 
-      if ((display === emailPrefix || !display) && user.user_metadata?.full_name) {
-        display = user.user_metadata.full_name;
+      // fallback com user_metadata
+      const metaFull = getMeta(user, 'full_name');
+      if ((display === emailPrefix || !display) && metaFull){
+        display = metaFull;
       }
 
       return display || emailPrefix;
@@ -403,22 +413,37 @@
     function fillTopBar(name, avatarUrl){
       document.getElementById('userTop').textContent = name || 'Usuário';
       if (avatarUrl) {
-        // AQUI ESTÁ O FIX: Adiciona o timestamp para forçar o navegador a recarregar a imagem do topo
         const urlComCache = avatarUrl + '?t=' + new Date().getTime();
         document.getElementById('avatarTop').src = urlComCache;
       }
     }
 
     function fillDados(p, user){
+      const meta = user.user_metadata || {};
       const f = document.querySelector('#form-dados');
-      f.first_name.value = p.first_name || '';
-      f.last_name.value  = p.last_name  || '';
+
+      // quebra full_name em first/last se preciso
+      let metaFirst = meta.first_name || '';
+      let metaLast  = meta.last_name  || '';
+      const metaFull = meta.full_name || '';
+      if(!metaFirst && metaFull){
+        const parts = metaFull.trim().split(/\s+/);
+        metaFirst = parts[0] || '';
+        metaLast  = parts.slice(1).join(' ');
+      }
+
+      f.first_name.value = p.first_name || metaFirst || '';
+      f.last_name.value  = p.last_name  || metaLast  || '';
       f.email.value      = user.email   || '';
-      f.birthdate.value  = p.birthdate  || '';
-      f.gender.value     = p.gender     || '';
-      if (p.avatar_url){
-        // Mesma coisa para o preview principal da página
-        const urlComCache = p.avatar_url + '?t=' + new Date().getTime();
+
+      const metaBirth = meta.birthdate || meta.birth_date || '';
+      f.birthdate.value = p.birthdate || metaBirth || '';
+
+      f.gender.value = p.gender || meta.gender || '';
+
+      const avatarUrl = p.avatar_url || meta.avatar_url || '';
+      if(avatarUrl){
+        const urlComCache = avatarUrl + '?t=' + new Date().getTime();
         document.getElementById('preview').src = urlComCache;
       }
     }
@@ -433,9 +458,10 @@
       f.address_zip.value      = p.address_zip      || '';
     }
 
-    function fillDocs(p){
+    function fillDocs(p, user){
       const f = document.querySelector('#form-docs');
-      f.cpf.value = p.cpf || '';
+      const metaCpf = getMeta(user, 'cpf');
+      f.cpf.value = p.cpf || metaCpf || '';
       f.rg.value  = p.rg  || '';
     }
 
@@ -449,21 +475,29 @@
       const f = document.querySelector('#form-emergency');
       f.emergency_first_name.value     = p.emergency_first_name     || '';
       f.emergency_last_name.value      = p.emergency_last_name      || '';
-      f.emergency_phone_country.value= p.emergency_phone_country|| '+55';
-      f.emergency_phone_number.value = p.emergency_phone_number || '';
+      f.emergency_phone_country.value  = p.emergency_phone_country  || '+55';
+      f.emergency_phone_number.value   = p.emergency_phone_number   || '';
     }
 
     async function loadProfile(user){
-      const { data, error } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+      const { data, error } = await sb
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
       if(error){ console.error('loadProfile error:', error); }
       profile = data || {};
 
-      const display = resolveDisplayName(user, profile);
+      const meta = user.user_metadata || {};
 
-      fillTopBar(display, profile.avatar_url);
+      const display = resolveDisplayName(user, profile);
+      const avatarUrl = profile.avatar_url || meta.avatar_url || '';
+
+      fillTopBar(display, avatarUrl);
       fillDados(profile, user);
       fillEndereco(profile);
-      fillDocs(profile);
+      fillDocs(profile, user);
       fillPhone(profile);
       fillEmergency(profile);
     }
@@ -496,7 +530,7 @@
 
       await loadProfile(currentUser);
 
-      // foto/avatar - Apenas preview
+      // foto/avatar - Apenas preview (upload real no submit de "Seus dados")
       const fotoInput = document.getElementById('fotoInput');
       fotoInput.addEventListener('change', (e)=>{
         const file = e.target.files?.[0];
@@ -512,7 +546,7 @@
         const f = e.currentTarget;
         const hint = document.getElementById('hint-dados');
 
-        let currentAvatarUrl = profile.avatar_url;
+        let currentAvatarUrl = profile.avatar_url || getMeta(currentUser, 'avatar_url') || '';
 
         // Se houver uma nova foto
         if(avatarFile) {
@@ -521,14 +555,13 @@
             
             currentAvatarUrl = await uploadAvatar(avatarFile, currentUser.id);
             
-            // === AQUI TAMBÉM: Cache Buster para atualização imediata ===
             const cacheBuster = '?t=' + new Date().getTime();
             const urlComCache = currentAvatarUrl + cacheBuster;
 
             document.getElementById('avatarTop').src = urlComCache;
-            document.getElementById('preview').src = urlComCache;
+            document.getElementById('preview').src   = urlComCache;
             
-            profile.avatar_url = currentAvatarUrl; // Salva URL limpa no objeto
+            profile.avatar_url = currentAvatarUrl;
           } catch(err) {
             console.error('uploadAvatar error:', err);
             toast(hint, false, 'Falha ao enviar foto.');
@@ -536,7 +569,6 @@
           }
         }
 
-        // Salva no banco (URL limpa sem o ?t=...)
         const ok = await save({
           first_name: f.first_name.value.trim(),
           last_name : f.last_name.value.trim(),
@@ -554,14 +586,7 @@
           avatarFile = null;
 
           const display = resolveDisplayName(currentUser, profile);
-          // Se não houve upload de foto agora, usa a que já tinha (com cache buster se carregar de novo)
-          // Se houve upload, o bloco 'if(avatarFile)' acima já atualizou o DOM.
-          if(!avatarFile) {
-             fillTopBar(display, profile.avatar_url);
-          } else {
-             // Apenas atualiza o nome se mudou
-             document.getElementById('userTop').textContent = display;
-          }
+          fillTopBar(display, profile.avatar_url || getMeta(currentUser, 'avatar_url') || '');
         }
       });
 
@@ -602,8 +627,8 @@
         await save({
           emergency_first_name    : f.emergency_first_name.value.trim(),
           emergency_last_name     : f.emergency_last_name.value.trim(),
-          emergency_phone_country: f.emergency_phone_country.value.trim(),
-          emergency_phone_number : f.emergency_phone_number.value.trim()
+          emergency_phone_country : f.emergency_phone_country.value.trim(),
+          emergency_phone_number  : f.emergency_phone_number.value.trim()
         }, document.getElementById('hint-emg'));
       });
     })();

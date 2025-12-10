@@ -1,882 +1,334 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editar Perfil do Anfitrião | Patas Pousada</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Menu do Anfitrião • Patas Pousada</title>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Parkinsans:wght@500;600;700&display=swap');
-  </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    :root {
-      --cor-principal: #e2725b;
-      --cor-principal-escura: #d35e46;
-      --cor-fundo: #f7f7f7;
-      --cor-card: #ffffff;
-      --cor-texto: #333333;
-      --radius-card: 16px;
-      --shadow-card: 0 4px 12px rgba(0,0,0,0.08);
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&family=Parkinsans:wght@300..800&display=swap');
 
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:'Nunito',Arial,sans-serif;
-      background:var(--cor-fundo);
-      color:var(--cor-texto);
-    }
+:root{
+  --brand:#e2725b;
+  --brand-strong:#d45f47;
+  --ink:#1f2937;
+  --muted:#6b7280;
+  --bg:#f3f4f6;
+  --white:#fff;
+  --radius:12px;
+  --shadow:0 4px 12px rgba(0,0,0,.06);
+  --line:#e5e7eb;
+  --chip:#fff0ec;
+  --chip-border:#ffd8cf;
+  --transition:.2s cubic-bezier(.25,.8,.25,1);
+}
 
-    /* HEADER reaproveitado */
-    header{
-      background:#fff;
-      box-shadow:0 2px 4px rgba(0,0,0,.08);
-      padding:16px 32px;
-      position:sticky;top:0;z-index:10;
-    }
-    .topbar{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
-    .topbar-left{display:flex;align-items:center;gap:10px}
-    .topbar-left img{width:28px;height:28px}
-    .logo-text{font-family:'Parkinsans',sans-serif;font-weight:700;font-size:1.3rem;color:var(--cor-principal);text-decoration:none}
-    .topbar-center nav ul{list-style:none;display:flex;gap:24px}
-    .topbar-center nav a{text-decoration:none;font-family:'Parkinsans',sans-serif;font-weight:600;color:#444;font-size:.95rem}
-    .topbar-center nav a:hover{color:var(--cor-principal-escura)}
-    .topbar-right{display:flex;align-items:center;gap:12px}
-    .perfil-bolinha{
-      width:32px;height:32px;border-radius:50%;
-      background:#ffe2da;
-      display:flex;align-items:center;justify-content:center;
-      font-weight:700;color:var(--cor-principal-escura);font-size:.9rem;
-      background-size:cover;
-      background-position:center;
-      overflow:hidden;
-    }
-    .perfil-nome{font-family:'Parkinsans',sans-serif;font-weight:600;font-size:.95rem}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Nunito,system-ui,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.5;
+}
+a{text-decoration:none;color:inherit}
 
-    .user-menu{position:relative;display:flex;align-items:center}
-    .user-trigger{
-      border:none;background:transparent;
-      display:inline-flex;align-items:center;gap:8px;
-      cursor:pointer;padding:4px 6px;border-radius:999px;
-    }
-    .user-trigger:hover{background:#fff3ef}
-    .user-trigger .caret{font-size:.7rem;color:#555;margin-left:4px}
+/* HEADER */
+header{
+  display:flex;
+  justify-content:center;
+  background:rgba(255,255,255,.95);
+  box-shadow:0 1px 3px rgba(0,0,0,.05);
+  position:sticky;
+  top:0;
+  z-index:100;
+  backdrop-filter:blur(8px);
+}
+.nav{
+  max-width:1100px;
+  width:100%;
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:Parkinsans,sans-serif;
+  font-weight:800;
+  font-size:1.35rem;
+  color:var(--brand);
+}
+.logo img{width:34px;height:34px}
 
-    .user-dropdown{
-      position:absolute;right:0;top:calc(100% + 8px);
-      background:#fff;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,.18);
-      min-width:230px;padding:8px 0;opacity:0;visibility:hidden;
-      transform:translateY(4px);transition:opacity .15s,transform .15s,visibility .15s;z-index:20;
-    }
-    .user-menu:hover .user-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
-    .user-dropdown a{
-      display:flex;align-items:center;gap:10px;
-      padding:10px 16px;text-decoration:none;font-weight:700;
-      font-size:.95rem;color:#222;white-space:nowrap;
-    }
-    .user-dropdown a i{width:18px;text-align:center}
-    .user-dropdown a:hover{background:#f7f7f7}
-    .user-dropdown .separator{height:1px;background:#eee;margin:6px 0}
-    .user-dropdown a.delete-link{color:#c0392b}
-    .user-dropdown a.delete-link:hover{background:#fee2e2}
+.nav ul{
+  list-style:none;
+  display:flex;
+  gap:24px;
+  align-items:center;
+}
+.nav a.link{
+  font-family:Parkinsans,sans-serif;
+  font-weight:600;
+  color:#4b5563;
+}
+.nav a.link:hover{color:var(--brand)}
 
-    /* BOTÃO VOLTAR ABAIXO DO HEADER */
-    .back-bar{
-      max-width:900px;
-      margin:16px auto 0;
-      padding:0 16px;
-      display:flex;
-      justify-content:flex-start;
-    }
-    .btn-back{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 16px;
-      border-radius:999px;
-      border:none;
-      background:var(--cor-principal);
-      color:#fff;
-      font-family:'Parkinsans',sans-serif;
-      font-weight:600;
-      font-size:.9rem;
-      text-decoration:none;
-      cursor:pointer;
-      box-shadow:0 2px 6px rgba(0,0,0,0.12);
-      transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
-    }
-    .btn-back i{
-      font-size:.9rem;
-    }
-    .btn-back:hover{
-      background:var(--cor-principal-escura);
-      transform:translateY(-1px);
-      box-shadow:0 4px 10px rgba(0,0,0,0.16);
-    }
+/* USER MENU */
+.user{position:relative}
+.user__trigger{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 12px 6px 6px;
+  border-radius:40px;
+  cursor:pointer;
+}
+.user__trigger:hover{
+  background:#fff;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+}
+.user__avatar-img{
+  width:40px;height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  display:none;
+  border:1px solid var(--line);
+}
+.badge{
+  width:40px;height:40px;
+  border-radius:50%;
+  background:var(--chip);
+  color:var(--brand);
+  display:grid;
+  place-items:center;
+  font-weight:800;
+}
+.user__trigger span{
+  max-width:140px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-weight:700;
+}
+.user__dropdown{
+  position:absolute;
+  right:0;
+  top:calc(100% + 8px);
+  background:#fff;
+  border-radius:12px;
+  border:1px solid var(--line);
+  box-shadow:0 10px 25px rgba(0,0,0,.1);
+  width:220px;
+  padding:6px;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px);
+  transition:.2s;
+}
+.user:hover .user__dropdown{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+.user__item{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:.85rem;
+  font-weight:600;
+  color:#4b5563;
+}
+.user__item:hover{
+  background:#f9fafb;
+  color:var(--brand);
+}
 
-    /* CONTEÚDO */
-    .container-main{
-      max-width:900px;margin:24px auto 40px;
-      padding:0 16px;display:flex;flex-direction:column;gap:20px;
-    }
-    .card{
-      background:#fff;border-radius:var(--radius-card);
-      box-shadow:var(--shadow-card);padding:20px 22px;
-    }
-    .card h1{
-      font-family:'Parkinsans',sans-serif;
-      font-size:1.4rem;margin-bottom:6px;
-    }
-    .card p.sub{
-      font-size:.9rem;color:#666;margin-bottom:18px;
-    }
-    form{display:flex;flex-direction:column;gap:12px}
-    label{font-size:.9rem;font-weight:600;margin-bottom:3px}
-    input[type="text"],
-    input[type="number"],
-    input[type="email"],
-    select,
-    textarea{
-      width:100%;padding:9px 11px;border-radius:10px;
-      border:1px solid #ddd;font-family:'Nunito',sans-serif;
-      font-size:.9rem;
-    }
-    textarea{min-height:70px;resize:vertical}
-    .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-    .help{font-size:.8rem;color:#888}
+/* CONTEÚDO */
+.wrap{
+  max-width:800px;
+  margin:40px auto;
+  padding:0 24px;
+  min-height:60vh;
+}
+.back-btn{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  margin-bottom:24px;
+  padding:8px 16px;
+  border-radius:30px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--muted);
+  font-weight:700;
+  cursor:pointer;
+}
+.back-btn:hover{
+  border-color:var(--brand);
+  color:var(--brand);
+  transform:translateX(-2px);
+}
 
-    .radio-group{display:flex;gap:10px;flex-wrap:wrap;font-size:.9rem}
-    .radio-group label{display:flex;align-items:center;gap:4px;font-weight:500}
+.title{
+  font:800 1.8rem Parkinsans,sans-serif;
+  text-align:center;
+}
+.lead{
+  text-align:center;
+  color:var(--muted);
+  margin:12px auto 40px;
+  max-width:500px;
+}
 
-    .actions{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
-    .btn-primary{
-      border:none;border-radius:999px;padding:9px 18px;
-      background:var(--cor-principal);color:#fff;font-weight:700;
-      cursor:pointer;font-size:.9rem;
-    }
-    .btn-primary:hover{background:var(--cor-principal-escura)}
-    .btn-outline{
-      border-radius:999px;padding:9px 16px;
-      border:1.5px solid #ccc;background:#fff;
-      cursor:pointer;font-weight:600;font-size:.9rem;
-    }
-    .btn-outline:hover{background:#f4f4f4}
+.grid{
+  display:grid;
+  gap:16px;
+}
+@media(min-width:600px){
+  .grid{grid-template-columns:1fr 1fr}
+}
 
-    .alert{
-      padding:10px 12px;border-radius:10px;font-size:.85rem;margin-bottom:10px;display:none;
-    }
-    .alert.ok{background:#e6ffea;color:#166534;border:1px solid #22c55e}
-    .alert.err{background:#fee2e2;color:#b91c1c;border:1px solid #ef4444}
-
-    /* AVATAR / FOTO DE PERFIL */
-    .avatar-section{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      margin-bottom:10px;
-      flex-wrap:wrap;
-    }
-    .avatar-preview{
-      width:80px;
-      height:80px;
-      border-radius:50%;
-      background:#ffe2da;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:800;
-      font-size:1.6rem;
-      color:var(--cor-principal-escura);
-      position:relative;
-      overflow:hidden;
-    }
-    .avatar-preview span{
-      z-index:1;
-    }
-    .avatar-preview img{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:none;
-    }
-    .avatar-preview.has-img span{
-      display:none;
-    }
-    .avatar-preview.has-img img{
-      display:block;
-    }
-    .avatar-actions{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .avatar-actions .avatar-upload-btn{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      cursor:pointer;
-    }
-    .avatar-actions .avatar-upload-btn i{
-      font-size:.9rem;
-    }
-    .avatar-actions small{
-      font-size:.8rem;
-      color:#777;
-    }
-
-    /* ==== Modal EXCLUIR conta (mesmo estilo do tutor) ==== */
-    .pp-wrap{
-      position:fixed;
-      inset:0;
-      background:rgba(2,6,23,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:60;
-    }
-    .pp-card{
-      width:min(460px,92vw);
-      background:#fff;
-      border-radius:18px;
-      box-shadow:0 30px 80px rgba(0,0,0,.35);
-      overflow:hidden;
-      transform:translateY(8px);
-      opacity:0;
-      transition:.18s;
-    }
-    .pp-card.show{
-      transform:translateY(0);
-      opacity:1;
-    }
-    .pp-card header{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:12px 14px;
-      border-bottom:1px solid #f1f5f9;
-      background:#fff1f0;
-    }
-    .pp-card header .ic{
-      width:20px;
-      height:20px;
-      display:grid;
-      place-items:center;
-      border-radius:999px;
-      background:#fee2e2;
-      color:#b91c1c;
-      font-weight:900;
-    }
-    .pp-card h4{
-      margin:0;
-      font-weight:900;
-      color:#991b1b;
-    }
-    .pp-body{
-      padding:16px;
-      font-size:.9rem;
-      color:#444;
-    }
-    .pp-body p{
-      margin:0 0 10px;
-    }
-    .pp-body input{
-      width:100%;
-      padding:10px;
-      border:1px solid #ddd;
-      border-radius:10px;
-      font-family:'Nunito',sans-serif;
-      font-size:.9rem;
-    }
-    .pp-ft{
-      display:flex;
-      gap:10px;
-      justify-content:flex-end;
-      padding:12px 14px;
-      background:#fafafa;
-      border-top:1px solid #eef2f7;
-    }
-    .pp-btn{
-      border-radius:12px;
-      padding:9px 14px;
-      font-weight:800;
-      border:2px solid #e2e8f0;
-      background:#fff;
-      cursor:pointer;
-      font-size:.9rem;
-    }
-    .pp-btn:hover{
-      background:#f3f4f6;
-    }
-    .pp-ok{
-      background:#b91c1c;
-      color:#fff;
-      border-color:#b91c1c;
-    }
-    .pp-ok:hover{
-      background:#991b1b;
-    }
-
-    .toast{
-      position:fixed;
-      bottom:20px;
-      left:50%;
-      transform:translateX(-50%);
-      background:#1f2937;
-      color:#fff;
-      padding:10px 14px;
-      border-radius:12px;
-      box-shadow:0 6px 18px rgba(0,0,0,.25);
-      font-size:.92rem;
-      display:none;
-      z-index:70;
-    }
-  </style>
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:24px;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  transition:.2s;
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 24px rgba(0,0,0,.08);
+}
+.icon-box{
+  width:56px;height:56px;
+  border-radius:50%;
+  background:var(--chip);
+  color:var(--brand);
+  display:grid;
+  place-items:center;
+  font-size:1.4rem;
+}
+.card h3{
+  font:700 1.1rem Parkinsans,sans-serif;
+  margin-top:12px;
+}
+.card p{
+  font-size:.85rem;
+  color:var(--muted);
+}
+</style>
 </head>
+
 <body>
+
 <header>
-  <div class="topbar">
-    <div class="topbar-left">
-      <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png" alt="Ícone">
-      <a href="index.html" class="logo-text">Patas Pousada</a>
-    </div>
+  <nav class="nav">
+    <a class="logo" href="home_host.html">
+      <img src="https://images.vexels.com/media/users/3/202255/isolated/preview/a095b3fe28f3c9febbf176089e2d7e08-pegada-de-cachorro-com-osso-de-coracao-rosa-plana.png">
+      Patas Pousada
+    </a>
 
-    <div class="topbar-center">
-      <nav>
-        <ul>
-          <li><a href="home_host.html">Reservas</a></li>
-          <li><a href="ajuda.html">Ajuda</a></li>
-          <li><a href="home_host.html">Lar Temporário</a></li>
-        </ul>
-      </nav>
-    </div>
+    <ul>
+      <li><a class="link" href="reservas_host.html">Reservas</a></li>
+      <li><a class="link" href="ajuda.html">Ajuda</a></li>
+    </ul>
 
-    <div class="topbar-right">
-      <div class="user-menu">
-        <button type="button" class="user-trigger">
-          <div class="perfil-bolinha" id="perfilBolinha">A</div>
-          <span class="perfil-nome" id="perfilNome">Carregando...</span>
-          <span class="caret">▾</span>
-        </button>
-        <div class="user-dropdown">
-          <a href="menu_perfil_host.html">
-            <i class="fa-solid fa-user-pen"></i>
-            <span>Editar perfil</span>
-          </a>
-          <a href="home_host.html">
-            <i class="fa-solid fa-house"></i>
-            <span>Voltar ao painel</span>
-          </a>
-          <a href="#" id="linkSair">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
-          </a>
-          <div class="separator"></div>
-          <a href="#" id="linkExcluir" class="delete-link">
-            <i class="fa-solid fa-user-xmark"></i>
-            <span>Excluir conta</span>
-          </a>
-        </div>
+    <div class="user">
+      <div class="user__trigger">
+        <img id="userAvatar" class="user__avatar-img">
+        <div class="badge" id="userInitial">H</div>
+        <span id="userName">Anfitrião</span>
+      </div>
+      <div class="user__dropdown">
+        <a class="user__item" href="perfil_host.html"><i class="fa-solid fa-user-pen"></i> Editar perfil</a>
+        <a class="user__item" href="#" id="btnLogout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a>
       </div>
     </div>
-  </div>
+  </nav>
 </header>
 
-<!-- BOTÃO VOLTAR ABAIXO DO HEADER -->
-<div class="back-bar">
-  <a href="home_host.html" class="btn-back">
-    <i class="fa-solid fa-arrow-left"></i>
-    <span>Voltar</span>
+<main class="wrap">
+
+<button class="back-btn" onclick="location.href='home_host.html'">
+  <i class="fa-solid fa-arrow-left"></i> Voltar para o painel
+</button>
+
+<h1 class="title">Gerenciar Perfil</h1>
+<p class="lead">Gerencie seus dados de anfitrião e a segurança da sua conta.</p>
+
+<div class="grid">
+  <a class="card" href="editar_perfil_host.html">
+    <div class="icon-box"><i class="fa-solid fa-user-gear"></i></div>
+    <h3>Dados do anfitrião</h3>
+    <p>Informações públicas, endereço e descrição.</p>
+  </a>
+
+  <a class="card" href="alterar_senha_host.html">
+    <div class="icon-box"><i class="fa-solid fa-shield-halved"></i></div>
+    <h3>Segurança</h3>
+    <p>Altere sua senha e dados de acesso.</p>
   </a>
 </div>
 
-<main class="container-main">
-  <section class="card">
-    <h1>Editar perfil do anfitrião</h1>
-    <p class="sub">Atualize suas informações de hospedagem. Esses dados aparecem para os tutores que procuram um lar temporário.</p>
-
-    <div id="alertOk"  class="alert ok"></div>
-    <div id="alertErr" class="alert err"></div>
-
-    <!-- FOTO DE PERFIL -->
-    <div class="avatar-section">
-      <div class="avatar-preview" id="avatarPreview">
-        <span id="avatarPreviewInitials">A</span>
-        <img id="avatarPreviewImg" alt="Foto de perfil">
-      </div>
-      <div class="avatar-actions">
-        <label class="btn-outline avatar-upload-btn">
-          <i class="fa-solid fa-camera"></i>
-          <span>Escolher foto de perfil</span>
-          <input type="file" id="avatarFile" accept="image/*" hidden>
-        </label>
-        <button type="button" class="btn-outline" id="btnRemoverAvatar">Remover foto</button>
-        <small>Formatos JPG ou PNG, até ~2MB.</small>
-      </div>
-    </div>
-
-    <form id="formHost">
-      <div class="row">
-        <div>
-          <label for="full_name">Nome completo</label>
-          <input type="text" id="full_name" name="full_name" placeholder="Seu nome" required>
-        </div>
-
-        <div>
-          <label for="email">E-mail (login)</label>
-          <input type="email" id="email" name="email" disabled>
-          <div class="help">Alteração de e-mail é feita apenas pelo suporte.</div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label for="city">Cidade</label>
-          <select id="city" name="city">
-            <option value="">Selecione</option>
-            <option value="Brasília">Brasília</option>
-            <option value="Taguatinga">Taguatinga</option>
-            <option value="Guará">Guará</option>
-            <option value="Águas Claras">Águas Claras</option>
-            <option value="Ceilândia">Ceilândia</option>
-            <option value="Sobradinho">Sobradinho</option>
-            <option value="Gama">Gama</option>
-            <option value="Samambaia">Samambaia</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="pets_count">Quantos pets vivem com você?</label>
-          <input type="number" id="pets_count" name="pets_count" min="0">
-        </div>
-      </div>
-
-      <div>
-        <label>Tipo de residência</label>
-        <div class="radio-group">
-          <label><input type="radio" name="residence_type" value="Casa"> Casa</label>
-          <label><input type="radio" name="residence_type" value="Apartamento"> Apartamento</label>
-          <label><input type="radio" name="residence_type" value="Chácara"> Chácara</label>
-        </div>
-      </div>
-
-      <div>
-        <label for="bio">Descrição rápida do seu espaço</label>
-        <textarea id="bio" name="bio" placeholder="Ex: apartamento amplo, sacada protegida, perto de praças para passeios..."></textarea>
-      </div>
-
-      <div class="actions">
-        <button type="submit" class="btn-primary" id="btnSalvar">Salvar alterações</button>
-        <button type="button" class="btn-outline" onclick="window.location.href='home_host.html'">Cancelar</button>
-      </div>
-    </form>
-  </section>
 </main>
 
-<!-- MODAL EXCLUIR CONTA (host) -->
-<div class="pp-wrap" id="ppDelete" style="display:none">
-  <div class="pp-card" role="dialog" aria-modal="true">
-    <header>
-      <span class="ic">!</span>
-      <h4>Excluir sua conta</h4>
-    </header>
-    <div class="pp-body">
-      <p>Esta ação é <strong>irreversível</strong>. Seus dados de anfitrião poderão ser removidos da plataforma.</p>
-      <p>Para confirmar, digite <strong>EXCLUIR</strong>:</p>
-      <input id="delConfirmTextHost" type="text" placeholder="EXCLUIR">
-      <p style="margin-top:10px;">Por segurança, informe sua <strong>senha atual</strong>:</p>
-      <input id="delPasswordHost" type="password" placeholder="Senha atual">
-    </div>
-    <div class="pp-ft">
-      <button class="pp-btn" id="delCancelHost">Cancelar</button>
-      <button class="pp-btn pp-ok" id="delOkHost">Sim, excluir</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toastHost"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = "https://nwbgzokttjgkipwzfgzc.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ";
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = supabase.createClient(
+  "https://nwbgzokttjgkipwzfgzc.supabase.co",
+  "sb_publishable_wn2dxmpI7gFOx4nLh5oHqg_Qlc4Q0lQ"
+);
 
-  let currentUserEmail = null;
-  let currentUserId = null;
-  let currentDisplayName = "";
-  let avatarUrlAtual = null;       // o que está salvo no banco
-  let avatarTempFile = null;       // arquivo escolhido mas ainda não salvo
-  let avatarMarkedForRemoval = false;
+const userName = document.getElementById('userName');
+const userInitial = document.getElementById('userInitial');
+const userAvatar = document.getElementById('userAvatar');
+const btnLogout = document.getElementById('btnLogout');
 
-  function initials(name){
-    if(!name) return "A";
-    const p = name.trim().split(/\s+/);
-    const i1 = (p[0]?.[0] || "").toUpperCase();
-    const i2 = (p[1]?.[0] || "").toUpperCase();
-    return (i1 + i2).trim() || "A";
+function initials(name){
+  if(!name) return 'H';
+  return name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+}
+
+async function init(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user) return location.href="cadastrarouentrar.html";
+
+  const { data } = await sb
+    .from('hosts')
+    .select('full_name, avatar_url')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const name = data?.full_name || 'Anfitrião';
+  userName.textContent = name;
+
+  if(data?.avatar_url){
+    userAvatar.src = data.avatar_url + '?t=' + Date.now();
+    userAvatar.style.display='block';
+    userInitial.style.display='none';
+  }else{
+    userInitial.textContent = initials(name);
   }
+}
 
-  function showAlertOk(msg){
-    const ok  = document.getElementById("alertOk");
-    const err = document.getElementById("alertErr");
-    err.style.display = "none";
-    ok.textContent = msg;
-    ok.style.display = "block";
-  }
-  function showAlertErr(msg){
-    const ok  = document.getElementById("alertOk");
-    const err = document.getElementById("alertErr");
-    ok.textContent = " ";
-    ok.style.display = "none";
-    err.textContent = msg;
-    err.style.display = "block";
-  }
+btnLogout.onclick = async ()=>{
+  await sb.auth.signOut();
+  location.href="index.html";
+};
 
-  function toastHost(msg){
-    const t = document.getElementById("toastHost");
-    t.textContent = msg;
-    t.style.display = "block";
-    setTimeout(()=>{ t.style.display = "none"; }, 2200);
-  }
-
-  async function requireAuth(){
-    const { data:{ user } } = await sb.auth.getUser();
-    if(!user){
-      location.href = "cadastrarouentrar.html?next=menu_perfil_host.html";
-      return null;
-    }
-    currentUserEmail = user.email;
-    currentUserId    = user.id;
-    return user;
-  }
-
-  function updateAvatarUI(displayName, url){
-    const bolinha  = document.getElementById("perfilBolinha");
-    const preview  = document.getElementById("avatarPreview");
-    const prevInit = document.getElementById("avatarPreviewInitials");
-    const prevImg  = document.getElementById("avatarPreviewImg");
-
-    const iniciais = initials(displayName);
-
-    if(url){
-      // header
-      if(bolinha){
-        bolinha.style.backgroundImage = `url('${url}')`;
-        bolinha.textContent = "";
-      }
-      // preview
-      if(preview && prevInit && prevImg){
-        preview.classList.add("has-img");
-        prevImg.src = url;
-        prevImg.alt = displayName || "Foto de perfil";
-        prevInit.textContent = iniciais;
-      }
-    }else{
-      // header volta pro modo letra
-      if(bolinha){
-        bolinha.style.backgroundImage = "";
-        bolinha.textContent = iniciais;
-      }
-      // preview volta pra letra
-      if(preview && prevInit && prevImg){
-        preview.classList.remove("has-img");
-        prevImg.removeAttribute("src");
-        prevInit.textContent = iniciais;
-      }
-    }
-  }
-
-  async function loadUserAndHost(user){
-    const spanNome = document.getElementById("perfilNome");
-    const bolinha  = document.getElementById("perfilBolinha");
-
-    let displayName = user.user_metadata?.full_name ||
-                      (user.email ? user.email.split("@")[0] : "Anfitrião");
-
-    let avatarFromDb = null;
-
-    try{
-      const { data: hostRow, error } = await sb
-        .from("hosts")
-        .select("full_name, city, pets_count, residence_type, bio, avatar_url")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if(error){
-        console.error("Erro ao buscar host:", error);
-      }
-
-      if(hostRow){
-        if(hostRow.full_name) displayName = hostRow.full_name;
-
-        document.getElementById("full_name").value   = hostRow.full_name || "";
-        document.getElementById("city").value        = hostRow.city || "";
-        document.getElementById("pets_count").value  = hostRow.pets_count ?? "";
-        document.getElementById("bio").value         = hostRow.bio || "";
-
-        if(hostRow.residence_type){
-          const radio = document.querySelector(`input[name="residence_type"][value="${hostRow.residence_type}"]`);
-          if(radio) radio.checked = true;
-        }
-
-        avatarFromDb = hostRow.avatar_url || null;
-      }
-    }catch(e){
-      console.error("Exceção ao carregar host:", e);
-    }
-
-    currentDisplayName = displayName;
-    avatarUrlAtual = avatarFromDb;
-
-    document.getElementById("email").value = user.email || "";
-    spanNome.textContent = displayName;
-    // header e preview
-    updateAvatarUI(currentDisplayName, avatarUrlAtual);
-  }
-
-  async function handleLogout(e){
-    e.preventDefault();
-    try{ await sb.auth.signOut(); }catch(e){}
-    location.href = "cadastrarouentrar.html";
-  }
-
-  // ===== Modal Excluir conta (host) =====
-  const ppDelete           = document.getElementById("ppDelete");
-  const delCancelHost      = document.getElementById("delCancelHost");
-  const delOkHost          = document.getElementById("delOkHost");
-  const delConfirmTextHost = document.getElementById("delConfirmTextHost");
-  const delPasswordHost    = document.getElementById("delPasswordHost");
-
-  function openDeleteModal(){
-    ppDelete.style.display = "flex";
-    requestAnimationFrame(()=>{
-      ppDelete.querySelector(".pp-card").classList.add("show");
-    });
-  }
-
-  function closeDeleteModal(){
-    const card = ppDelete.querySelector(".pp-card");
-    card.classList.remove("show");
-    setTimeout(()=>{ ppDelete.style.display = "none"; }, 140);
-    delConfirmTextHost.value = "";
-    delPasswordHost.value = "";
-  }
-
-  ppDelete.addEventListener("click", (e)=>{
-    if(e.target.id === "ppDelete") closeDeleteModal();
-  });
-
-  delCancelHost.addEventListener("click", (e)=>{
-    e.preventDefault();
-    closeDeleteModal();
-  });
-
-  async function handleDeleteAccountReal(){
-    if(!currentUserEmail){
-      toastHost("Erro: usuário não identificado. Faça login novamente.");
-      return;
-    }
-
-    const text = delConfirmTextHost.value.trim().toUpperCase();
-    if(text !== "EXCLUIR"){
-      toastHost("Digite EXCLUIR para confirmar.");
-      return;
-    }
-
-    const senha = delPasswordHost.value;
-    if(!senha){
-      toastHost("Informe sua senha atual.");
-      return;
-    }
-
-    try{
-      const { error } = await sb.auth.signInWithPassword({
-        email: currentUserEmail,
-        password: senha
-      });
-      if(error){
-        console.error(error);
-        toastHost("Senha incorreta. Conta não excluída.");
-        return;
-      }
-      closeDeleteModal();
-      window.location.href = "processaExclusao.php";
-    }catch(e){
-      console.error(e);
-      toastHost("Não foi possível validar sua senha agora. Tente novamente.");
-    }
-  }
-
-  delOkHost.addEventListener("click", async (e)=>{
-    e.preventDefault();
-    await handleDeleteAccountReal();
-  });
-
-  // ====== AVATAR: upload / remover / preview ======
-  const avatarFileInput   = document.getElementById("avatarFile");
-  const btnRemoverAvatar  = document.getElementById("btnRemoverAvatar");
-
-  avatarFileInput.addEventListener("change", (e)=>{
-    const file = e.target.files[0];
-    if(!file) return;
-
-    if(file.size > 2 * 1024 * 1024){
-      showAlertErr("A foto deve ter no máximo 2MB.");
-      avatarFileInput.value = "";
-      return;
-    }
-
-    avatarTempFile = file;
-    avatarMarkedForRemoval = false;
-
-    const tempUrl = URL.createObjectURL(file);
-    updateAvatarUI(currentDisplayName || document.getElementById("full_name").value || "", tempUrl);
-  });
-
-  btnRemoverAvatar.addEventListener("click", ()=>{
-    avatarTempFile = null;
-    avatarMarkedForRemoval = true;
-    avatarFileInput.value = "";
-    updateAvatarUI(currentDisplayName || document.getElementById("full_name").value || "", null);
-  });
-
-  // ====== SUBMIT DO FORM ======
-  document.getElementById("formHost").addEventListener("submit", async (e)=>{
-    e.preventDefault();
-    if(!currentUserId){
-      showAlertErr("Usuário não identificado. Refaça o login.");
-      return;
-    }
-
-    const btn = document.getElementById("btnSalvar");
-    btn.disabled = true;
-    btn.textContent = "Salvando...";
-
-    const full_name = document.getElementById("full_name").value.trim();
-    const city      = document.getElementById("city").value;
-    const petsCount = document.getElementById("pets_count").value !== "" ? Number(document.getElementById("pets_count").value) : null;
-    const bio       = document.getElementById("bio").value.trim();
-    const residenceRadio = document.querySelector('input[name="residence_type"]:checked');
-    const residence_type = residenceRadio ? residenceRadio.value : null;
-
-    let avatarUrlToSave = avatarUrlAtual;
-
-    // 1) Se escolheu nova foto, faz upload no Storage
-    if(avatarTempFile){
-      try{
-        const ext = avatarTempFile.name.includes(".")
-          ? avatarTempFile.name.split(".").pop()
-          : "jpg";
-        const path = `${currentUserId}/avatar-${Date.now()}.${ext}`;
-
-        const { error: uploadError } = await sb
-          .storage
-          .from("host-avatars")   // bucket (crie ele no Supabase)
-          .upload(path, avatarTempFile, {
-            upsert: true,
-            cacheControl: "3600",
-            contentType: avatarTempFile.type || "image/jpeg"
-          });
-
-        if(uploadError){
-          console.error("Erro upload avatar:", uploadError);
-          showAlertErr("Erro ao enviar a foto de perfil. Tente novamente.");
-          btn.disabled = false;
-          btn.textContent = "Salvar alterações";
-          return;
-        }
-
-        const { data: publicData } = sb
-          .storage
-          .from("host-avatars")
-          .getPublicUrl(path);
-
-        if(!publicData || !publicData.publicUrl){
-          showAlertErr("Não foi possível gerar o link público da foto.");
-          btn.disabled = false;
-          btn.textContent = "Salvar alterações";
-          return;
-        }
-
-        avatarUrlToSave = publicData.publicUrl;
-      }catch(err){
-        console.error("Exceção upload avatar:", err);
-        showAlertErr("Erro inesperado ao enviar a foto. Tente novamente.");
-        btn.disabled = false;
-        btn.textContent = "Salvar alterações";
-        return;
-      }
-    } else if(avatarMarkedForRemoval){
-      avatarUrlToSave = null;
-    }
-
-    try{
-      const { error } = await sb
-        .from("hosts")
-        .update({
-          full_name,
-          city,
-          pets_count: petsCount,
-          residence_type,
-          bio,
-          avatar_url: avatarUrlToSave
-        })
-        .eq("id", currentUserId);
-
-      if(error){
-        console.error("Erro no update hosts:", error);
-        showAlertErr("Erro ao salvar dados: " + (error.message || "Tente novamente."));
-        btn.disabled = false;
-        btn.textContent = "Salvar alterações";
-        return;
-      }
-
-      // Atualiza user_metadata (nome)
-      try{
-        await sb.auth.updateUser({ data:{ full_name } });
-      }catch(e){
-        console.warn("Não foi possível atualizar user_metadata:", e);
-      }
-
-      // Atualiza variáveis e UI local
-      currentDisplayName = full_name || currentDisplayName;
-      avatarUrlAtual     = avatarUrlToSave;
-      avatarTempFile     = null;
-      avatarMarkedForRemoval = false;
-
-      document.getElementById("perfilNome").textContent = currentDisplayName;
-      updateAvatarUI(currentDisplayName, avatarUrlAtual);
-
-      showAlertOk("Perfil atualizado com sucesso!");
-    }catch(e2){
-      console.error("Exceção no salvar:", e2);
-      showAlertErr("Erro inesperado ao salvar. Tente novamente.");
-    }finally{
-      btn.disabled = false;
-      btn.textContent = "Salvar alterações";
-    }
-  });
-
-  (async function init(){
-    const user = await requireAuth();
-    if(!user) return;
-
-    await loadUserAndHost(user);
-
-    document.getElementById("linkSair").addEventListener("click", handleLogout);
-
-    document.getElementById("linkExcluir").addEventListener("click", (e)=>{
-      e.preventDefault();
-      if(!currentUserEmail){
-        toastHost("Erro: usuário não identificado. Faça login novamente.");
-        return;
-      }
-      openDeleteModal();
-    });
-  })();
+init();
 </script>
+
 </body>
 </html>
